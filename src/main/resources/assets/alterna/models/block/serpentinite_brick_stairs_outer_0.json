@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "alterna:block/serpentinite_bricks_0",
+    "top": "alterna:block/serpentinite_bricks_0",
+    "side": "alterna:block/serpentinite_bricks_0"
+  }
+}

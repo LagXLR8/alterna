@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "alterna:polished_gneiss"
+  },
+  "result": {
+    "count": 4,
+    "id": "alterna:polished_gneiss_stairs"
+  }
+}

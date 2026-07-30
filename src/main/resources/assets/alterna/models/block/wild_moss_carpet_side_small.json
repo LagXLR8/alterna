@@ -1,0 +1,18 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "alterna:block/wild_moss_carpet_side_small",
+    "texture": "alterna:block/wild_moss_carpet_side_small"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0.1],
+      "to": [16, 8, 0.1],
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#texture"},
+        "south": {"uv": [16, 8, 0, 16], "texture": "#texture"}
+      }
+    }
+  ]
+}

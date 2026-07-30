@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "alterna:gneiss"
+  },
+  "result": {
+    "count": 6,
+    "id": "alterna:gneiss_slab"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "alterna:block/marble_brick_slab"
+    },
+    "type=double": {
+      "model": "alterna:block/marble_bricks"
+    },
+    "type=top": {
+      "model": "alterna:block/marble_brick_slab_top"
+    }
+  }
+}

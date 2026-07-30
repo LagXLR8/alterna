@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "decorations",
+  "pattern": [
+    "# #",
+    "#W#",
+    "# #"
+  ],
+  "key": {
+    "#": "minecraft:stick",
+    "W": "alterna:goblet_planks"
+  },
+  "result": {
+    "count": 4,
+    "id": "alterna:goblet_ladder"
+  }
+}

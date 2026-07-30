@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "top=true": {
+      "model": "alterna:block/purple_sugar_cane_top"
+    },
+    "top=false": {
+      "model": "alterna:block/purple_sugar_cane"
+    }
+  }
+}

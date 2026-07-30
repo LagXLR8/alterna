@@ -1,0 +1,15 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "alterna:block/polished_serpentinite"
+      },
+      {
+        "model": "alterna:block/polished_serpentinite_0"
+      },
+      {
+        "model": "alterna:block/polished_serpentinite_1"
+      }
+    ]
+  }
+}

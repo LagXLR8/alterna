@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "alterna:block/polished_serpentinite_1",
+    "top": "alterna:block/polished_serpentinite_1",
+    "side": "alterna:block/polished_serpentinite_1"
+  }
+}

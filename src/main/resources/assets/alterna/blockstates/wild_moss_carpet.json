@@ -1,0 +1,82 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet"
+      },
+      "when": {
+        "bottom": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_small"
+      },
+      "when": {
+        "north": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_tall"
+      },
+      "when": {
+        "north": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_small",
+        "y": 90
+      },
+      "when": {
+        "east": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_tall",
+        "y": 90
+      },
+      "when": {
+        "east": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_small",
+        "y": 180
+      },
+      "when": {
+        "south": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_tall",
+        "y": 180
+      },
+      "when": {
+        "south": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_small",
+        "y": 270
+      },
+      "when": {
+        "west": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "alterna:block/wild_moss_carpet_side_tall",
+        "y": 270
+      },
+      "when": {
+        "west": "tall"
+      }
+    }
+  ]
+}

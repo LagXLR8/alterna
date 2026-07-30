@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "alterna:serpentinite_bricks"
+  },
+  "result": {
+    "count": 6,
+    "id": "alterna:serpentinite_brick_wall"
+  }
+}

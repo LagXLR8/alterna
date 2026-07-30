@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:polished_serpentinite",
+  "result": {
+    "count": 1,
+    "id": "alterna:serpentinite_brick_stairs"
+  }
+}

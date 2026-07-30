@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "alterna:block/goblet_slab"
+    },
+    "type=top": {
+      "model": "alterna:block/goblet_slab_top"
+    },
+    "type=double": {
+      "model": "alterna:block/goblet_planks"
+    }
+  }
+}

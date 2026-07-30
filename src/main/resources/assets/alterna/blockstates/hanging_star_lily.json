@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "berries=false": {
+      "model": "alterna:block/hanging_star_lily_vine_tip"
+    },
+    "berries=true": {
+      "model": "alterna:block/hanging_star_tip"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "alterna:block/short_daze",
+    "particle": "alterna:block/short_daze"
+  }
+}

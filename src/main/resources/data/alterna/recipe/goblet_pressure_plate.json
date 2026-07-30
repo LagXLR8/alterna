@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "##"
+  ],
+  "key": {
+    "#": "alterna:goblet_planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "alterna:goblet_pressure_plate"
+  }
+}

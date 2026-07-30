@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Write-Output \"GRADLE_USER_HOME=$env:GRADLE_USER_HOME\"; Get-ChildItem -Path \"E:\\\\siucap\\\\alterna-26.1.1\\\\.gradle\" -Recurse -Directory -ErrorAction SilentlyContinue | Where-Object {$_.Name -match \"neoforge|caches\"} | Select-Object FullName -First 20)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 150)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 60)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 40)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 20)",
+      "PowerShell($jp = \"E:\\\\.gradle\\\\jdks\\\\eclipse_adoptium-21-amd64-windows\\\\jdk-21.0.11+10\\\\bin\\\\javap.exe\"; $d = \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--siucap-alterna-26-1-1\\\\9ff63023-335a-4731-91c8-959c4c9f5208\\\\scratchpad\\\\atmospherics\"; & $jp -p \\(Join-Path $d \"AmbientMistParticle.class\"\\) 2>&1 | Select-Object -First 60; Write-Output \"=== EMITTER ===\"; & $jp -p \\(Join-Path $d \"AmbientMistEmitter.class\"\\) 2>&1 | Select-Object -First 40; Write-Output \"=== PROFILE ===\"; & $jp -p \\(Join-Path $d \"AmbientMistProfile.class\"\\) 2>&1 | Select-Object -First 40)",
+      "PowerShell($jp = \"E:\\\\.gradle\\\\jdks\\\\eclipse_adoptium-21-amd64-windows\\\\jdk-21.0.11+10\\\\bin\\\\javap.exe\"; $d = \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--siucap-alterna-26-1-1\\\\9ff63023-335a-4731-91c8-959c4c9f5208\\\\scratchpad\\\\atmospherics\"; & $jp -p -c \\(Join-Path $d \"AmbientMistProfile.class\"\\) 2>&1 | Select-String -Pattern \"static \\\\{\\\\};\" -Context 0,130 | Out-String -Width 200)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 100)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain 2>&1 | Select-Object -Last 30)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain -q)",
+      "mcp__ide__getDiagnostics",
+      "PowerShell(Get-Content src\\\\main\\\\resources\\\\data\\\\alterna\\\\worldgen\\\\configured_feature\\\\giant_crack.json, src\\\\main\\\\resources\\\\data\\\\alterna\\\\worldgen\\\\placed_feature\\\\giant_crack.json, src\\\\main\\\\resources\\\\data\\\\alterna\\\\neoforge\\\\biome_modifier\\\\giant_crack.json, src\\\\main\\\\resources\\\\data\\\\minecraft\\\\dimension_type\\\\overworld.json | ForEach-Object { $_ })",
+      "PowerShell($p='src\\\\main\\\\java\\\\com\\\\huwng\\\\alterna\\\\worldgen\\\\GiantCrackParams.java'; $l=Get-Content $p; $l.Count; $l[1168..1170] -join '|')",
+      "PowerShell($p='src\\\\main\\\\java\\\\com\\\\huwng\\\\alterna\\\\worldgen\\\\GiantCrackParams.java'; $l=Get-Content $p; \\($l[1436..1442] | ForEach-Object { $_ }\\) -join \"`n\")",
+      "PowerShell(Set-Content *)",
+      "PowerShell($p='E:\\\\siucap\\\\alterna-26.1.1\\\\src\\\\main\\\\java\\\\com\\\\huwng\\\\alterna\\\\worldgen\\\\GiantCrackParams.java'; $t=[IO.File]::ReadAllText\\($p\\); $t=$t.TrimStart\\([char]0xFEFF\\); [IO.File]::WriteAllText\\($p, $t, \\(New-Object Text.UTF8Encoding\\($false\\)\\)\\); .\\\\gradlew.bat compileJava --console=plain -q)",
+      "PowerShell(.\\\\gradlew.bat compileJava --console=plain -q; if \\($?\\) { \"OK\" })"
+    ]
+  }
+}

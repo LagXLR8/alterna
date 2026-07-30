@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:gneiss_bricks",
+  "result": {
+    "count": 1,
+    "id": "alterna:gneiss_brick_stairs"
+  }
+}

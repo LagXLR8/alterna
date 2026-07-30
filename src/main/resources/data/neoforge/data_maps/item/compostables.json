@@ -1,0 +1,34 @@
+{
+  "values": {
+    "alterna:wild_moss_carpet": {
+      "chance": 0.3
+    },
+    "alterna:star_lily": {
+      "chance": 0.3
+    },
+    "alterna:short_daze": {
+      "chance": 0.3
+    },
+    "alterna:wild_hanging_moss": {
+      "chance": 0.5
+    },
+    "alterna:star_lily_vine": {
+      "chance": 0.5
+    },
+    "alterna:wild_moss_block": {
+      "chance": 0.65
+    },
+    "alterna:cloud_berries": {
+      "chance": 0.65
+    },
+    "alterna:white_currant_berries": {
+      "chance": 0.65
+    },
+    "alterna:tall_daze": {
+      "chance": 0.65
+    },
+    "alterna:kapok_sapling": {
+      "chance": 0.3
+    }
+  }
+}

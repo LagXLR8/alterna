@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "berries=false": {
+      "model": "alterna:block/cloudberry_vines"
+    },
+    "berries=true": {
+      "model": "alterna:block/cloudberry_vines_lit"
+    }
+  }
+}

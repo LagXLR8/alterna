@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "alterna:marble_bricks"
+  },
+  "result": {
+    "count": 6,
+    "id": "alterna:marble_brick_slab"
+  }
+}

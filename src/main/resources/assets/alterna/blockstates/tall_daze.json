@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "alterna:block/tall_daze_bottom"
+    },
+    "half=upper": {
+      "model": "alterna:block/tall_daze_top"
+    }
+  }
+}

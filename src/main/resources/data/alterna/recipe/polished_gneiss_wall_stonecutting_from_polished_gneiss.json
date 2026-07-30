@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:polished_gneiss",
+  "result": {
+    "count": 1,
+    "id": "alterna:polished_gneiss_wall"
+  }
+}

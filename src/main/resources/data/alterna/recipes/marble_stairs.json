@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "alterna:marble"
+  },
+  "result": {
+    "count": 4,
+    "id": "alterna:marble_stairs"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "alterna:marble_slab",
+    "alterna:polished_marble_slab",
+    "alterna:marble_brick_slab",
+    "alterna:gneiss_slab",
+    "alterna:polished_gneiss_slab",
+    "alterna:gneiss_brick_slab",
+    "alterna:serpentinite_slab",
+    "alterna:polished_serpentinite_slab",
+    "alterna:serpentinite_brick_slab"
+  ]
+}

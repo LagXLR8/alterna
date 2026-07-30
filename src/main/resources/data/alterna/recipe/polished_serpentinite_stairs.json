@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "alterna:polished_serpentinite"
+  },
+  "result": {
+    "count": 4,
+    "id": "alterna:polished_serpentinite_stairs"
+  }
+}

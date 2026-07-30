@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:marble",
+  "result": {
+    "count": 2,
+    "id": "alterna:marble_brick_slab"
+  }
+}

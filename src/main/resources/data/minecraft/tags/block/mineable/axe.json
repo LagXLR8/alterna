@@ -1,0 +1,18 @@
+{
+  "values": [
+    "alterna:goblet_log",
+    "alterna:goblet_stripped_log",
+    "alterna:goblet_wood",
+    "alterna:goblet_stripped_wood",
+    "alterna:goblet_planks",
+    "alterna:goblet_stairs",
+    "alterna:goblet_slab",
+    "alterna:goblet_fence",
+    "alterna:goblet_fence_gate",
+    "alterna:goblet_door",
+    "alterna:goblet_trapdoor",
+    "alterna:goblet_button",
+    "alterna:goblet_pressure_plate",
+    "alterna:goblet_ladder"
+  ]
+}

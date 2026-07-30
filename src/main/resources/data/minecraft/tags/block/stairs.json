@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "alterna:marble_stairs",
+    "alterna:polished_marble_stairs",
+    "alterna:marble_brick_stairs",
+    "alterna:gneiss_stairs",
+    "alterna:polished_gneiss_stairs",
+    "alterna:gneiss_brick_stairs",
+    "alterna:serpentinite_stairs",
+    "alterna:polished_serpentinite_stairs",
+    "alterna:serpentinite_brick_stairs"
+  ]
+}

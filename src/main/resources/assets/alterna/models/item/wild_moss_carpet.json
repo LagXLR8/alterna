@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/carpet",
+  "textures": {
+    "particle": "alterna:block/wild_moss_carpet",
+    "wool": "alterna:block/wild_moss_carpet"
+  }
+}

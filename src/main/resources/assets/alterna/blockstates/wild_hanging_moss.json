@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "tip=false": {
+      "model": "alterna:block/wild_hanging_moss"
+    },
+    "tip=true": {
+      "model": "alterna:block/wild_hanging_moss_tip"
+    }
+  }
+}

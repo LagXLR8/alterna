@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "bark",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": "alterna:goblet_log"
+  },
+  "result": {
+    "count": 3,
+    "id": "alterna:goblet_wood"
+  }
+}

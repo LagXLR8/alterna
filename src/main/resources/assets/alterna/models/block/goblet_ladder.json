@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/ladder",
+  "textures": {
+    "texture": "alterna:block/goblet_ladder",
+    "particle": "alterna:block/goblet_ladder"
+  }
+}

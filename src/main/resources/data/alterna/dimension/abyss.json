@@ -1,0 +1,15 @@
+{
+  "type": "alterna:abyss",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:the_void",
+      "lakes": false,
+      "features": false,
+      "layers": [
+        { "block": "minecraft:bedrock", "height": 1 },
+        { "block": "minecraft:deepslate", "height": 3000 }
+      ]
+    }
+  }
+}

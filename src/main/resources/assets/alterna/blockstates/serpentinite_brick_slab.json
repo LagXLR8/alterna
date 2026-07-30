@@ -1,0 +1,37 @@
+{
+  "variants": {
+    "type=bottom": [
+      {
+        "model": "alterna:block/serpentinite_brick_slab"
+      },
+      {
+        "model": "alterna:block/serpentinite_brick_slab_0"
+      },
+      {
+        "model": "alterna:block/serpentinite_brick_slab_1"
+      }
+    ],
+    "type=double": [
+      {
+        "model": "alterna:block/serpentinite_bricks"
+      },
+      {
+        "model": "alterna:block/serpentinite_bricks_0"
+      },
+      {
+        "model": "alterna:block/serpentinite_bricks_1"
+      }
+    ],
+    "type=top": [
+      {
+        "model": "alterna:block/serpentinite_brick_slab_top"
+      },
+      {
+        "model": "alterna:block/serpentinite_brick_slab_top_0"
+      },
+      {
+        "model": "alterna:block/serpentinite_brick_slab_top_1"
+      }
+    ]
+  }
+}

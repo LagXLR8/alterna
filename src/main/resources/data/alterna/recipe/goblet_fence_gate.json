@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "#W#",
+    "#W#"
+  ],
+  "key": {
+    "W": "alterna:goblet_planks",
+    "#": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "alterna:goblet_fence_gate"
+  }
+}

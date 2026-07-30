@@ -1,0 +1,36 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "alterna:block/star_lily",
+    "flowerbed": "alterna:block/star_lily",
+    "stem": "alterna:block/wild_moss_block"
+  },
+  "elements": [
+    {
+      "from": [0, 4, 8],
+      "to": [8, 4, 16],
+      "faces": {
+        "up": {"uv": [0, 8, 8, 16], "texture": "#flowerbed"},
+        "down": {"uv": [0, 16, 8, 8], "texture": "#flowerbed"}
+      }
+    },
+    {
+      "from": [10.15, 0, 5.25],
+      "to": [11.15, 4, 5.25],
+      "rotation": {"angle": -45, "axis": "y", "origin": [0, 0, 1]},
+      "faces": {
+        "north": {"uv": [0, 3, 1, 7], "texture": "#stem"},
+        "south": {"uv": [0, 3, 1, 7], "texture": "#stem"}
+      }
+    },
+    {
+      "from": [10.65, 0, 4.75],
+      "to": [10.65, 4, 5.75],
+      "rotation": {"angle": -45, "axis": "y", "origin": [0, 0, 1]},
+      "faces": {
+        "east": {"uv": [0, 3, 1, 7], "texture": "#stem"},
+        "west": {"uv": [0, 3, 1, 7], "texture": "#stem"}
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:gneiss",
+  "result": {
+    "count": 2,
+    "id": "alterna:gneiss_slab"
+  }
+}

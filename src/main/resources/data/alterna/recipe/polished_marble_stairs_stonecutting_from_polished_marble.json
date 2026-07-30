@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "alterna:polished_marble",
+  "result": {
+    "count": 1,
+    "id": "alterna:polished_marble_stairs"
+  }
+}
