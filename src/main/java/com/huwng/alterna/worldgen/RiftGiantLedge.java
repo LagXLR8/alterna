@@ -74,7 +74,8 @@ public final class RiftGiantLedge {
     }
 
     public static boolean isInsideGiantLedge(RiftGiantLedge gl, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth, long roughnessSeed) {
-        if (y > gl.yTop || y < gl.yTop - gl.pedestalHeight - 4) return false;
+        int topY = (gl.variant == RiftLedge.Variant.HOLLOW) ? (gl.yTop - 1) : gl.yTop;
+        if (y > topY || y < gl.yTop - gl.pedestalHeight - 4) return false;
 
         double ds = Math.abs(localA - gl.sCenter * halfLength);
         if (ds > gl.sHalfLength) return false;
@@ -95,15 +96,15 @@ public final class RiftGiantLedge {
         // Outer rim sloped edge: near wall is flat, outer 45% of reach slopes downwards
         double distNorm = GiantCrackParams.clamp(distFromWall / Math.max(1.0, maxTopReach), 0.0, 1.0);
         double slopeDrop = 0.0;
-        if (distNorm > 0.55) {
+        if (distNorm > 0.55 && gl.variant != RiftLedge.Variant.HOLLOW) {
             double edgeT = (distNorm - 0.55) / 0.45;
             slopeDrop = edgeT * edgeT * 3.5; // Outer edge slopes downwards by up to 3.5 blocks
         }
-        double currentTopY = gl.yTop - slopeDrop;
+        double currentTopY = topY - slopeDrop;
 
         if (y > currentTopY) return false;
 
-        double dy = gl.yTop - y; // distance below yTop
+        double dy = topY - y; // distance below topY
 
         if (dy <= 2.0 + slopeDrop) { 
             // Top platform surface with sloped outer edge
@@ -115,5 +116,78 @@ public final class RiftGiantLedge {
             double currentReach = maxTopReach * pedestalProfile;
             return distFromWall <= currentReach;
         }
+    }
+
+    public static boolean isInsideHollowBasin(RiftGiantLedge gl, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth) {
+        if (gl.variant != RiftLedge.Variant.HOLLOW) return false;
+
+        int waterTopY = gl.yTop - 1;
+        if (y > waterTopY) return false;
+
+        double ds = Math.abs(localA - gl.sCenter * halfLength);
+        double lengthNorm = ds / gl.sHalfLength;
+        if (lengthNorm >= 0.82) return false; // 18% length margin
+
+        double circularProfile = Math.sqrt(Math.max(0.0, 1.0 - lengthNorm * lengthNorm));
+
+        double wallB = gl.side * effectiveHalfWidth;
+        double distFromWall = gl.side * (wallB - localB);
+
+        double maxTopReach = gl.reachWidth * circularProfile;
+
+        // Containment check: At least 3 blocks margin away from wall and 3.5 blocks inside outer reach
+        double minReach = 3.0;
+        double maxReach = maxTopReach - 3.5;
+        if (maxReach <= minReach + 1.5) return false;
+
+        if (distFromWall < minReach || distFromWall > maxReach) return false;
+
+        // Dynamic containment check: Ensure solid dam rock exists 3 blocks further out towards canyon & length ends
+        double outerCheckB = localB - gl.side * 3.0;
+        if (!isInsideGiantLedge(gl, localA, outerCheckB, x, waterTopY, z, halfLength, effectiveHalfWidth, 0L)) {
+            return false; // Water would leak out over canyon edge! Stop carving!
+        }
+        if (!isInsideGiantLedge(gl, localA + 3.0, localB, x, waterTopY, z, halfLength, effectiveHalfWidth, 0L) ||
+            !isInsideGiantLedge(gl, localA - 3.0, localB, x, waterTopY, z, halfLength, effectiveHalfWidth, 0L)) {
+            return false; // Water would leak out length ends! Stop carving!
+        }
+
+        double reachCenter = (minReach + maxReach) * 0.5;
+        double reachRadius = (maxReach - minReach) * 0.5;
+        double rNorm = Math.abs(distFromWall - reachCenter) / reachRadius;
+        if (rNorm >= 1.0) return false;
+
+        double bowlShape = Math.sqrt(Math.max(0.0, 1.0 - rNorm * rNorm)) * circularProfile;
+
+        // Shallower depth: raised floor by 1 block (max depth 2 to 3 blocks)
+        int maxDepth = (int) Math.min(gl.pedestalHeight - 4.0, Math.max(2.0, gl.pedestalHeight * 0.28));
+        if (maxDepth < 2) maxDepth = 2;
+        if (maxDepth > 3) maxDepth = 3;
+
+        int basinDepth = (int) Math.round(maxDepth * bowlShape);
+        if (basinDepth < 1) basinDepth = 1;
+
+        int floorY = waterTopY - basinDepth;
+
+        return y >= floorY && y <= waterTopY;
+    }
+
+    public static boolean isHollowFloor(RiftGiantLedge gl, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth) {
+        if (!isInsideHollowBasin(gl, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) return false;
+        return !isInsideHollowBasin(gl, localA, localB, x, y - 1, z, halfLength, effectiveHalfWidth);
+    }
+
+    public static boolean isHollowRim(RiftGiantLedge gl, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth) {
+        if (gl.variant != RiftLedge.Variant.HOLLOW) return false;
+        int waterTopY = gl.yTop - 1;
+        if (y != waterTopY) return false;
+
+        if (isInsideHollowBasin(gl, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) return false;
+
+        // Must be adjacent to a hollow basin block
+        return isInsideHollowBasin(gl, localA + 1, localB, x, y, z, halfLength, effectiveHalfWidth) ||
+               isInsideHollowBasin(gl, localA - 1, localB, x, y, z, halfLength, effectiveHalfWidth) ||
+               isInsideHollowBasin(gl, localA, localB + 1, x, y, z, halfLength, effectiveHalfWidth) ||
+               isInsideHollowBasin(gl, localA, localB - 1, x, y, z, halfLength, effectiveHalfWidth);
     }
 }

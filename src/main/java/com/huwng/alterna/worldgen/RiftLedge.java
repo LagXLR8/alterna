@@ -6,7 +6,8 @@ public final class RiftLedge {
     public enum Variant {
         MOSS_DAZE,
         CLOUDBERRY,
-        STARLILY
+        STARLILY,
+        HOLLOW
     }
 
     public final int side;            // -1 (left wall) or +1 (right wall)
@@ -36,7 +37,7 @@ public final class RiftLedge {
 
         int count = 55 + random.nextInt(26); // 55 to 80 ledges (spans to crack ends)
         RiftLedge[] result = new RiftLedge[count];
-        Variant[] variants = Variant.values();
+        Variant[] standardVariants = new Variant[]{Variant.MOSS_DAZE, Variant.CLOUDBERRY, Variant.STARLILY};
 
         for (int i = 0; i < count; i++) {
             int side = random.nextBoolean() ? 1 : -1;
@@ -46,7 +47,7 @@ public final class RiftLedge {
             boolean isBoulder = random.nextBoolean();
             double yHalfHeight = isBoulder ? (2.5 + random.nextDouble() * 3.0) : (1.0 + random.nextDouble() * 1.5);
             double reachWidth = 3.0 + random.nextDouble() * 7.0;
-            Variant variant = variants[random.nextInt(variants.length)];
+            Variant variant = standardVariants[random.nextInt(standardVariants.length)];
             result[i] = new RiftLedge(side, sCenter, sHalfLength, yCenter, yHalfHeight, reachWidth, isBoulder, variant);
         }
         return result;

@@ -40,3 +40,4 @@ repo/
 !**/src/**/repo/
 mc_sources/
 mod_libs/
+.claude

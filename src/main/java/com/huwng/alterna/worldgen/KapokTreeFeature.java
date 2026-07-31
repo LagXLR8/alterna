@@ -32,9 +32,7 @@ public class KapokTreeFeature extends Feature<KapokTreeConfiguration> {
         WorldGenLevel level = context.level();
         BlockPos origin = context.origin();
         RandomSource random = context.random();
-        KapokTreeConfiguration config = context.config();
 
-        // 1. Find solid ceiling rock above origin
         BlockPos ceilingPos = null;
         for (int y = 0; y < 20; y++) {
             BlockPos checkPos = origin.above(y);
@@ -43,44 +41,43 @@ public class KapokTreeFeature extends Feature<KapokTreeConfiguration> {
                 break;
             }
         }
-
         if (ceilingPos == null) {
             ceilingPos = origin;
         }
 
-        int treeHeight = config.minimumSize() + random.nextInt(Math.max(1, config.sizeVariation()));
-        BlockPos trunkTop = ceilingPos.below(3 + random.nextInt(3));
+        int treeHeight = 8 + random.nextInt(5);
+        return generateKapokTreeDirect(level, ceilingPos, random, treeHeight);
+    }
 
-        // 2. Inverted Mangrove Stilt Roots (Branching UPWARDS & OUTWARDS into ceiling rock)
-        placeInvertedMangroveRoots(level, ceilingPos, trunkTop, random, config);
+    public static boolean generateKapokTreeDirect(WorldGenLevel level, BlockPos ceilingPos, RandomSource random, int treeHeight) {
+        KapokTreeFeature feature = new KapokTreeFeature(KapokTreeConfiguration.CODEC);
+        BlockPos trunkTop = ceilingPos.below(2 + random.nextInt(2));
 
-        // 3. Mangrove Central Trunk (Growing DOWNWARDS into cavern using Mangrove Wood)
+        feature.placeInvertedMangroveRoots(level, ceilingPos, trunkTop, random, null);
+
         List<BlockPos> foliageNodes = new ArrayList<>();
         BlockPos currentTrunk = trunkTop;
 
-        // Determine tilt direction for slanted canopy
         int tiltX = random.nextBoolean() ? 1 : -1;
         int tiltZ = random.nextBoolean() ? 1 : -1;
 
         for (int i = 0; i < treeHeight; i++) {
             currentTrunk = currentTrunk.below();
-            placeLog(level, currentTrunk, random, config, Direction.Axis.Y);
+            feature.placeLog(level, currentTrunk, random, null, Direction.Axis.Y);
 
-            // Random Wild Moss Carpet on top of branch logs
             if (random.nextFloat() < 0.40f) {
-                placeWildMossCarpetOnTop(level, currentTrunk.above());
+                feature.placeWildMossCarpetOnTop(level, currentTrunk.above());
             }
 
-            // Mangrove diagonal side branches going downwards & outwards
             if (i >= 3 && random.nextFloat() < 0.40f) {
                 Direction branchDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
                 int branchLen = 2 + random.nextInt(3);
                 BlockPos branchPos = currentTrunk;
                 for (int b = 0; b < branchLen; b++) {
                     branchPos = branchPos.relative(branchDir).below();
-                    placeLog(level, branchPos, random, config, branchDir.getAxis());
+                    feature.placeLog(level, branchPos, random, null, branchDir.getAxis());
                     if (random.nextFloat() < 0.50f) {
-                        placeWildMossCarpetOnTop(level, branchPos.above());
+                        feature.placeWildMossCarpetOnTop(level, branchPos.above());
                     }
                 }
                 foliageNodes.add(branchPos);
@@ -88,9 +85,8 @@ public class KapokTreeFeature extends Feature<KapokTreeConfiguration> {
         }
         foliageNodes.add(currentTrunk);
 
-        // 4. Inverted Mangrove Foliage Canopy (Placed at bottom of trunk and branch tips, slightly SLANTED/TILTED)
         for (BlockPos nodePos : foliageNodes) {
-            placeInvertedMangroveFoliage(level, nodePos, tiltX, tiltZ, random, config);
+            feature.placeInvertedMangroveFoliage(level, nodePos, tiltX, tiltZ, random, null);
         }
 
         return true;
@@ -176,7 +172,8 @@ public class KapokTreeFeature extends Feature<KapokTreeConfiguration> {
     }
 
     private void placeWildMossCarpetOnTop(WorldGenLevel level, BlockPos topPos) {
-        if (level.getBlockState(topPos).isAir()) {
+        BlockState belowState = level.getBlockState(topPos.below());
+        if (level.getBlockState(topPos).isAir() && (belowState.isSolid() || belowState.is(BlockTags.LEAVES))) {
             BlockState carpetState = ModBlocks.WILD_MOSS_CARPET.get().defaultBlockState()
                     .setValue(MossyCarpetBlock.BASE, true);
             for (Direction dir : Direction.Plane.HORIZONTAL) {
@@ -219,6 +216,9 @@ public class KapokTreeFeature extends Feature<KapokTreeConfiguration> {
             }
             if (leafState.hasProperty(LeavesBlock.DISTANCE)) {
                 leafState = leafState.setValue(LeavesBlock.DISTANCE, 1);
+            }
+            if (leafState.hasProperty(LeavesBlock.PERSISTENT)) {
+                leafState = leafState.setValue(LeavesBlock.PERSISTENT, true);
             }
             level.setBlock(pos, leafState, 2);
         }
