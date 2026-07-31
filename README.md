@@ -7,6 +7,7 @@ Features:
 1. World Generation & Underground Structures 
 
 - Giant Cracks & Rifts: Explore huge underground cracks filled with unique structures, giant ledges, giant hanging vines, and more.
+- Rift Map: Trade with a Level 3 Cartographer for a chance to obtain a Rift Map
 2. Exotic Flora & Agriculture
 
 - Underground Berries & Crops:
