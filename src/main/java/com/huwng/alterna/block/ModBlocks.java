@@ -257,6 +257,15 @@ public class ModBlocks {
         public static final DeferredBlock<PurpleSugarCaneBlock> PURPLE_SUGAR_CANE = registerBlockOnly("purple_sugar_cane",
                         PurpleSugarCaneBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.SUGAR_CANE));
 
+        // ---- GRAVITY INVERT BLOCK ----
+        public static final DeferredBlock<GravityInvertBlock> GRAVITY_INVERT_BLOCK = registerBlock("gravity_invert_block",
+                        GravityInvertBlock::new, BlockBehaviour.Properties.of()
+                                        .mapColor(MapColor.COLOR_PURPLE)
+                                        .strength(2.0f)
+                                        .requiresCorrectToolForDrops()
+                                        .noOcclusion());
+
+
         private static <B extends Block> DeferredBlock<B> registerBlockOnly(String name,
                         Function<BlockBehaviour.Properties, B> factory, BlockBehaviour.Properties properties) {
                 return BLOCKS.registerBlock(name, factory, () -> properties);

@@ -162,7 +162,8 @@ import java.util.List;
 public class GiantCrackParams {
 
     // Cell grid the world is divided into for crack placement.
-    static final int CELL_SIZE_CHUNKS = 80;
+    static final int CELL_SIZE_CHUNKS = 240;
+    private static final double CRACK_SPAWN_CHANCE = 0.30;
 
     // Depth fixed to 820 so floor reaches Y = -692 (extending 200 blocks deeper
     // below Y = -500).
@@ -400,8 +401,32 @@ public class GiantCrackParams {
      * crack, from any thread, at any time, regardless of what has or
      * hasn't generated yet.
      */
+    private static final int CRACK_CACHE_CAPACITY = 128;
+    private static final java.util.Map<Long, GiantCrackParams> CRACK_CACHE =
+            java.util.Collections.synchronizedMap(
+                    new java.util.LinkedHashMap<Long, GiantCrackParams>(CRACK_CACHE_CAPACITY, 0.75f, true) {
+                        @Override
+                        protected boolean removeEldestEntry(java.util.Map.Entry<Long, GiantCrackParams> eldest) {
+                            return size() > CRACK_CACHE_CAPACITY;
+                        }
+                    });
+
     static GiantCrackParams forCell(long seed, int cellX, int cellZ) {
+        long key = mixCellSeed(seed, cellX, cellZ);
+        GiantCrackParams cached = CRACK_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        GiantCrackParams built = buildCell(seed, cellX, cellZ);
+        CRACK_CACHE.put(key, built);
+        return built;
+    }
+
+    private static GiantCrackParams buildCell(long seed, int cellX, int cellZ) {
         RandomSource random = RandomSource.create(mixCellSeed(seed, cellX, cellZ));
+        if (random.nextDouble() > CRACK_SPAWN_CHANCE) {
+            return null;
+        }
 
         int originChunkX = cellX * CELL_SIZE_CHUNKS + random.nextInt(CELL_SIZE_CHUNKS);
         int originChunkZ = cellZ * CELL_SIZE_CHUNKS + random.nextInt(CELL_SIZE_CHUNKS);
@@ -446,6 +471,7 @@ public class GiantCrackParams {
         for (int cx = centerCellX - cellSearchRadius; cx <= centerCellX + cellSearchRadius; cx++) {
             for (int cz = centerCellZ - cellSearchRadius; cz <= centerCellZ + cellSearchRadius; cz++) {
                 GiantCrackParams params = forCell(seed, cx, cz);
+                if (params == null) continue;
                 BlockPos origin = params.main.origin;
                 double dx = origin.getX() - playerPos.getX();
                 double dz = origin.getZ() - playerPos.getZ();
@@ -573,6 +599,7 @@ public class GiantCrackParams {
         segment.bridges = RiftBridge.buildBridges(random, origin.getY(), depth, segment.gobletTrees);
         segment.ledges = RiftLedge.buildLedges(random, origin.getY(), depth);
         segment.giantLedges = RiftGiantLedge.buildGiantLedges(random, origin.getY(), depth);
+        segment.giantVines = buildGiantVines(random, segment);
         return segment;
     }
 
@@ -814,6 +841,40 @@ public class GiantCrackParams {
         return new double[] { x, z };
     }
 
+    /**
+     * Solves the (x, z) wall position specifically for Giant Vine pathing,
+     * incorporating average wall roughness and edge crumble expansion.
+     * This aligns the vine path with the actual carved rock face rather than
+     * the un-carved ideal harmonic ellipse.
+     */
+    private static double[] solveWallPointForVine(Segment seg, int y, double sNorm, int side) {
+        int layer = clampInt(seg.origin.getY() - y, 0, seg.depth - 1);
+        LayerShape ls = layerShape(seg, layer);
+
+        double localA = sNorm * ls.halfLength;
+        double effectiveHalfWidth = ls.halfWidth * widthPulse(seg, sNorm, ls.t);
+        double absB = effectiveHalfWidth * Math.sqrt(Math.max(0.04, 1.0 - sNorm * sNorm));
+        for (int it = 0; it < WALL_SOLVE_ITERATIONS; it++) {
+            double m = radiusMultiplier(seg, Math.atan2(side * absB, localA), ls.t, sNorm);
+            double target = effectiveHalfWidth * Math.sqrt(Math.max(0.04, m * m - sNorm * sNorm));
+            absB += (target - absB) * WALL_SOLVE_DAMPING;
+        }
+
+        // Include average roughness boost (~6.75%) and crumble expansion (~4.5%) above bedrock boundary
+        double bedrockBlend = (y <= BEDROCK_BOUNDARY_Y) ? 1.0 : clamp((y - BEDROCK_BOUNDARY_Y) / 10.0, 0.0, 1.0);
+        double avgRoughness = (ROUGHNESS_COARSE_AMPLITUDE * 0.55 + ROUGHNESS_FINE_AMPLITUDE * 0.5) * (1.0 - bedrockBlend);
+        double crumbleOffset = (y > BEDROCK_BOUNDARY_Y) ? 0.045 : 0.0;
+        absB *= (1.0 + avgRoughness + crumbleOffset);
+
+        double localB = side * absB;
+
+        double cosO = Math.cos(seg.orientationAngle);
+        double sinO = Math.sin(seg.orientationAngle);
+        double x = ls.centerX + localA * cosO - localB * sinO;
+        double z = ls.centerZ + localA * sinO + localB * cosO;
+        return new double[] { x, z, absB };
+    }
+
     private static int clampInt(int v, int min, int max) {
         return v < min ? min : Math.min(v, max);
     }
@@ -871,6 +932,131 @@ public class GiantCrackParams {
             placeVines(level, branch, chunkPos);
         }
         return any;
+    }
+
+    boolean placeGiantVines(WorldGenLevel level, ChunkPos chunkPos) {
+        boolean any = placeSegmentGiantVines(level, main, chunkPos);
+        for (Segment branch : branches) {
+            any |= placeSegmentGiantVines(level, branch, chunkPos);
+        }
+        return any;
+    }
+
+    private static boolean placeSegmentGiantVines(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
+        boolean placedAny = false;
+        for (GiantVine vine : seg.giantVines) {
+            if (vine.mightAffect(chunkPos)) {
+                vine.place(level, chunkPos);
+                placedAny = true;
+            }
+        }
+        return placedAny;
+    }
+
+    /**
+     * Builds 5 to 10 giant vines per segment growing down along the walls
+     * from the top/mouth of the crack down to segment bottom.
+     * Vines flow vertically down the wall face and drape gracefully over ledges.
+     */
+    private static GiantVine[] buildGiantVines(RandomSource random, Segment seg) {
+        int count = 5 + random.nextInt(6); // 5 to 10 giant vines per segment
+        GiantVine[] vines = new GiantVine[count];
+
+        int startY = 60; // Top / mouth Y of the crack set to fixed Y = 60
+        int segBottomY = seg.origin.getY() - (seg.depth - 1);
+        int targetY = Math.max(-360, segBottomY); // Bottom Y bounded by segment depth
+
+        double cosO = Math.cos(seg.orientationAngle);
+        double sinO = Math.sin(seg.orientationAngle);
+
+        for (int i = 0; i < count; i++) {
+            int side = random.nextBoolean() ? 1 : -1;
+            double sNorm = (random.nextDouble() - 0.5) * 1.6; // -0.8 to 0.8
+            double radius = 1.4 + random.nextDouble() * 0.8; // Original vine radius (1.4 to 2.2)
+            long vineSeed = random.nextLong();
+
+            List<List<GiantVine.VineNode>> polylines = new ArrayList<>();
+            List<GiantVine.VineNode> mainPath = new ArrayList<>();
+
+            double currentSNorm = sNorm;
+            int currentY = startY;
+
+            while (currentY >= targetY) {
+                // Smooth vertical descent with slight organic wander
+                currentSNorm += (random.nextDouble() - 0.5) * 0.012;
+                currentSNorm = clamp(currentSNorm, -0.85, 0.85);
+
+                double[] wallXZ = solveWallPointForVine(seg, currentY, currentSNorm, side);
+                double nodeX = wallXZ[0];
+                double nodeZ = wallXZ[1];
+                double absB = wallXZ[2];
+
+                // Check if passing over/through a ledge to drape over its edge
+                RiftLedge ledge = findNearbyLedge(seg.ledges, side, currentSNorm, currentY);
+                if (ledge != null) {
+                    double localA = currentSNorm * seg.halfLength;
+                    double ds = Math.abs(localA - ledge.sCenter * seg.halfLength);
+                    if (ds <= ledge.sHalfLength) {
+                        double lengthProfile = 1.0 - (ds / ledge.sHalfLength) * (ds / ledge.sHalfLength);
+                        double ledgeReach = ledge.reachWidth * Math.sqrt(Math.max(0.0, lengthProfile));
+                        // Vector pointing inward from wall face: (side * sinO, -side * cosO)
+                        nodeX += side * sinO * (ledgeReach * 0.65);
+                        nodeZ += -side * cosO * (ledgeReach * 0.65);
+                    }
+                }
+
+                mainPath.add(new GiantVine.VineNode(nodeX, currentY, nodeZ, ledge != null));
+
+                // Sub-branching: ~10% chance per step
+                if (random.nextFloat() < 0.10f && currentY > targetY + 30) {
+                    List<GiantVine.VineNode> branchPath = buildVineBranch(random, seg, side, currentSNorm, currentY, targetY, nodeX, nodeZ, cosO, sinO);
+                    if (!branchPath.isEmpty()) {
+                        polylines.add(branchPath);
+                    }
+                }
+
+                currentY -= (3 + random.nextInt(3)); // Step down 3-5 blocks
+            }
+
+            polylines.add(mainPath);
+            vines[i] = new GiantVine(polylines, radius, vineSeed);
+        }
+
+        return vines;
+    }
+
+    private static RiftLedge findNearbyLedge(RiftLedge[] ledges, int side, double sNorm, int y) {
+        if (ledges == null) return null;
+        for (RiftLedge lg : ledges) {
+            if (lg.side == side && Math.abs(lg.yCenter - y) <= 3) {
+                double ds = Math.abs(sNorm - lg.sCenter);
+                if (ds <= 0.25) {
+                    return lg;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static List<GiantVine.VineNode> buildVineBranch(RandomSource random, Segment seg, int side, double startSNorm, int startY, int minTargetY, double startX, double startZ, double cosO, double sinO) {
+        List<GiantVine.VineNode> branch = new ArrayList<>();
+        branch.add(new GiantVine.VineNode(startX, startY, startZ, true));
+
+        int branchLength = 20 + random.nextInt(30);
+        int endY = Math.max(minTargetY, startY - branchLength);
+
+        double branchSNorm = startSNorm;
+        double sNormDir = (random.nextBoolean() ? 1 : -1) * (0.008 + random.nextDouble() * 0.01);
+        int y = startY - 3;
+
+        while (y >= endY) {
+            branchSNorm = clamp(branchSNorm + sNormDir + (random.nextDouble() - 0.5) * 0.01, -0.85, 0.85);
+            double[] wallXZ = solveWallPointForVine(seg, y, branchSNorm, side);
+            branch.add(new GiantVine.VineNode(wallXZ[0], y, wallXZ[1], false));
+            y -= (3 + random.nextInt(3));
+        }
+
+        return branch;
     }
 
     private static void placeVines(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
@@ -1157,16 +1343,7 @@ public class GiantCrackParams {
 
                     // 1B. BRIDGES & LEDGES (Upper Canyon Y > -340)
                     if (y > -340 && bottomFillBlock(seg, y) == null) {
-                        boolean isBridge = false;
-                        for (RiftBridge br : seg.bridges) {
-                            if (RiftBridge.isInsideBridge(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth,
-                                    seg.roughnessSeed)) {
-                                isBridge = true;
-                                break;
-                            }
-                        }
-                        if (isBridge) {
-                            level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xBF1D6E7L), 2);
+                        if (placeBridgeBlock(level, blockPos, seg, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
                             continue;
                         }
 
@@ -1379,6 +1556,249 @@ public class GiantCrackParams {
             }
         }
         return false;
+    }
+
+    private static boolean placeBridgeBlock(WorldGenLevel level, BlockPos blockPos, Segment seg, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth) {
+        for (RiftBridge br : seg.bridges) {
+            if (RiftBridge.isInsideBridge(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth, seg.roughnessSeed)) {
+                if (br.variant == RiftLedge.Variant.HOLLOW && RiftBridge.isInsideHollowBasin(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
+                    if (RiftBridge.isHollowPartitionWall(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
+                        BlockPos topPos = blockPos.above();
+                        RandomSource wallRandom = RandomSource.create((long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed);
+                        if (level.getBlockState(topPos).isAir() && wallRandom.nextFloat() < 0.25f) {
+                            // MUST be MUD directly under purple sugar cane!
+                            level.setBlock(blockPos, Blocks.MUD.defaultBlockState(), 2);
+                            int caneHeight = 1 + wallRandom.nextInt(3);
+                            for (int h = 0; h < caneHeight; h++) {
+                                BlockPos canePos = topPos.above(h);
+                                if (level.getBlockState(canePos).isAir()) {
+                                    boolean isTop = (h == caneHeight - 1);
+                                    BlockState caneState = ModBlocks.PURPLE_SUGAR_CANE.get().defaultBlockState()
+                                            .setValue(PurpleSugarCaneBlock.TOP, isTop);
+                                    level.setBlock(canePos, caneState, 2);
+                                } else {
+                                    break;
+                                }
+                            }
+                        } else {
+                            level.setBlock(blockPos, Blocks.CLAY.defaultBlockState(), 2);
+                            if (level.getBlockState(topPos).isAir()) {
+                                float fRoll = wallRandom.nextFloat();
+                                if (fRoll < 0.35f) {
+                                    level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                                } else if (fRoll < 0.60f) {
+                                    level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
+                                } else if (fRoll < 0.75f) {
+                                    level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, 1 + wallRandom.nextInt(2)), 2);
+                                }
+                            }
+                        }
+                    } else if (RiftBridge.isHollowFloor(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
+                        double pathNoise = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x4F0C45L, 0.22);
+                        if (pathNoise < -0.25) {
+                            level.setBlock(blockPos, Blocks.SAND.defaultBlockState(), 2);
+                        } else if (pathNoise < 0.20) {
+                            level.setBlock(blockPos, Blocks.MUD.defaultBlockState(), 2);
+                        } else {
+                            level.setBlock(blockPos, Blocks.DIRT.defaultBlockState(), 2);
+                        }
+
+                        BlockPos waterPos = blockPos.above();
+                        if (RiftBridge.isInsideHollowBasin(br, localA, localB, x, y + 1, z, halfLength, effectiveHalfWidth)) {
+                            level.setBlock(waterPos, Blocks.WATER.defaultBlockState(), 2);
+
+                            RandomSource aquaRandom = RandomSource.create((long) x * 8831L ^ (long) y * 1307L ^ (long) z * 9191L ^ seg.roughnessSeed);
+                            float roll = aquaRandom.nextFloat();
+
+                            if (roll < 0.45f) {
+                                level.setBlock(waterPos, Blocks.SEAGRASS.defaultBlockState(), 2);
+                            } else if (roll < 0.55f) {
+                                int pickles = 1 + aquaRandom.nextInt(4);
+                                level.setBlock(waterPos, Blocks.SEA_PICKLE.defaultBlockState().setValue(SeaPickleBlock.PICKLES, pickles).setValue(SeaPickleBlock.WATERLOGGED, true), 2);
+                            } else if (roll < 0.65f) {
+                                level.setBlock(waterPos, Blocks.KELP.defaultBlockState().setValue(KelpBlock.AGE, aquaRandom.nextInt(25)), 2);
+                            }
+                        }
+                    } else {
+                        if (!level.getBlockState(blockPos).is(Blocks.TALL_SEAGRASS) && !level.getBlockState(blockPos).is(Blocks.KELP)) {
+                            level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
+                        }
+                    }
+                    return true;
+                }
+
+                boolean isTopSurface = !RiftBridge.isInsideBridge(br, localA, localB, x, y + 1, z, halfLength, effectiveHalfWidth, seg.roughnessSeed);
+                boolean isBottomSurface = !RiftBridge.isInsideBridge(br, localA, localB, x, y - 1, z, halfLength, effectiveHalfWidth, seg.roughnessSeed);
+
+                applyBridgeDecoration(level, blockPos, seg, x, y, z, br.variant, isTopSurface, isBottomSurface, br, localA, localB, halfLength, effectiveHalfWidth);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void applyBridgeDecoration(WorldGenLevel level, BlockPos blockPos, Segment seg, int x, int y, int z, RiftLedge.Variant variant, boolean isTopSurface, boolean isBottomSurface, RiftBridge br, double localA, double localB, double halfLength, double effectiveHalfWidth) {
+        long seedHash = (long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed;
+        RandomSource random = RandomSource.create(seedHash);
+
+        if (isTopSurface) {
+            if (br.variant == RiftLedge.Variant.HOLLOW && RiftBridge.isHollowRim(br, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
+                // Rim block under sugar cane MUST be MUD!
+                level.setBlock(blockPos, Blocks.MUD.defaultBlockState(), 2);
+                BlockPos topPos = blockPos.above();
+                if (level.getBlockState(topPos).isAir() && random.nextFloat() < 0.30f) {
+                    int caneHeight = 1 + random.nextInt(4);
+                    for (int h = 0; h < caneHeight; h++) {
+                        BlockPos canePos = topPos.above(h);
+                        if (level.getBlockState(canePos).isAir()) {
+                            boolean isTop = (h == caneHeight - 1);
+                            BlockState caneState = ModBlocks.PURPLE_SUGAR_CANE.get().defaultBlockState()
+                                    .setValue(PurpleSugarCaneBlock.TOP, isTop);
+                            level.setBlock(canePos, caneState, 2);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            } else if (variant == RiftLedge.Variant.MOSS_DAZE || variant == RiftLedge.Variant.HOLLOW) {
+                level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
+            } else {
+                if (random.nextBoolean()) {
+                    level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
+                } else {
+                    level.setBlock(blockPos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                }
+            }
+        } else {
+            level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xBF1D6E7L), 2);
+        }
+
+        // Top surface vegetation - ENABLED FOR ALL VARIANTS (INCLUDING HOLLOW!)
+        if (isTopSurface) {
+            BlockPos topPos = blockPos.above();
+            if (level.getBlockState(topPos).isAir()) {
+                switch (variant) {
+                    case MOSS_DAZE, HOLLOW -> {
+                        float roll = random.nextFloat();
+                        if (roll < 0.35f) {
+                            if (random.nextFloat() < 0.25f && level.getBlockState(topPos.above()).isAir()) {
+                                DoublePlantBlock.placeAt(level, Blocks.TALL_GRASS.defaultBlockState(), topPos, 2);
+                            } else {
+                                level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                            }
+                        } else if (roll < 0.65f) {
+                            if (random.nextFloat() < 0.30f && level.getBlockState(topPos.above()).isAir()) {
+                                DoublePlantBlock.placeAt(level, ModBlocks.TALL_DAZE.get().defaultBlockState(), topPos, 2);
+                            } else {
+                                level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
+                            }
+                        } else if (roll < 0.75f) {
+                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2)), 2);
+                        } else if (roll < 0.90f) {
+                            placeMossCarpet(level, topPos, false, random);
+                        }
+                    }
+                    case CLOUDBERRY -> {
+                        double dsNorm = Math.abs(localA - br.sCenter * halfLength) / Math.max(1.0, br.sHalfWidth);
+                        if (dsNorm < 0.40 && random.nextFloat() < 0.65f) {
+                            boolean isWhiteCurrant = (((long) (br.sCenter * 100) ^ (long) y ^ seg.roughnessSeed) & 1L) == 0L;
+                            int stage = random.nextInt(4);
+                            if (isWhiteCurrant) {
+                                level.setBlock(topPos, ModBlocks.WHITE_CURRANT_BERRY_BUSH.get().defaultBlockState().setValue(SweetBerryBushBlock.AGE, stage), 2);
+                            } else {
+                                level.setBlock(topPos, Blocks.SWEET_BERRY_BUSH.defaultBlockState().setValue(SweetBerryBushBlock.AGE, stage), 2);
+                            }
+                        } else {
+                            float roll = random.nextFloat();
+                            if (roll < 0.40f) {
+                                level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                            } else if (roll < 0.70f) {
+                                level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
+                            } else if (roll < 0.85f) {
+                                placeMossCarpet(level, topPos, false, random);
+                            }
+                        }
+                    }
+                    case STARLILY -> {
+                        if (random.nextFloat() < 0.20f) {
+                            level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                        } else {
+                            int amount = 1 + random.nextInt(3);
+                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, amount), 2);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isBottomSurface) {
+            BlockState ceilingState = level.getBlockState(blockPos);
+            boolean isSturdyCeiling = isSturdySolidRock(ceilingState, level, blockPos, Direction.DOWN);
+            float hangRoll = random.nextFloat();
+
+            switch (variant) {
+                case MOSS_DAZE, HOLLOW -> {
+                    if (isSturdyCeiling && hangRoll < 0.50f) {
+                        int length = 1 + random.nextInt(5);
+                        for (int i = 1; i <= length; i++) {
+                            BlockPos hangPos = blockPos.below(i);
+                            BlockState targetState = level.getBlockState(hangPos);
+                            if (targetState.isAir() || isCarveReplaceable(targetState)) {
+                                BlockState mossState = ModBlocks.WILD_HANGING_MOSS.get()
+                                        .defaultBlockState().setValue(HangingMossBlock.TIP, (i == length));
+                                level.setBlock(hangPos, mossState, 2);
+                            } else break;
+                        }
+                    }
+
+                    if (br != null && br.variant == RiftLedge.Variant.HOLLOW) {
+                        long currentBInt = Math.round(localB);
+                        long centerAInt = Math.round(localA - br.sCenter * halfLength);
+
+                        if (Math.abs(centerAInt) <= 2L && Math.abs(currentBInt) % 8L == 0L) {
+                            if (isSturdyCeiling) {
+                                BlockPos treeAnchor = blockPos.below();
+                                if (level.getBlockState(treeAnchor).isAir()) {
+                                    long treeHash = (long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed;
+                                    if ((Math.abs(treeHash) % 100) < 65) {
+                                        KapokTreeFeature.generateKapokTreeDirect(level, treeAnchor, random, 7 + random.nextInt(5));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                case CLOUDBERRY -> {
+                    if (isSturdyCeiling && hangRoll < 0.60f) {
+                        int maxLen = 2 + random.nextInt(5);
+                        for (int i = 1; i <= maxLen; i++) {
+                            BlockPos hangPos = blockPos.below(i);
+                            BlockState targetState = level.getBlockState(hangPos);
+                            if (targetState.isAir() || isCarveReplaceable(targetState)) {
+                                boolean hasBerries = random.nextBoolean();
+                                level.setBlock(hangPos, (i == maxLen ? ModBlocks.CLOUDBERRY_VINES.get() : ModBlocks.CLOUDBERRY_VINES_PLANT.get()).defaultBlockState().setValue(CaveVines.BERRIES, hasBerries), 2);
+                            } else break;
+                        }
+                    }
+                }
+                case STARLILY -> {
+                    if (isSturdyCeiling && hangRoll < 0.60f) {
+                        int length = 3 + random.nextInt(6);
+                        for (int i = 1; i <= length; i++) {
+                            BlockPos hangPos = blockPos.below(i);
+                            BlockState targetState = level.getBlockState(hangPos);
+                            if (targetState.isAir() || isCarveReplaceable(targetState)) {
+                                boolean hasFlowers = random.nextBoolean();
+                                boolean isTip = (i == length);
+                                BlockState state = (isTip ? ModBlocks.HANGING_STAR_LILY.get() : ModBlocks.HANGING_STAR_LILY_PLANT.get())
+                                        .defaultBlockState().setValue(CaveVines.BERRIES, hasFlowers);
+                                level.setBlock(hangPos, state, 2);
+                            } else break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void placeMossCarpet(WorldGenLevel level, BlockPos topPos, boolean isDeadMoss, RandomSource random) {
@@ -2306,6 +2726,7 @@ public class GiantCrackParams {
         RiftBridge[] bridges = new RiftBridge[0];
         RiftLedge[] ledges = new RiftLedge[0];
         RiftGiantLedge[] giantLedges = new RiftGiantLedge[0];
+        GiantVine[] giantVines = new GiantVine[0];
 
         final int minChunkX, maxChunkX, minChunkZ, maxChunkZ;
 

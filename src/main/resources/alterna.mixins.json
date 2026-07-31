@@ -2,9 +2,18 @@
   "required": true,
   "package": "com.huwng.alterna.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [],
+  "mixins": [
+    "EntityMixin",
+    "LivingEntityMixin",
+    "PlayerMixin"
+  ],
   "client": [
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "client.CameraMixin",
+    "client.EntityRenderDispatcherMixin",
+    "client.EntityHitboxDebugRendererMixin",
+    "client.LocalPlayerMixin",
+    "client.ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -25,6 +25,9 @@ public class AlternaFeatures {
         public static final DeferredHolder<Feature<?>, GobletTreeFeature> GOBLET_TREE = FEATURES.register("goblet_tree",
                         () -> new GobletTreeFeature(NoneFeatureConfiguration.CODEC));
 
+        public static final DeferredHolder<Feature<?>, GiantVineFeature> GIANT_VINE = FEATURES.register("giant_vine",
+                        () -> new GiantVineFeature(NoneFeatureConfiguration.CODEC));
+
         public static final DeferredHolder<Feature<?>, KapokTreeFeature> KAPOK_TREE = FEATURES.register("kapok_tree",
                         () -> new KapokTreeFeature(KapokTreeConfiguration.CODEC));
 }

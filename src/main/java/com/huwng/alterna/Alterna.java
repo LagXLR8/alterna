@@ -59,7 +59,11 @@ public class Alterna {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ModBlocks.GOBLET_LOG.get().asItem().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                ModItems.ITEMS.getEntries().forEach(item -> output.accept(item.get()));
+                ModItems.ITEMS.getEntries().forEach(item -> {
+                    if (item.get() != ModBlocks.GRAVITY_INVERT_BLOCK.get().asItem()) {
+                        output.accept(item.get());
+                    }
+                });
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -78,6 +82,7 @@ public class Alterna {
         CREATIVE_MODE_TABS.register(modEventBus);
         com.huwng.alterna.entity.ModEntities.register(modEventBus);
         com.huwng.alterna.block.entity.ModBlockEntities.register(modEventBus);
+
         // Register the Deferred Register so our fall-distance attachment type gets registered
         AlternaAttachments.ATTACHMENT_TYPES.register(modEventBus);
         // Register the rift mist particle type
@@ -87,6 +92,7 @@ public class Alterna {
         AlternaStructureTypes.STRUCTURE_TYPES.register(modEventBus);
         AlternaStructurePieceTypes.STRUCTURE_PIECE_TYPES.register(modEventBus);
         AlternaFeatures.FEATURES.register(modEventBus);
+        com.huwng.alterna.loot.ModLootFunctions.register(modEventBus);
         // Register ourselves for server and other game events we are interested in.
         NeoForge.EVENT_BUS.register(this);
 

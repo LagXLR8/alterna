@@ -3,11 +3,11 @@
   "alterna.configuration.title": "Alterna Configs",
   "alterna.configuration.section.alterna.common.toml": "Alterna Configs",
   "alterna.configuration.section.alterna.common.toml.title": "Alterna Configs",
-  "alterna.configuration.items": "Item List",
-  "alterna.configuration.logDirtBlock": "Log Dirt Block",
-  "alterna.configuration.magicNumberIntroduction": "Magic Number Text",
-  "alterna.configuration.magicNumber": "Magic Number",
+  "alterna.configuration.showDevWarning": "Show Development Warning",
+  "alterna.welcome_warning": "Currently the %1$s mod is under development, has many bugs, and may sometimes affect your gamplay, you can disable this log in %2$s",
+  "alterna.welcome_warning.config_hover": "Click to open config file",
   "item.alterna.rift_detector": "Rift Detector",
+  "item.alterna.rift_explorer_map": "Rift Explorer Map",
   "block.alterna.goblet_log": "Goblet Log",
   "block.alterna.goblet_stripped_log": "Stripped Goblet Log",
   "block.alterna.goblet_wood": "Goblet Wood",
@@ -83,5 +83,6 @@
   "block.alterna.purple_sugar_cane": "Purple Sugar Cane",
   "item.alterna.purple_sugar_cane": "Purple Sugar Cane",
   "block.alterna.hanging_star_lily": "Hanging Star Lily",
-  "block.alterna.hanging_star_lily_plant": "Hanging Star Lily Plant"
+  "block.alterna.hanging_star_lily_plant": "Hanging Star Lily Plant",
+  "block.alterna.gravity_invert_block": "Gravity Invert Block"
 }

@@ -1,25 +1,26 @@
 
-Installation information
-=======
+⚠️ Warning: This mod changes world generation. Please back up your world before installing or updating it !
+About:
+Alterna: Echoes Below is a mod that adds a giant crack to the world, filled with new biomes, creatures, and an ancient civilization to explore
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+Features:
+1. World Generation & Underground Structures 
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+- Giant Cracks & Rifts: Explore huge underground cracks filled with unique structures, giant ledges, giant hanging vines, and more.
+2. Exotic Flora & Agriculture
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+- Underground Berries & Crops:
+  • Cloudberries – Harvested from Cloudberry Vines.
+  • White Currants – Grown on White Currant Bushes.
+  • Purple Sugar Cane – A rare colorful variant of sugar cane.
+  • Flowers & Foliage – Star Lilies, Short & Tall Daze, Wild Moss Blocks, and more.
+lore :
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+- Coming soon.
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+Translations: Supports English and Vietnamese.
+Issues:
+If you encounter any issues while playing this mod, please report them through the [Github issue tracker](https://github.com/LagXLR8/alterna/issues). with as much detail as possible
+
+
+Social: [Youtube](https://www.youtube.com/@Huwng8)

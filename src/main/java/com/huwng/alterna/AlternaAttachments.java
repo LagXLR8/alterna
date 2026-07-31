@@ -25,4 +25,13 @@ public class AlternaAttachments {
                     () -> AttachmentType.builder(() -> 0.0d)
                             .serialize(Codec.DOUBLE.fieldOf("value"))
                             .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.huwng.alterna.gravity.GravityData>> GRAVITY_DATA =
+            ATTACHMENT_TYPES.register("gravity_data",
+                    () -> AttachmentType.builder(com.huwng.alterna.gravity.GravityData::new)
+                            .serialize(com.huwng.alterna.gravity.GravityData.CODEC)
+                            .sync(com.huwng.alterna.gravity.GravityData.STREAM_CODEC)
+                            .build());
+
+
 }

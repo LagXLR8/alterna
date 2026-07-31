@@ -37,7 +37,7 @@ public class GiantCrackFeature extends Feature<NoneFeatureConfiguration> {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 GiantCrackParams params = GiantCrackParams.forCell(seed, cellX + dx, cellZ + dz);
-                if (params.mightAffect(chunkPos)) {
+                if (params != null && params.mightAffect(chunkPos)) {
                     params.carveChunk(level, chunkPos);
                     carvedAnything = true;
                 }

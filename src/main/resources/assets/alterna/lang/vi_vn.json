@@ -1,6 +1,10 @@
 {
   "itemGroup.alterna": "Alterna: Tiếng Vọng Lòng Đất",
+  "alterna.configuration.showDevWarning": "Hiển thị thông báo bản thử nghiệm",
+  "alterna.welcome_warning": "Hiện tại bản mod %1$s đang trong giai đoạn phát triển, có rất nhiều lỗi, và đôi khi sẽ ảnh hưởng đến trải nghiệm chơi của bạn, bạn có thể tắt log này qua %2$s",
+  "alterna.welcome_warning.config_hover": "Nhấp để mở file config",
   "item.alterna.rift_detector": "Dụng Cụ Dò Vết Nứt",
+  "item.alterna.rift_explorer_map": "Bản Đồ Kho Báu Vết Nứt",
   "block.alterna.goblet_log": "Gỗ Cây Goblet",
   "block.alterna.goblet_stripped_log": "Gỗ Cây Goblet Bóc Vỏ",
   "block.alterna.goblet_wood": "Khối Gỗ Goblet",
