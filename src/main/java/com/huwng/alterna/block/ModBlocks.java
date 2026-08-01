@@ -257,9 +257,9 @@ public class ModBlocks {
         public static final DeferredBlock<PurpleSugarCaneBlock> PURPLE_SUGAR_CANE = registerBlockOnly("purple_sugar_cane",
                         PurpleSugarCaneBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.SUGAR_CANE));
 
-        // ---- GRAVITY INVERT BLOCK ----
-        public static final DeferredBlock<GravityInvertBlock> GRAVITY_INVERT_BLOCK = registerBlock("gravity_invert_block",
-                        GravityInvertBlock::new, BlockBehaviour.Properties.of()
+        // ---- GRAVITY CORE BLOCK ----
+        public static final DeferredBlock<GravityCoreBlock> GRAVITY_CORE_BLOCK = registerBlock("gravity_core_block",
+                        GravityCoreBlock::new, BlockBehaviour.Properties.of()
                                         .mapColor(MapColor.COLOR_PURPLE)
                                         .strength(2.0f)
                                         .requiresCorrectToolForDrops()

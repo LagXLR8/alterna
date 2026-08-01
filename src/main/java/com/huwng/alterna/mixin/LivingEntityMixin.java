@@ -1,6 +1,7 @@
 package com.huwng.alterna.mixin;
 
 import com.huwng.alterna.gravity.GravityApi;
+import com.huwng.alterna.gravity.GravityCoreTransitionHandler;
 import com.huwng.alterna.gravity.GravityData;
 import com.huwng.alterna.gravity.RotationUtil;
 import net.minecraft.core.BlockPos;
@@ -30,6 +31,12 @@ public abstract class LivingEntityMixin {
         LivingEntity self = (LivingEntity) (Object) this;
         GravityData data = GravityApi.getData(self);
         data.tickAnimation();
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void alterna$tryGravityCoreEdgeTransitionOnFall(CallbackInfo ci) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        GravityCoreTransitionHandler.tryTransitionOnFall(self.level(), self);
     }
 
     @Inject(method = "checkFallDamage", at = @At("HEAD"), cancellable = true, require = 0)

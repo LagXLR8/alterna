@@ -10,7 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@EventBusSubscriber(modid = Alterna.MODID)
+// @EventBusSubscriber(modid = Alterna.MODID) // Temporarily disabled
 public class VoidFallHandler {
 
     // Y level in the Overworld below which the player is considered to be

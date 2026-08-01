@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "alterna:gravity_invert_block"
+          "name": "alterna:gravity_core_block"
         }
       ],
       "rolls": 1.0

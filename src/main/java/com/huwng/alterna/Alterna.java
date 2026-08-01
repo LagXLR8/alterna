@@ -60,7 +60,7 @@ public class Alterna {
             .icon(() -> ModBlocks.GOBLET_LOG.get().asItem().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 ModItems.ITEMS.getEntries().forEach(item -> {
-                    if (item.get() != ModBlocks.GRAVITY_INVERT_BLOCK.get().asItem()) {
+                    if (item.get() != ModBlocks.GRAVITY_CORE_BLOCK.get().asItem()) {
                         output.accept(item.get());
                     }
                 });

@@ -13,6 +13,35 @@ public class RotationUtil {
 
     private static final Quaternionf[] WORLD_ROTATION_QUATERNIONS = new Quaternionf[6];
     private static final Quaternionf[] ENTITY_ROTATION_QUATERNIONS = new Quaternionf[6];
+    private static final Direction[][] DIR_WORLD_TO_PLAYER = new Direction[6][];
+    private static final Direction[][] DIR_PLAYER_TO_WORLD = new Direction[6][];
+
+    public static Direction dirWorldToPlayer(Direction direction, Direction gravityDirection) {
+        return DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()][direction.get3DDataValue()];
+    }
+
+    public static Direction dirPlayerToWorld(Direction direction, Direction gravityDirection) {
+        return DIR_PLAYER_TO_WORLD[gravityDirection.get3DDataValue()][direction.get3DDataValue()];
+    }
+
+    static {
+        for (Direction gravityDirection : Direction.values()) {
+            DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()] = new Direction[6];
+            for (Direction direction : Direction.values()) {
+                Vec3 v = vecWorldToPlayer(direction.getUnitVec3(), gravityDirection);
+                DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()][direction.get3DDataValue()] =
+                        Direction.getNearest((int) Math.round(v.x), (int) Math.round(v.y), (int) Math.round(v.z), direction);
+            }
+        }
+        for (Direction gravityDirection : Direction.values()) {
+            DIR_PLAYER_TO_WORLD[gravityDirection.get3DDataValue()] = new Direction[6];
+            for (Direction direction : Direction.values()) {
+                Vec3 v = vecPlayerToWorld(direction.getUnitVec3(), gravityDirection);
+                DIR_PLAYER_TO_WORLD[gravityDirection.get3DDataValue()][direction.get3DDataValue()] =
+                        Direction.getNearest((int) Math.round(v.x), (int) Math.round(v.y), (int) Math.round(v.z), direction);
+            }
+        }
+    }
 
     static {
         WORLD_ROTATION_QUATERNIONS[0] = new Quaternionf();
@@ -97,13 +126,15 @@ public class RotationUtil {
     public static AABB boxWorldToPlayer(AABB box, Direction gravityDirection) {
         return new AABB(
                 vecWorldToPlayer(box.minX, box.minY, box.minZ, gravityDirection),
-                vecWorldToPlayer(box.maxX, box.maxY, box.maxZ, gravityDirection));
+                vecWorldToPlayer(box.maxX, box.maxY, box.maxZ, gravityDirection)
+        );
     }
 
     public static AABB boxPlayerToWorld(AABB box, Direction gravityDirection) {
         return new AABB(
                 vecPlayerToWorld(box.minX, box.minY, box.minZ, gravityDirection),
-                vecPlayerToWorld(box.maxX, box.maxY, box.maxZ, gravityDirection));
+                vecPlayerToWorld(box.maxX, box.maxY, box.maxZ, gravityDirection)
+        );
     }
 
     public static AABB makeBoxFromDimensions(EntityDimensions dimensions, Direction gravityDirection, Vec3 pos) {

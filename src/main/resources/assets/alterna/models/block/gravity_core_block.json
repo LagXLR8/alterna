@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "alterna:block/gravity_invert_block"
+    "all": "alterna:block/gravity_core_block"
   }
 }
