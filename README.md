@@ -1,3 +1,4 @@
+<img width="1730" height="909" alt="thumbnail" src="https://github.com/user-attachments/assets/9da366d3-c5b8-4c42-b477-e6286d1ab3a9" />
 
 ⚠️ Warning: This mod changes world generation. Please back up your world before installing or updating it !
 About:
