@@ -34,10 +34,27 @@ public final class RiftGiantLedge {
         int maxLedgeY = -100; // Strictly below Y = -100 as requested
         if (maxLedgeY <= minLedgeY + 30) return new RiftGiantLedge[0];
 
-        int count = 6 + random.nextInt(5); // 6 to 10 giant ledges per crack
-        RiftGiantLedge[] result = new RiftGiantLedge[count];
-        RiftLedge.Variant[] variants = RiftLedge.Variant.values();
+        int count = 6 + random.nextInt(5); // 6 to 10 standard giant ledges per crack
+        RiftGiantLedge[] result = new RiftGiantLedge[count + 1];
 
+        // 1. Exactly 1 Rootshroom Forest Giant Ledge (Y = -160 to -170, length 220 to 300 blocks, near 1 of the 2 ends)
+        int forestSide = random.nextBoolean() ? 1 : -1;
+        double forestSCenter = (random.nextBoolean() ? -1.0 : 1.0) * (0.65 + random.nextDouble() * 0.15); // End of crack
+        double forestSHalfLength = 110.0 + random.nextDouble() * 40.0; // Half length 110-150 -> Total length 220-300 blocks!
+        int forestYTop = -160 - random.nextInt(11); // Y = -160 to -170
+        double forestReachWidth = 35.0 + random.nextDouble() * 15.0; // Reach width 35-50 blocks
+        double forestPedestalHeight = 20.0 + random.nextDouble() * 10.0; // Pedestal height 20-30 blocks
+
+        result[0] = new RiftGiantLedge(forestSide, forestSCenter, forestSHalfLength, forestYTop, forestReachWidth, forestPedestalHeight, RiftLedge.Variant.ROOTSHROOM_FOREST);
+
+        RiftLedge.Variant[] standardVariants = new RiftLedge.Variant[]{
+            RiftLedge.Variant.MOSS_DAZE,
+            RiftLedge.Variant.CLOUDBERRY,
+            RiftLedge.Variant.STARLILY,
+            RiftLedge.Variant.HOLLOW
+        };
+
+        // 2. Standard giant ledges
         for (int i = 0; i < count; i++) {
             int side = random.nextBoolean() ? 1 : -1;
             double sCenter = (random.nextDouble() - 0.5) * 1.70;
@@ -45,8 +62,8 @@ public final class RiftGiantLedge {
             int yTop = minLedgeY + (int) ((i + random.nextDouble() * 0.5) / count * (maxLedgeY - minLedgeY));
             double reachWidth = 20.0 + random.nextDouble() * 20.0;   // Extends 20 to 40 blocks into cavern
             double pedestalHeight = 12.0 + random.nextDouble() * 12.0; // Pedestal height = 12 to 24 blocks
-            RiftLedge.Variant variant = variants[random.nextInt(variants.length)];
-            result[i] = new RiftGiantLedge(side, sCenter, sHalfLength, yTop, reachWidth, pedestalHeight, variant);
+            RiftLedge.Variant variant = standardVariants[random.nextInt(standardVariants.length)];
+            result[i + 1] = new RiftGiantLedge(side, sCenter, sHalfLength, yTop, reachWidth, pedestalHeight, variant);
         }
         return result;
     }

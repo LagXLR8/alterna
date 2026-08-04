@@ -37,14 +37,22 @@ import java.util.Optional;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements GravityCoreTracker {
 
-    @Shadow public double xo;
-    @Shadow public double yo;
-    @Shadow public double zo;
-    @Shadow public Optional<BlockPos> mainSupportingBlockPos;
-    @Shadow protected boolean onGroundNoBlocks;
+    @Shadow
+    public double xo;
+    @Shadow
+    public double yo;
+    @Shadow
+    public double zo;
+    @Shadow
+    public Optional<BlockPos> mainSupportingBlockPos;
+    @Shadow
+    protected boolean onGroundNoBlocks;
 
-    @Shadow public abstract AABB getBoundingBox();
-    @Shadow public abstract Level level();
+    @Shadow
+    public abstract AABB getBoundingBox();
+
+    @Shadow
+    public abstract Level level();
 
     @Unique
     private Vec3 alterna$lastMoveDelta = Vec3.ZERO;
@@ -116,6 +124,15 @@ public abstract class EntityMixin implements GravityCoreTracker {
         Vec3 movementWorld = self.position().subtract(self.xOld, self.yOld, self.zOld);
         Vec3 movementLocal = RotationUtil.vecWorldToPlayer(movementWorld, direction);
 
+        // DEBUG TẠM THỜI: log mỗi ~0.5s, không phụ thuộc stepOn — để bắt hiện
+        // tượng giật ở South/East (nơi stepOn không fire). Xoá sau khi hết debug.
+        if (self instanceof net.minecraft.world.entity.player.Player && self.tickCount % 10 == 0) {
+            com.huwng.alterna.Alterna.LOGGER.info(
+                    "[gravity-move-debug] dir={} onGround={} pos={} deltaWorld={} deltaLocal={} movementLocal={} mainSupport={}",
+                    direction, self.onGround(), self.position(), deltaWorld, deltaLocal, movementLocal,
+                    this.mainSupportingBlockPos);
+        }
+
         boolean localXCollision = !Mth.equal(deltaLocal.x, movementLocal.x);
         boolean localZCollision = !Mth.equal(deltaLocal.z, movementLocal.z);
         boolean localHorizontalCollision = localXCollision || localZCollision;
@@ -128,14 +145,13 @@ public abstract class EntityMixin implements GravityCoreTracker {
     @Inject(method = "makeBoundingBox(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;", at = @At("RETURN"), cancellable = true, require = 0)
     private void alterna$makeBoundingBox(Vec3 position, CallbackInfoReturnable<AABB> cir) {
         Entity self = (Entity) (Object) this;
-        if (self instanceof Projectile) return;
+        if (self instanceof Projectile)
+            return;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
+        if (gravityDirection == Direction.DOWN)
+            return;
 
         AABB box = cir.getReturnValue().move(position.reverse());
-        if (gravityDirection.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-            box = box.move(0.0, -1.0E-6, 0.0);
-        }
         cir.setReturnValue(RotationUtil.boxPlayerToWorld(box, gravityDirection).move(position));
     }
 
@@ -143,7 +159,8 @@ public abstract class EntityMixin implements GravityCoreTracker {
     private void alterna$calculateViewVector(CallbackInfoReturnable<Vec3> cir) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
+        if (gravityDirection == Direction.DOWN)
+            return;
         cir.setReturnValue(RotationUtil.vecPlayerToWorld(cir.getReturnValue(), gravityDirection));
     }
 
@@ -151,15 +168,18 @@ public abstract class EntityMixin implements GravityCoreTracker {
     private void alterna$getEyePositionHead(CallbackInfoReturnable<Vec3> cir) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
-        cir.setReturnValue(RotationUtil.vecPlayerToWorld(0.0, self.getEyeHeight(), 0.0, gravityDirection).add(self.position()));
+        if (gravityDirection == Direction.DOWN)
+            return;
+        cir.setReturnValue(
+                RotationUtil.vecPlayerToWorld(0.0, self.getEyeHeight(), 0.0, gravityDirection).add(self.position()));
     }
 
     @Inject(method = "getEyePosition(F)Lnet/minecraft/world/phys/Vec3;", at = @At("HEAD"), cancellable = true, require = 0)
     private void alterna$getEyePositionPartial(float tickDelta, CallbackInfoReturnable<Vec3> cir) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
+        if (gravityDirection == Direction.DOWN)
+            return;
         Vec3 eyeOffsetWorld = RotationUtil.vecPlayerToWorld(0.0, self.getEyeHeight(), 0.0, gravityDirection);
         double x = Mth.lerp((double) tickDelta, self.xo, self.getX()) + eyeOffsetWorld.x;
         double y = Mth.lerp((double) tickDelta, self.yo, self.getY()) + eyeOffsetWorld.y;
@@ -167,9 +187,18 @@ public abstract class EntityMixin implements GravityCoreTracker {
         cir.setReturnValue(new Vec3(x, y, z));
     }
 
-    @Shadow protected static Vec3 getInputVector(Vec3 input, float speed, float yRot) { throw new AssertionError(); }
+    @Shadow
+    protected static Vec3 getInputVector(Vec3 input, float speed, float yRot) {
+        throw new AssertionError();
+    }
 
-    @Inject(method = "moveRelative", at = @At("HEAD"), cancellable = true, require = 0)
+    /**
+     * Chữ ký đã xác nhận từ source thật của bản MC này: cả moveRelative lẫn
+     * getInputVector đều nằm ở Entity (không phải LivingEntity — 2 lần vá
+     * trước mình đoán sai class). require=1 để nếu còn sai thì crash rõ ràng
+     * thay vì bị bỏ qua âm thầm như hồi require=0.
+     */
+    @Inject(method = "moveRelative", at = @At("HEAD"), cancellable = true, require = 1)
     private void alterna$moveRelativeDirectional(float speed, Vec3 input, CallbackInfo ci) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
@@ -187,7 +216,8 @@ public abstract class EntityMixin implements GravityCoreTracker {
     private void alterna$getBlockPosBelowThatAffectsMyMovement(CallbackInfoReturnable<BlockPos> cir) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
+        if (gravityDirection == Direction.DOWN)
+            return;
         cir.setReturnValue(BlockPos.containing(self.position().add(gravityDirection.getUnitVec3().scale(0.5000001))));
     }
 
@@ -195,8 +225,10 @@ public abstract class EntityMixin implements GravityCoreTracker {
     private void alterna$getOnPosLegacy(CallbackInfoReturnable<BlockPos> cir) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
-        cir.setReturnValue(BlockPos.containing(RotationUtil.vecPlayerToWorld(0.0, -0.2, 0.0, gravityDirection).add(self.position())));
+        if (gravityDirection == Direction.DOWN)
+            return;
+        cir.setReturnValue(BlockPos
+                .containing(RotationUtil.vecPlayerToWorld(0.0, -0.2, 0.0, gravityDirection).add(self.position())));
     }
 
     /**
@@ -207,26 +239,24 @@ public abstract class EntityMixin implements GravityCoreTracker {
      * ngang/lên), coi entity như đang lơ lửng, rồi các cơ chế khác dựa vào
      * mainSupportingBlockPos (đẩy lùi/step-up/snap ground...) hoạt động sai —
      * đây là nguyên nhân gốc của hiện tượng "chỉ hoạt động ở mặt up, các mặt
-     * khác bị đẩy lung tung" đã gặp. Port từ gravitychanger$checkDirectionalSupportingBlock.
+     * khác bị đẩy lung tung" đã gặp. Port từ
+     * gravitychanger$checkDirectionalSupportingBlock.
      */
     @Inject(method = "checkSupportingBlock", at = @At("HEAD"), cancellable = true, require = 0)
     private void alterna$checkDirectionalSupportingBlock(boolean onGround, Vec3 movement, CallbackInfo ci) {
         Entity self = (Entity) (Object) this;
         Direction gravityDirection = GravityApi.getDirection(self);
-        if (gravityDirection == Direction.DOWN) return;
+        if (gravityDirection == Direction.DOWN)
+            return;
 
         ci.cancel();
         if (onGround) {
             AABB testArea = alterna$getSupportArea(this.getBoundingBox(), gravityDirection);
             Optional<BlockPos> supportingBlock = this.level().findSupportingBlock(self, testArea);
-            if (supportingBlock.isEmpty() && !this.onGroundNoBlocks) {
-                if (movement != null) {
-                    Vec3 localMovement = RotationUtil.vecWorldToPlayer(movement, gravityDirection);
-                    Vec3 horizontalWorldMovement = RotationUtil.vecPlayerToWorld(localMovement.x, 0.0, localMovement.z, gravityDirection);
-                    supportingBlock = this.level().findSupportingBlock(self, testArea.move(horizontalWorldMovement.reverse()));
-                    this.mainSupportingBlockPos = supportingBlock;
-                }
-            } else {
+            if (supportingBlock.isPresent() || this.onGroundNoBlocks) {
+                this.mainSupportingBlockPos = supportingBlock;
+            } else if (movement != null) {
+                supportingBlock = this.level().findSupportingBlock(self, testArea.move(movement.reverse()));
                 this.mainSupportingBlockPos = supportingBlock;
             }
             this.onGroundNoBlocks = supportingBlock.isEmpty();
@@ -240,14 +270,20 @@ public abstract class EntityMixin implements GravityCoreTracker {
 
     @Unique
     private static AABB alterna$getSupportArea(AABB boundingBox, Direction gravityDirection) {
-        double epsilon = 0.001;
+        double epsilon = 0.02;
         return switch (gravityDirection) {
-            case DOWN -> new AABB(boundingBox.minX, boundingBox.minY - epsilon, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
-            case UP -> new AABB(boundingBox.minX, boundingBox.maxY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY + epsilon, boundingBox.maxZ);
-            case NORTH -> new AABB(boundingBox.minX, boundingBox.minY, boundingBox.minZ - epsilon, boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
-            case SOUTH -> new AABB(boundingBox.minX, boundingBox.minY, boundingBox.maxZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ + epsilon);
-            case WEST -> new AABB(boundingBox.minX - epsilon, boundingBox.minY, boundingBox.minZ, boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
-            case EAST -> new AABB(boundingBox.maxX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX + epsilon, boundingBox.maxY, boundingBox.maxZ);
+            case DOWN -> new AABB(boundingBox.minX, boundingBox.minY - epsilon, boundingBox.minZ, boundingBox.maxX,
+                    boundingBox.minY, boundingBox.maxZ);
+            case UP -> new AABB(boundingBox.minX, boundingBox.maxY, boundingBox.minZ, boundingBox.maxX,
+                    boundingBox.maxY + epsilon, boundingBox.maxZ);
+            case NORTH -> new AABB(boundingBox.minX, boundingBox.minY, boundingBox.minZ - epsilon, boundingBox.maxX,
+                    boundingBox.maxY, boundingBox.minZ);
+            case SOUTH -> new AABB(boundingBox.minX, boundingBox.minY, boundingBox.maxZ, boundingBox.maxX,
+                    boundingBox.maxY, boundingBox.maxZ + epsilon);
+            case WEST -> new AABB(boundingBox.minX - epsilon, boundingBox.minY, boundingBox.minZ, boundingBox.minX,
+                    boundingBox.maxY, boundingBox.maxZ);
+            case EAST -> new AABB(boundingBox.maxX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX + epsilon,
+                    boundingBox.maxY, boundingBox.maxZ);
         };
     }
 
@@ -267,57 +303,15 @@ public abstract class EntityMixin implements GravityCoreTracker {
         throw new AssertionError();
     }
 
-    @ModifyVariable(
-            method = "collide",
-            at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/level/Level;getEntityCollisions(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;", ordinal = 0),
-            ordinal = 0, argsOnly = true, require = 0
-    )
-    private Vec3 alterna$collide_toPlayerSpace(Vec3 movement) {
-        Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
-        return gravityDirection == Direction.DOWN ? movement : RotationUtil.vecWorldToPlayer(movement, gravityDirection);
-    }
-
-    @Inject(method = "collide", at = @At("RETURN"), cancellable = true, require = 0)
-    private void alterna$collide_toWorldSpace(CallbackInfoReturnable<Vec3> cir) {
-        Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
-        if (gravityDirection != Direction.DOWN) {
-            cir.setReturnValue(RotationUtil.vecPlayerToWorld(cir.getReturnValue(), gravityDirection));
-        }
-    }
-
-    @ModifyArgs(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;expandTowards(DDD)Lnet/minecraft/world/phys/AABB;"), require = 0)
-    private void alterna$collide_expandTowards(Args args) {
-        Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
-        Vec3 rotated = RotationUtil.vecPlayerToWorld(new Vec3((Double) args.get(0), (Double) args.get(1), (Double) args.get(2)), gravityDirection);
-        args.set(0, rotated.x);
-        args.set(1, rotated.y);
-        args.set(2, rotated.z);
-    }
-
-    @ModifyArgs(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"), require = 0)
-    private void alterna$collide_moveBox(Args args) {
-        Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
-        Vec3 rotated = RotationUtil.vecPlayerToWorld(new Vec3((Double) args.get(0), (Double) args.get(1), (Double) args.get(2)), gravityDirection);
-        args.set(0, rotated.x);
-        args.set(1, rotated.y);
-        args.set(2, rotated.z);
-    }
-
     @Redirect(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;collideWithShapes(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", ordinal = 0), require = 0)
     private Vec3 alterna$collide_resolvePerAxis(Vec3 movement, AABB entityBoundingBox, List<VoxelShape> collisions) {
         return alterna$redirection(movement, entityBoundingBox, collisions, (Entity) (Object) this);
     }
 
     @Redirect(method = "collideBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;collideWithShapes(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", ordinal = 0), require = 0)
-    private static Vec3 alterna$collideBoundingBox_resolvePerAxis(Vec3 movement, AABB entityBoundingBox, List<VoxelShape> collisions, Entity entity) {
+    private static Vec3 alterna$collideBoundingBox_resolvePerAxis(Vec3 movement, AABB entityBoundingBox,
+            List<VoxelShape> collisions, Entity entity) {
         return alterna$redirection(movement, entityBoundingBox, collisions, entity);
-    }
-
-    @ModifyVariable(method = "collideBoundingBox", at = @At("HEAD"), ordinal = 0, argsOnly = true, require = 0)
-    private static Vec3 alterna$collideBoundingBox_toWorldSpace(Vec3 movement, Entity entity) {
-        if (entity == null) return movement;
-        Direction gravityDirection = GravityApi.getDirection(entity);
-        return gravityDirection == Direction.DOWN ? movement : RotationUtil.vecPlayerToWorld(movement, gravityDirection);
     }
 
     /**
@@ -328,13 +322,14 @@ public abstract class EntityMixin implements GravityCoreTracker {
      * với hàm gốc collideWithShapes để chỗ gọi không cần đổi gì thêm).
      */
     @Unique
-    private static Vec3 alterna$redirection(Vec3 movement, AABB entityBoundingBox, List<VoxelShape> collisions, Entity entity) {
+    private static Vec3 alterna$redirection(Vec3 movementWorld, AABB entityBoundingBoxWorld,
+            List<VoxelShape> collisions, Entity entity) {
         Direction gravityDirection = entity == null ? Direction.DOWN : GravityApi.getDirection(entity);
         if (entity == null || gravityDirection == Direction.DOWN) {
-            return collideWithShapes(movement, entityBoundingBox, collisions);
+            return collideWithShapes(movementWorld, entityBoundingBoxWorld, collisions);
         }
 
-        Vec3 local = RotationUtil.vecWorldToPlayer(movement, gravityDirection);
+        Vec3 local = RotationUtil.vecWorldToPlayer(movementWorld, gravityDirection);
         double localX = local.x;
         double localY = local.y;
         double localZ = local.z;
@@ -343,37 +338,60 @@ public abstract class EntityMixin implements GravityCoreTracker {
         Direction axisZ = RotationUtil.dirPlayerToWorld(Direction.SOUTH, gravityDirection);
 
         if (localY != 0.0) {
-            localY = Shapes.collide(axisY.getAxis(), entityBoundingBox, collisions, localY * axisY.getAxisDirection().getStep()) * axisY.getAxisDirection().getStep();
+            localY = Shapes.collide(axisY.getAxis(), entityBoundingBoxWorld, collisions,
+                    localY * axisY.getAxisDirection().getStep()) * axisY.getAxisDirection().getStep();
             if (localY != 0.0) {
-                entityBoundingBox = entityBoundingBox.move(RotationUtil.vecPlayerToWorld(0.0, localY, 0.0, gravityDirection));
+                entityBoundingBoxWorld = entityBoundingBoxWorld
+                        .move(RotationUtil.vecPlayerToWorld(0.0, localY, 0.0, gravityDirection));
             }
         }
 
         boolean zLargerThanX = Math.abs(localX) < Math.abs(localZ);
         if (zLargerThanX && localZ != 0.0) {
-            localZ = Shapes.collide(axisZ.getAxis(), entityBoundingBox, collisions, localZ * axisZ.getAxisDirection().getStep()) * axisZ.getAxisDirection().getStep();
+            localZ = Shapes.collide(axisZ.getAxis(), entityBoundingBoxWorld, collisions,
+                    localZ * axisZ.getAxisDirection().getStep()) * axisZ.getAxisDirection().getStep();
             if (localZ != 0.0) {
-                entityBoundingBox = entityBoundingBox.move(RotationUtil.vecPlayerToWorld(0.0, 0.0, localZ, gravityDirection));
+                entityBoundingBoxWorld = entityBoundingBoxWorld
+                        .move(RotationUtil.vecPlayerToWorld(0.0, 0.0, localZ, gravityDirection));
             }
         }
 
         if (localX != 0.0) {
-            localX = Shapes.collide(axisX.getAxis(), entityBoundingBox, collisions, localX * axisX.getAxisDirection().getStep()) * axisX.getAxisDirection().getStep();
+            localX = Shapes.collide(axisX.getAxis(), entityBoundingBoxWorld, collisions,
+                    localX * axisX.getAxisDirection().getStep()) * axisX.getAxisDirection().getStep();
             if (!zLargerThanX && localX != 0.0) {
-                entityBoundingBox = entityBoundingBox.move(RotationUtil.vecPlayerToWorld(localX, 0.0, 0.0, gravityDirection));
+                entityBoundingBoxWorld = entityBoundingBoxWorld
+                        .move(RotationUtil.vecPlayerToWorld(localX, 0.0, 0.0, gravityDirection));
             }
         }
 
         if (!zLargerThanX && localZ != 0.0) {
-            localZ = Shapes.collide(axisZ.getAxis(), entityBoundingBox, collisions, localZ * axisZ.getAxisDirection().getStep()) * axisZ.getAxisDirection().getStep();
+            localZ = Shapes.collide(axisZ.getAxis(), entityBoundingBoxWorld, collisions,
+                    localZ * axisZ.getAxisDirection().getStep()) * axisZ.getAxisDirection().getStep();
         }
 
-        return new Vec3(localX, localY, localZ);
+        return RotationUtil.vecPlayerToWorld(localX, localY, localZ, gravityDirection);
+    }
+
+    @Shadow
+    protected static float[] collectCandidateStepUpHeights(AABB box, List<VoxelShape> collisions, float stepHeight,
+            float partialTicks) {
+        throw new AssertionError();
     }
 
     @Redirect(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;collectCandidateStepUpHeights(Lnet/minecraft/world/phys/AABB;Ljava/util/List;FF)[F", ordinal = 0), require = 0)
-    private float[] alterna$collide_stepUpHeights(AABB boxSnappedToGround, List<VoxelShape> allCollisions, float stepHeight, float distToGround) {
+    private float[] alterna$collide_stepUpHeights(AABB boxSnappedToGround, List<VoxelShape> allCollisions,
+            float stepHeight, float distToGround) {
         Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
+        // QUAN TRỌNG: gravity DOWN phải đi thẳng qua thuật toán vanilla gốc,
+        // không dùng bản tự viết lại — vì bản port không đảm bảo giống 100%
+        // logic gốc, và trước đây không có đường lùi này nên MỌI va chạm bình
+        // thường (kể cả không liên quan GravityCoreBlock) đều bị đi qua bản
+        // port, gây lún/bật liên tục khi bước giữa 2 khối.
+        if (gravityDirection == Direction.DOWN) {
+            return collectCandidateStepUpHeights(boxSnappedToGround, allCollisions, stepHeight, distToGround);
+        }
+
         FloatSet floatSet = new FloatArraySet(4);
         double relativeBottom = alterna$getRelativeBottom(boxSnappedToGround, gravityDirection);
 
@@ -384,7 +402,8 @@ public abstract class EntityMixin implements GravityCoreTracker {
                     double collisionPoint = it.nextDouble();
                     float verticalDist = (float) (collisionPoint - relativeBottom);
                     if (verticalDist >= 0.0F && verticalDist != distToGround) {
-                        if (verticalDist > stepHeight) break;
+                        if (verticalDist > stepHeight)
+                            break;
                         floatSet.add(verticalDist);
                     }
                 }
@@ -394,7 +413,8 @@ public abstract class EntityMixin implements GravityCoreTracker {
                 for (double collisionPoint : voxelShape.getCoords(gravityDirection.getAxis()).reversed()) {
                     float verticalDist = -((float) (collisionPoint - relativeBottom));
                     if (verticalDist >= 0.0F && verticalDist != distToGround) {
-                        if (verticalDist > stepHeight) break;
+                        if (verticalDist > stepHeight)
+                            break;
                         floatSet.add(verticalDist);
                     }
                 }
@@ -421,7 +441,8 @@ public abstract class EntityMixin implements GravityCoreTracker {
     @ModifyArgs(method = "isInWall", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;ofSize(Lnet/minecraft/world/phys/Vec3;DDD)Lnet/minecraft/world/phys/AABB;", ordinal = 0), require = 0)
     private void alterna$isInWall_toWorldSpace(Args args) {
         Direction gravityDirection = GravityApi.getDirection((Entity) (Object) this);
-        Vec3 rotated = RotationUtil.vecPlayerToWorld(new Vec3((Double) args.get(1), (Double) args.get(2), (Double) args.get(3)), gravityDirection);
+        Vec3 rotated = RotationUtil.vecPlayerToWorld(
+                new Vec3((Double) args.get(1), (Double) args.get(2), (Double) args.get(3)), gravityDirection);
         args.set(1, rotated.x);
         args.set(2, rotated.y);
         args.set(3, rotated.z);

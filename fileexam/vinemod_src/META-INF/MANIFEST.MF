@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: Zipline
+Specification-Vendor: Evan, Tomate0613
+Specification-Version: 1.2.2
+Implementation-Title: neoforge
+Implementation-Version: 1.2.2
+Implementation-Vendor: Evan, Tomate0613
+Built-On-Minecraft: 26.1.2
+

@@ -5,7 +5,13 @@
   "mixins": [
     "EntityMixin",
     "LivingEntityMixin",
-    "PlayerMixin"
+    "LookControlMixin",
+    "MobEntityMixin",
+    "PlayerMixin",
+    "ProjectileMixin",
+    "VinePlayerMixin",
+    "VineItemMixin",
+    "VineServerPacketMixin"
   ],
   "client": [
     "MinecraftMixin",
@@ -13,7 +19,11 @@
     "client.EntityRenderDispatcherMixin",
     "client.EntityHitboxDebugRendererMixin",
     "client.LocalPlayerMixin",
-    "client.ScreenEffectRendererMixin"
+    "client.ScreenEffectRendererMixin",
+    "client.VineGameRendererMixin",
+    "client.VineHumanoidModelMixin",
+    "client.VineItemInHandLayerMixin",
+    "client.VineItemInHandRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

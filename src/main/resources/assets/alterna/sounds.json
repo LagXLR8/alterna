@@ -1,0 +1,42 @@
+{
+  "vine_attach": {
+    "sounds": [
+      {
+        "name": "minecraft:block/azalea_leaves/break1",
+        "volume": 0.9
+      },
+      {
+        "name": "minecraft:block/azalea_leaves/break2",
+        "volume": 0.9
+      },
+      {
+        "name": "minecraft:block/azalea_leaves/break3",
+        "volume": 0.9
+      }
+    ],
+    "subtitle": "subtitles.alterna.vine.attach"
+  },
+  "vine_use": {
+    "sounds": [
+      "minecraft:block/azalea_leaves/step1",
+      "minecraft:block/azalea_leaves/step2",
+      "minecraft:block/azalea_leaves/step3",
+      "minecraft:block/azalea_leaves/step4",
+      "minecraft:block/azalea_leaves/step5"
+    ],
+    "subtitle": "subtitles.alterna.vine.use"
+  },
+  "vine_interrupt": {
+    "sounds": [
+      {
+        "name": "minecraft:block/azalea_leaves/fall1",
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:block/azalea_leaves/fall2",
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.alterna.vine.interrupt"
+  }
+}

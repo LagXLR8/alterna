@@ -195,8 +195,8 @@ final class GobletTree {
      * random draws happen here regardless.
      */
     static GobletTree create(RandomSource random, double wallX, int anchorY, double wallZ,
-            double dirX, double dirZ, double embed, int side, double sNorm) {
-        int height = MIN_TREE_HEIGHT + random.nextInt(MAX_TREE_HEIGHT - MIN_TREE_HEIGHT + 1);
+            double dirX, double dirZ, double embed, int side, double sNorm, boolean boostHeight) {
+        int height = boostHeight ? (58 + random.nextInt(18)) : (MIN_TREE_HEIGHT + random.nextInt(MAX_TREE_HEIGHT - MIN_TREE_HEIGHT + 1));
         double trunkRadius = MIN_TRUNK_RADIUS + random.nextDouble() * (MAX_TRUNK_RADIUS - MIN_TRUNK_RADIUS);
         double rootRun = MIN_ROOT_RUN + random.nextDouble() * (MAX_ROOT_RUN - MIN_ROOT_RUN);
         double bendRadius = MIN_BEND_RADIUS + random.nextDouble() * (MAX_BEND_RADIUS - MIN_BEND_RADIUS);
@@ -208,6 +208,11 @@ final class GobletTree {
         return new GobletTree(wallX - dirX * embed, anchorY, wallZ - dirZ * embed, dirX, dirZ,
                 rootRun, embed + rootRun, bendRadius, height, trunkRadius, canopyRadius, seed, 0.0, 0.0,
                 wallX, wallZ, side, sNorm);
+    }
+
+    static GobletTree create(RandomSource random, double wallX, int anchorY, double wallZ,
+            double dirX, double dirZ, double embed, int side, double sNorm) {
+        return create(random, wallX, anchorY, wallZ, dirX, dirZ, embed, side, sNorm, false);
     }
 
     private GobletTree(double startX, int anchorY, double startZ, double dirX, double dirZ, double rootRun,
@@ -580,7 +585,7 @@ final class GobletTree {
      * result is deterministic and chunk-order-independent.
      */
     private static void placeWood(WorldGenLevel level, int x, int y, int z) {
-        if (y <= level.getMinY() || y >= level.getMaxY())
+        if (y <= level.getMinY() || y >= level.getMaxY() || !level.hasChunk(x >> 4, z >> 4))
             return;
         BlockPos pos = new BlockPos(x, y, z);
         if (level.getBlockState(pos).is(Blocks.BEDROCK))
@@ -596,7 +601,7 @@ final class GobletTree {
      * strip).
      */
     private static void placeSaplingWood(WorldGenLevel level, int x, int y, int z) {
-        if (y <= level.getMinY() || y >= level.getMaxY())
+        if (y <= level.getMinY() || y >= level.getMaxY() || !level.hasChunk(x >> 4, z >> 4))
             return;
         BlockPos pos = new BlockPos(x, y, z);
         if (level.getBlockState(pos).is(Blocks.BEDROCK))
@@ -605,7 +610,7 @@ final class GobletTree {
     }
 
     private static void placeLeaf(WorldGenLevel level, int x, int y, int z) {
-        if (y <= level.getMinY() || y >= level.getMaxY())
+        if (y <= level.getMinY() || y >= level.getMaxY() || !level.hasChunk(x >> 4, z >> 4))
             return;
         BlockPos pos = new BlockPos(x, y, z);
         BlockState existing = level.getBlockState(pos);
@@ -615,7 +620,7 @@ final class GobletTree {
     }
 
     private static void placeWater(WorldGenLevel level, int x, int y, int z) {
-        if (y <= level.getMinY() || y >= level.getMaxY())
+        if (y <= level.getMinY() || y >= level.getMaxY() || !level.hasChunk(x >> 4, z >> 4))
             return;
         BlockPos pos = new BlockPos(x, y, z);
         if (level.getBlockState(pos).isAir()) {
@@ -875,6 +880,7 @@ final class GobletTree {
         int by = (int) Math.round(y);
         int bz = (int) Math.round(z);
         if (by <= level.getMinY() || by >= level.getMaxY()) return true;
+        if (!level.hasChunk(bx >> 4, bz >> 4)) return true;
         BlockPos pos = new BlockPos(bx, by, bz);
         BlockState st = level.getBlockState(pos);
         if (st.isAir() || st.is(ModBlocks.GOBLET_LOG.get()) || st.is(ModBlocks.GOBLET_STRIPPED_LOG.get())

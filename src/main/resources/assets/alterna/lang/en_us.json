@@ -7,6 +7,7 @@
   "alterna.welcome_warning": "Currently the %1$s mod is under development, has many bugs, and may sometimes affect your gamplay, you can disable this log in %2$s",
   "alterna.welcome_warning.config_hover": "Click to open config file",
   "item.alterna.rift_detector": "Rift Detector",
+  "item.alterna.vine_rope": "Vine Linker",
   "item.alterna.rift_explorer_map": "Rift Explorer Map",
   "block.alterna.goblet_log": "Goblet Log",
   "block.alterna.goblet_stripped_log": "Stripped Goblet Log",
@@ -84,5 +85,12 @@
   "item.alterna.purple_sugar_cane": "Purple Sugar Cane",
   "block.alterna.hanging_star_lily": "Hanging Star Lily",
   "block.alterna.hanging_star_lily_plant": "Hanging Star Lily Plant",
-  "block.alterna.gravity_core_block": "Gravity Core Block"
+  "block.alterna.gravity_plating": "Gravity Plating",
+  "block.alterna.rootshroom_stem": "Rootshroom Stem",
+  "block.alterna.rootshroom_leaves": "Rootshroom Leaves",
+  "block.alterna.rootshroom_light": "Rootshroom Light",
+  "block.alterna.enoki_mushroom": "Enoki Mushroom",
+  "block.alterna.enoki_mushroom_wall": "Enoki Mushroom",
+  "item.alterna.enoki_mushroom": "Enoki Mushroom",
+  "block.alterna.rootshroom_fungus": "Rootshroom Fungus"
 }

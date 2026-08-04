@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "alterna:block/rootshroom_block_inside",
+    "side": "alterna:block/rootshroom_stem"
+  }
+}

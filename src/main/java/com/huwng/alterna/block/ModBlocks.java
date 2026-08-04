@@ -15,8 +15,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
 
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.PushReaction;
+
 public class ModBlocks {
         public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Alterna.MODID);
+
 
         public static final DeferredBlock<RotatedPillarBlock> GOBLET_LOG = registerBlock("goblet_log",
                         RotatedPillarBlock::new,
@@ -257,13 +261,33 @@ public class ModBlocks {
         public static final DeferredBlock<PurpleSugarCaneBlock> PURPLE_SUGAR_CANE = registerBlockOnly("purple_sugar_cane",
                         PurpleSugarCaneBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.SUGAR_CANE));
 
-        // ---- GRAVITY CORE BLOCK ----
-        public static final DeferredBlock<GravityCoreBlock> GRAVITY_CORE_BLOCK = registerBlock("gravity_core_block",
-                        GravityCoreBlock::new, BlockBehaviour.Properties.of()
+        // ---- GRAVITY PLATING ----
+        public static final DeferredBlock<GravityPlatingBlock> GRAVITY_PLATING = registerBlockOnly("gravity_plating",
+                        GravityPlatingBlock::new, BlockBehaviour.Properties.of()
                                         .mapColor(MapColor.COLOR_PURPLE)
-                                        .strength(2.0f)
-                                        .requiresCorrectToolForDrops()
+                                        .strength(1.5f)
                                         .noOcclusion());
+
+        // ---- ROOTSHROOM SET ----
+        public static final DeferredBlock<RootshroomStemBlock> ROOTSHROOM_STEM = registerBlock("rootshroom_stem",
+                        RootshroomStemBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM).strength(2.0f));
+
+        public static final DeferredBlock<RootshroomLeavesBlock> ROOTSHROOM_LEAVES = registerBlock("rootshroom_leaves",
+                        RootshroomLeavesBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES).noOcclusion());
+
+        public static final DeferredBlock<Block> ROOTSHROOM_LIGHT = registerBlock("rootshroom_light",
+                        Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.SHROOMLIGHT).lightLevel(state -> 10));
+
+        public static final DeferredBlock<EnokiMushroomBlock> ENOKI_MUSHROOM = registerBlockOnly("enoki_mushroom",
+                        EnokiMushroomBlock::new, BlockBehaviour.Properties.of().mapColor(MapColor.NETHER).noCollision().instabreak().sound(SoundType.ROOTS).pushReaction(PushReaction.DESTROY));
+
+        public static final DeferredBlock<EnokiMushroomWallBlock> ENOKI_MUSHROOM_WALL = registerBlockOnly("enoki_mushroom_wall",
+                        EnokiMushroomWallBlock::new, BlockBehaviour.Properties.of().mapColor(MapColor.NETHER).noCollision().instabreak().sound(SoundType.ROOTS).pushReaction(PushReaction.DESTROY));
+
+        public static final DeferredBlock<RootshroomFungusBlock> ROOTSHROOM_FUNGUS = registerBlock("rootshroom_fungus",
+                        RootshroomFungusBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CRIMSON_FUNGUS));
+
+
 
 
         private static <B extends Block> DeferredBlock<B> registerBlockOnly(String name,

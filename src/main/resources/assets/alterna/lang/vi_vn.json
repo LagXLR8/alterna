@@ -80,5 +80,12 @@
   "block.alterna.purple_sugar_cane": "Mía Tím",
   "item.alterna.purple_sugar_cane": "Mía Tím",
   "block.alterna.hanging_star_lily": "Hoa Lily Sao Rủ",
-  "block.alterna.hanging_star_lily_plant": "Dây Lily Sao Rủ"
+  "block.alterna.hanging_star_lily_plant": "Dây Lily Sao Rủ",
+  "block.alterna.rootshroom_stem": "Thân Nấm Rootshroom",
+  "block.alterna.rootshroom_leaves": "Lá Rootshroom",
+  "block.alterna.rootshroom_light": "Khối Phát Sáng Rootshroom",
+  "block.alterna.enoki_mushroom": "Nấm Enoki",
+  "block.alterna.enoki_mushroom_wall": "Nấm Enoki",
+  "item.alterna.enoki_mushroom": "Nấm Enoki",
+  "block.alterna.rootshroom_fungus": "Nấm Nhỏ Rootshroom"
 }

@@ -25,7 +25,7 @@ public final class RiftBridge {
 
     public static RiftBridge[] buildBridges(RandomSource random, int originY, int depth, GobletTree[] gobletTrees) {
         int minBridgeY = Math.max(-330, originY - depth + 40);
-        int maxBridgeY = Math.min(60, originY - 68); // Never spawn above Y=60 or ground level
+        int maxBridgeY = Math.min(-50, originY - 68); // Never spawn higher than Y = -50
         if (maxBridgeY <= minBridgeY + 20) return new RiftBridge[0];
 
         int targetCount = 18 + random.nextInt(10); // 18 to 27 bridges (increased quantity)

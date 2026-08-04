@@ -2,6 +2,8 @@ package com.huwng.alterna.network;
 
 import com.huwng.alterna.Alterna;
 import com.huwng.alterna.client.VoidFadeOverlay;
+import com.huwng.alterna.vine.VineConfig;
+import com.huwng.alterna.vine.network.VineConfigSyncPayload;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -22,5 +24,24 @@ public class AlternaNetwork {
                 StartVoidTeleportPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(VoidFadeOverlay::startFade)
         );
+
+        // Vine config sync: server -> client
+        registrar.playToClient(
+                VineConfigSyncPayload.TYPE,
+                VineConfigSyncPayload.CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    VineConfig.setServerConfig(payload.toConfig());
+                })
+        );
+
+        // Vine connections sync: server -> client
+        registrar.playToClient(
+                com.huwng.alterna.vine.network.VineSyncConnectionsPayload.TYPE,
+                com.huwng.alterna.vine.network.VineSyncConnectionsPayload.CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    com.huwng.alterna.vine.VineClientCache.setConnections(payload.connections());
+                })
+        );
     }
 }
+

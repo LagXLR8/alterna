@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "when": { "facing": "north" },
+      "apply": { "model": "alterna:block/enoki_mushroom_wall" }
+    },
+    {
+      "when": { "facing": "east" },
+      "apply": { "model": "alterna:block/enoki_mushroom_wall", "y": 90 }
+    },
+    {
+      "when": { "facing": "south" },
+      "apply": { "model": "alterna:block/enoki_mushroom_wall", "y": 180 }
+    },
+    {
+      "when": { "facing": "west" },
+      "apply": { "model": "alterna:block/enoki_mushroom_wall", "y": 270 }
+    }
+  ]
+}

@@ -24,15 +24,7 @@ public abstract class PlayerMixin {
         }
 
         EntityDimensions dimensions = self.getDimensions(pose);
-        float w = dimensions.width() / 2.0F;
-        float h = dimensions.height();
-        AABB boxAtOrigin = new AABB(-w, 0.0, -w, w, h, w);
-
-        if (gravityDirection.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-            boxAtOrigin = boxAtOrigin.move(0.0, -1.0E-6, 0.0);
-        }
-
-        AABB rotatedBoxWorld = RotationUtil.boxPlayerToWorld(boxAtOrigin, gravityDirection).move(self.position()).deflate(1.0E-7);
+        AABB rotatedBoxWorld = RotationUtil.makeBoxFromDimensions(dimensions, gravityDirection, self.position()).deflate(1.0E-7);
         boolean canFit = self.level().noCollision(self, rotatedBoxWorld);
         cir.setReturnValue(canFit);
     }

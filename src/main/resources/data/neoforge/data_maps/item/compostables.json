@@ -1,31 +1,49 @@
 {
   "values": {
-    "alterna:wild_moss_carpet": {
+    "alterna:enoki_mushroom": {
+      "chance": 0.65
+    },
+    "alterna:rootshroom_fungus": {
+      "chance": 0.65
+    },
+    "alterna:rootshroom_leaves": {
+      "chance": 0.3
+    },
+    "alterna:rootshroom_light": {
+      "chance": 0.65
+    },
+    "alterna:rootshroom_stem": {
+      "chance": 0.85
+    },
+    "alterna:purple_sugar_cane": {
+      "chance": 0.65
+    },
+    "alterna:cloud_berries": {
+      "chance": 0.3
+    },
+    "alterna:white_currant_berries": {
       "chance": 0.3
     },
     "alterna:star_lily": {
+      "chance": 0.65
+    },
+    "alterna:star_lily_vine": {
       "chance": 0.3
     },
     "alterna:short_daze": {
       "chance": 0.3
     },
-    "alterna:wild_hanging_moss": {
-      "chance": 0.5
-    },
-    "alterna:star_lily_vine": {
-      "chance": 0.5
+    "alterna:tall_daze": {
+      "chance": 0.65
     },
     "alterna:wild_moss_block": {
       "chance": 0.65
     },
-    "alterna:cloud_berries": {
-      "chance": 0.65
+    "alterna:wild_moss_carpet": {
+      "chance": 0.3
     },
-    "alterna:white_currant_berries": {
-      "chance": 0.65
-    },
-    "alterna:tall_daze": {
-      "chance": 0.65
+    "alterna:wild_hanging_moss": {
+      "chance": 0.3
     },
     "alterna:kapok_sapling": {
       "chance": 0.3

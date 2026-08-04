@@ -1,0 +1,51 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"fan": "alterna:block/enoki_mushroom",
+		"particle": "alterna:block/enoki_mushroom"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 0],
+			"to": [24, 0, 16],
+			"shade": false,
+			"rotation": {"x": 0, "y": 0, "z": 52.5, "origin": [8, 0, 0]},
+			"faces": {
+				"up": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#fan"},
+				"down": {"uv": [0, 16, 16, 0], "rotation": 270, "texture": "#fan"}
+			}
+		},
+		{
+			"from": [-4, 6, 0],
+			"to": [12, 6, 16],
+			"shade": false,
+			"rotation": {"x": 0, "y": 0, "z": -52.5, "origin": [3.60896, 6.06147, 8]},
+			"faces": {
+				"up": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#fan"},
+				"down": {"uv": [0, 16, 16, 0], "rotation": 90, "texture": "#fan"}
+			}
+		},
+		{
+			"from": [0, 0, 8],
+			"to": [16, 0, 24],
+			"shade": false,
+			"rotation": {"x": -52.5, "y": 0, "z": 0, "origin": [0, 0, 8]},
+			"faces": {
+				"up": {"uv": [16, 16, 0, 0], "texture": "#fan"},
+				"down": {"uv": [16, 0, 0, 16], "texture": "#fan"}
+			}
+		},
+		{
+			"from": [0, 0, -8],
+			"to": [16, 0, 8],
+			"shade": false,
+			"rotation": {"x": 47.5, "y": 0, "z": 0, "origin": [0, 0, 8]},
+			"faces": {
+				"up": {"uv": [0, 0, 16, 16], "texture": "#fan"},
+				"down": {"uv": [0, 16, 16, 0], "texture": "#fan"}
+			}
+		}
+	]
+}

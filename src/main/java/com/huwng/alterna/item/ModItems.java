@@ -11,11 +11,17 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
 
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Alterna.MODID);
 
     public static final DeferredItem<RiftDetectorItem> RIFT_DETECTOR = registerItem("rift_detector",
             RiftDetectorItem::new, new Item.Properties().stacksTo(1));
+
+    public static final DeferredItem<Item> VINE_ROPE = registerItem("vine_rope",
+            Item::new, new Item.Properties().stacksTo(16));
 
     public static final DeferredItem<BlockItem> PURPLE_SUGAR_CANE = registerItem("purple_sugar_cane",
             p -> new BlockItem(ModBlocks.PURPLE_SUGAR_CANE.get(), p),
@@ -28,6 +34,11 @@ public class ModItems {
     public static final DeferredItem<BlockItem> WHITE_CURRANT_BERRIES = registerItem("white_currant_berries",
             p -> new BlockItem(ModBlocks.WHITE_CURRANT_BERRY_BUSH.get(), p),
             new Item.Properties().food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.4F).build()));
+
+    public static final DeferredItem<StandingAndWallBlockItem> ENOKI_MUSHROOM = registerItem("enoki_mushroom",
+            p -> new StandingAndWallBlockItem(ModBlocks.ENOKI_MUSHROOM.get(), ModBlocks.ENOKI_MUSHROOM_WALL.get(), Direction.DOWN, p),
+            new Item.Properties().food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build()));
+
 
     private static <I extends Item> DeferredItem<I> registerItem(String name, Function<Item.Properties, I> factory, Item.Properties properties) {
         return ITEMS.registerItem(name, factory, () -> properties);

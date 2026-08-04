@@ -25,19 +25,17 @@ public class GravityApi {
     }
 
     public static void setDirection(Entity entity, Direction direction) {
-        if (entity == null) return;
+        if (!(entity instanceof net.minecraft.world.entity.player.Player)) return;
         Direction oldDir = getDirection(entity);
+        if (oldDir == direction) return;
         double strength = getData(entity).getStrength();
 
-        // Tạo instance mới để NeoForge Attachment System nhận biết thay đổi và tự động sync sang Client!
-        GravityData newData = new GravityData(direction, strength);
+        // Tạo instance mới để NeoForge Attachment System nhận biết thay đổi và tự động sync sang Client.
+        // Yaw/pitch adjustment xảy ra client-side trong LocalPlayerMixin khi client detect direction change.
+        GravityData newData = new GravityData(direction, oldDir, strength);
         entity.setData(AlternaAttachments.GRAVITY_DATA, newData);
 
-        Alterna.LOGGER.info("[GRAVITY-DEBUG] setDirection for {} (isClient={}): {} -> {}",
-                entity.getName().getString(),
-                entity.level() != null && entity.level().isClientSide(),
-                oldDir,
-                direction);
+        Alterna.LOGGER.debug("[GRAVITY] setDirection {} -> {}", oldDir, direction);
     }
 
     public static boolean hasCustomGravity(Entity entity) {

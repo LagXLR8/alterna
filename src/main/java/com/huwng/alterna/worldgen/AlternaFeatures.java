@@ -30,4 +30,13 @@ public class AlternaFeatures {
 
         public static final DeferredHolder<Feature<?>, KapokTreeFeature> KAPOK_TREE = FEATURES.register("kapok_tree",
                         () -> new KapokTreeFeature(KapokTreeConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, RootshroomTreeFeature> ROOTSHROOM_TREE = FEATURES.register("rootshroom_tree",
+                        () -> new RootshroomTreeFeature(NoneFeatureConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, RootshroomStumpFeature> ROOTSHROOM_STUMP = FEATURES.register("rootshroom_stump",
+                        () -> new RootshroomStumpFeature(NoneFeatureConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, RootshroomForestFeature> ROOTSHROOM_FOREST = FEATURES.register("rootshroom_forest",
+                        () -> new RootshroomForestFeature(NoneFeatureConfiguration.CODEC));
 }

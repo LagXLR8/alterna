@@ -7,7 +7,8 @@ public final class RiftLedge {
         MOSS_DAZE,
         CLOUDBERRY,
         STARLILY,
-        HOLLOW
+        HOLLOW,
+        ROOTSHROOM_FOREST
     }
 
     public final int side;            // -1 (left wall) or +1 (right wall)
@@ -32,7 +33,7 @@ public final class RiftLedge {
 
     public static RiftLedge[] buildLedges(RandomSource random, int originY, int depth) {
         int minLedgeY = Math.max(-335, originY - depth + 25);
-        int maxLedgeY = Math.min(60, originY - 68); // Never spawn in mid-air above ground level
+        int maxLedgeY = Math.min(-50, originY - 68); // Never spawn higher than Y = -50
         if (maxLedgeY <= minLedgeY + 20) return new RiftLedge[0];
 
         int count = 55 + random.nextInt(26); // 55 to 80 ledges (spans to crack ends)

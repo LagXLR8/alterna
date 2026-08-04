@@ -2,6 +2,11 @@ package com.huwng.alterna;
 
 import com.huwng.alterna.block.ModBlocks;
 import com.huwng.alterna.item.ModItems;
+import com.huwng.alterna.vine.VineCableProvider;
+import com.huwng.alterna.vine.VineCables;
+import com.huwng.alterna.vine.VineConfig;
+import com.huwng.alterna.vine.VineSoundEvents;
+import com.huwng.alterna.vine.network.VineConfigSyncPayload;
 import com.huwng.alterna.worldgen.AlternaFeatures;
 import org.slf4j.Logger;
 
@@ -10,6 +15,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -30,7 +36,9 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -46,6 +54,11 @@ public class Alterna {
     public static final String MODID = "alterna";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
+    }
+
     // Create a Deferred Register to hold Blocks which will all be registered under the "alterna" namespace
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "alterna" namespace
@@ -59,11 +72,7 @@ public class Alterna {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ModBlocks.GOBLET_LOG.get().asItem().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                ModItems.ITEMS.getEntries().forEach(item -> {
-                    if (item.get() != ModBlocks.GRAVITY_CORE_BLOCK.get().asItem()) {
-                        output.accept(item.get());
-                    }
-                });
+                ModItems.ITEMS.getEntries().forEach(item -> output.accept(item.get()));
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -93,8 +102,15 @@ public class Alterna {
         AlternaStructurePieceTypes.STRUCTURE_PIECE_TYPES.register(modEventBus);
         AlternaFeatures.FEATURES.register(modEventBus);
         com.huwng.alterna.loot.ModLootFunctions.register(modEventBus);
+
+        // Register vine system sound events
+        VineSoundEvents.SOUND_EVENTS.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in.
         NeoForge.EVENT_BUS.register(this);
+
+        // Initialize vine cable provider (flood-fill block scanner)
+        VineCables.registerProvider(new VineCableProvider());
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -106,5 +122,13 @@ public class Alterna {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, VineConfigSyncPayload.fromConfig(VineConfig.get()));
+            com.huwng.alterna.vine.VineInteractionHandler.syncAllToPlayer(serverPlayer);
+        }
     }
 }

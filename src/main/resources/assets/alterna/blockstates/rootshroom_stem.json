@@ -1,0 +1,33 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "alterna:block/rootshroom_block_inside"
+      }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "uvlock": true }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "up": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "down": "true" },
+      "apply": { "model": "alterna:block/rootshroom_stem_single_face", "x": 90, "uvlock": true }
+    }
+  ]
+}

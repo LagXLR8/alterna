@@ -675,7 +675,27 @@ public class GiantCrackParams {
             double dirX = side * sinO;
             double dirZ = -side * cosO;
 
-            GobletTree base = GobletTree.create(random, wallX, anchorY, wallZ, dirX, dirZ, embed, side, sNorm);
+            // Check if this candidate Goblet Tree anchor is near a Rootshroom Forest giant ledge
+            boolean nearRootshroomForest = false;
+            if (seg.giantLedges != null) {
+                for (RiftGiantLedge gl : seg.giantLedges) {
+                    if (gl.variant == RiftLedge.Variant.ROOTSHROOM_FOREST) {
+                        double dsNorm = Math.abs(sNorm - gl.sCenter);
+                        double halfLenNorm = gl.sHalfLength / Math.max(1.0, seg.halfLength);
+                        if (dsNorm <= (halfLenNorm + 0.15) && Math.abs(anchorY - gl.yTop) <= 45) {
+                            nearRootshroomForest = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Restrict Goblet trees near Rootshroom forest (~75% skipped)
+            if (nearRootshroomForest && random.nextFloat() < 0.75f) {
+                continue;
+            }
+
+            GobletTree base = GobletTree.create(random, wallX, anchorY, wallZ, dirX, dirZ, embed, side, sNorm, nearRootshroomForest);
             // Wall-to-wall width available here. Using the anchor layer's width
             // is conservative: the crown sits higher, where the rift is wider.
             double riftWidth = 2.0 * absB;
@@ -1861,6 +1881,17 @@ public class GiantCrackParams {
                 level.setBlock(blockPos, Blocks.PALE_MOSS_BLOCK.defaultBlockState(), 2);
             } else if (variant == RiftLedge.Variant.MOSS_DAZE || variant == RiftLedge.Variant.HOLLOW) {
                 level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
+            } else if (variant == RiftLedge.Variant.ROOTSHROOM_FOREST) {
+                // Guard: don't overwrite surface block if a Rootshroom tree/stump from an adjacent chunk
+                // has already placed its stem base on top of this block (cross-chunk boundary case)
+                boolean hasStemAbove = level.getBlockState(blockPos.above()).is(ModBlocks.ROOTSHROOM_STEM.get());
+                if (!hasStemAbove) {
+                    if (random.nextBoolean()) {
+                        level.setBlock(blockPos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                    } else {
+                        level.setBlock(blockPos, Blocks.MOSS_BLOCK.defaultBlockState(), 2);
+                    }
+                }
             } else {
                 if (random.nextBoolean()) {
                     level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
@@ -1974,6 +2005,9 @@ public class GiantCrackParams {
                                 int amount = (edgeDistNorm > 0.75) ? (1 + random.nextInt(2)) : (edgeDistNorm > 0.45) ? (2 + random.nextInt(2)) : (3 + random.nextInt(2));
                                 level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, amount), 2);
                             }
+                        }
+                        case ROOTSHROOM_FOREST -> {
+                            RootshroomForestFeature.placeDirect(level, random, topPos, edgeDistNorm, seg.roughnessSeed);
                         }
                     }
                 }

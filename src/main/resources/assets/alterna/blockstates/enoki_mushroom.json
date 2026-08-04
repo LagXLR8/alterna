@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "closed=false": {
+      "model": "alterna:block/enoki_mushroom"
+    },
+    "closed=true": {
+      "model": "alterna:block/enoki_mushroom_close"
+    }
+  }
+}
