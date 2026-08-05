@@ -90,6 +90,9 @@ public class Alterna {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
         com.huwng.alterna.entity.ModEntities.register(modEventBus);
+        modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerAttributes);
+        modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerSpawnPlacements);
+        modEventBus.addListener(com.huwng.alterna.client.ModClientEntityEvents::registerEntityRenderers);
         com.huwng.alterna.block.entity.ModBlockEntities.register(modEventBus);
 
         // Register the Deferred Register so our fall-distance attachment type gets registered

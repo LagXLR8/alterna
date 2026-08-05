@@ -92,5 +92,7 @@
   "block.alterna.enoki_mushroom": "Enoki Mushroom",
   "block.alterna.enoki_mushroom_wall": "Enoki Mushroom",
   "item.alterna.enoki_mushroom": "Enoki Mushroom",
-  "block.alterna.rootshroom_fungus": "Rootshroom Fungus"
+  "block.alterna.rootshroom_fungus": "Rootshroom Fungus",
+  "entity.alterna.climbing_zombie": "Climbing Zombie",
+  "item.alterna.climbing_zombie_spawn_egg": "Climbing Zombie Spawn Egg"
 }

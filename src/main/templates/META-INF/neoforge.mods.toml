@@ -33,7 +33,7 @@ displayURL="https://www.curseforge.com/members/huwng/projects" #optional
 #logoFile="examplemod.png" #optional
 
 # A text field displayed in the mod UI
-credits="NVlinh, Antigravity, Ziplines coremods by Evan & Tomate0613 (MIT License) #optional
+credits="NVlinh, Antigravity, Ziplines coremods by Evan & Tomate0613 (MIT License)" #optional
 
 # The authors of the mod, displayed in the mod UI (optional)
 authors="Huwng"

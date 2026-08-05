@@ -39,6 +39,10 @@ public class ModItems {
             p -> new StandingAndWallBlockItem(ModBlocks.ENOKI_MUSHROOM.get(), ModBlocks.ENOKI_MUSHROOM_WALL.get(), Direction.DOWN, p),
             new Item.Properties().food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build()));
 
+    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> CLIMBING_ZOMBIE_SPAWN_EGG = registerItem("climbing_zombie_spawn_egg",
+            p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.CLIMBING_ZOMBIE.get(), new net.minecraft.nbt.CompoundTag()))),
+            new Item.Properties());
+
 
     private static <I extends Item> DeferredItem<I> registerItem(String name, Function<Item.Properties, I> factory, Item.Properties properties) {
         return ITEMS.registerItem(name, factory, () -> properties);

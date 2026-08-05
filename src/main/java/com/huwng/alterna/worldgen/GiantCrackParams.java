@@ -9,20 +9,12 @@ import com.huwng.alterna.event.VoidFallHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CaveVines;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.HangingMossBlock;
-import net.minecraft.world.level.block.KelpBlock;
-import net.minecraft.world.level.block.MossyCarpetBlock;
-import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.level.block.SweetBerryBushBlock;
-import net.minecraft.world.level.block.TallSeagrassBlock;
-import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.WallSide;
@@ -933,6 +925,158 @@ public class GiantCrackParams {
         }
     }
 
+    private void placeLedgeHouseStructures(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
+        if (seg.ledges == null) return;
+        int chunkMinX = chunkPos.getMinBlockX();
+        int chunkMaxX = chunkPos.getMaxBlockX();
+        int chunkMinZ = chunkPos.getMinBlockZ();
+        int chunkMaxZ = chunkPos.getMaxBlockZ();
+
+        double cosO = Math.cos(seg.orientationAngle);
+        double sinO = Math.sin(seg.orientationAngle);
+
+        for (RiftLedge lg : seg.ledges) {
+            // HOLLOW variant is reserved for its special water/pool decoration - no houses
+            if (lg.variant == RiftLedge.Variant.HOLLOW) continue;
+
+            long ledgeSeed = (long) (lg.sCenter * 10000.0) ^ (long) (lg.yCenter * 31) ^ seg.roughnessSeed;
+            if ((Math.abs(ledgeSeed) % 100) >= 55) continue; // Increased attempt chance to 55%
+
+            int layer = seg.origin.getY() - lg.yCenter;
+            if (layer < 0 || layer >= seg.depth) continue;
+            LayerShape ls = layerShape(seg, layer);
+
+            // Try center, then slight left/right offsets if center fails
+            double[] aOffsets = new double[]{0.0, -lg.sHalfLength * 0.4, lg.sHalfLength * 0.4};
+            for (double offsetA : aOffsets) {
+                double localA = lg.sCenter * ls.halfLength + offsetA;
+                double sNorm = clamp(localA / Math.max(1.0, ls.halfLength), -1.0, 1.0);
+                double effectiveHalfWidth = ls.halfWidth * widthPulse(seg, sNorm, ls.t);
+                double wallB = lg.side * effectiveHalfWidth;
+                double localB = lg.side * (Math.abs(wallB) - lg.reachWidth * 0.4);
+
+                double dx = localA * cosO - localB * sinO;
+                double dz = localA * sinO + localB * cosO;
+                int worldX = (int) Math.round(ls.centerX + dx);
+                int worldZ = (int) Math.round(ls.centerZ + dz);
+
+                if (worldX < chunkMinX || worldX > chunkMaxX || worldZ < chunkMinZ || worldZ > chunkMaxZ) {
+                    continue;
+                }
+
+                BlockPos surfacePos = null;
+                for (int yOffset = 4; yOffset >= -4; yOffset--) {
+                    BlockPos checkPos = new BlockPos(worldX, lg.yCenter + yOffset, worldZ);
+                    BlockState state = level.getBlockState(checkPos);
+                    if (state.isSolid() && !level.getBlockState(checkPos.above()).isSolid()) {
+                        surfacePos = checkPos.above();
+                        break;
+                    }
+                }
+                if (surfacePos != null) {
+                    RandomSource random = RandomSource.create(ledgeSeed ^ Double.doubleToLongBits(offsetA));
+                    if (LedgeStructureFeature.placeStructure(level, random, surfacePos, lg.side, lg.reachWidth, false)) {
+                        break; // Stop after placing 1 house on this standard ledge
+                    }
+                }
+            }
+        }
+
+        if (seg.giantLedges != null) {
+            for (RiftGiantLedge gl : seg.giantLedges) {
+                // HOLLOW variant is reserved for its pool decoration - no houses
+                if (gl.variant == RiftLedge.Variant.HOLLOW) continue;
+
+                long glSeed = (long) (gl.sCenter * 10000.0) ^ (long) (gl.yTop * 31) ^ seg.roughnessSeed;
+                if ((Math.abs(glSeed) % 100) >= 80) continue; // Increased attempt chance to 80%
+
+                int layer = seg.origin.getY() - gl.yTop;
+                if (layer < 0 || layer >= seg.depth) continue;
+                LayerShape ls = layerShape(seg, layer);
+
+                // Giant ledges are massive (50-100 blocks long); try 2 houses at offsets
+                double[] aOffsets = new double[]{-gl.sHalfLength * 0.35, gl.sHalfLength * 0.35, 0.0};
+                int placedOnGiant = 0;
+                for (double offsetA : aOffsets) {
+                    double localA = gl.sCenter * ls.halfLength + offsetA;
+                    double sNorm = clamp(localA / Math.max(1.0, ls.halfLength), -1.0, 1.0);
+                    double effectiveHalfWidth = ls.halfWidth * widthPulse(seg, sNorm, ls.t);
+                    double wallB = gl.side * effectiveHalfWidth;
+                    double localB = gl.side * (Math.abs(wallB) - gl.reachWidth * 0.4);
+
+                    double dx = localA * cosO - localB * sinO;
+                    double dz = localA * sinO + localB * cosO;
+                    int worldX = (int) Math.round(ls.centerX + dx);
+                    int worldZ = (int) Math.round(ls.centerZ + dz);
+
+                    if (worldX < chunkMinX || worldX > chunkMaxX || worldZ < chunkMinZ || worldZ > chunkMaxZ) {
+                        continue;
+                    }
+
+                    BlockPos surfacePos = null;
+                    for (int yOffset = 4; yOffset >= -4; yOffset--) {
+                        BlockPos checkPos = new BlockPos(worldX, gl.yTop + yOffset, worldZ);
+                        BlockState state = level.getBlockState(checkPos);
+                        if (state.isSolid() && !level.getBlockState(checkPos.above()).isSolid()) {
+                            surfacePos = checkPos.above();
+                            break;
+                        }
+                    }
+                    if (surfacePos != null) {
+                        RandomSource random = RandomSource.create(glSeed ^ Double.doubleToLongBits(offsetA));
+                        if (LedgeStructureFeature.placeStructure(level, random, surfacePos, gl.side, gl.reachWidth, true)) {
+                            placedOnGiant++;
+                            if (placedOnGiant >= 2) break; // Allow up to 2 houses on giant ledges
+                        }
+                    }
+                }
+            }
+        }
+
+        // Bridges: place structures on their flat top surface (skip HOLLOW)
+        for (RiftBridge br : seg.bridges) {
+            // HOLLOW bridges have their special pool - no houses
+            if (br.variant == RiftLedge.Variant.HOLLOW) continue;
+
+            long bridgeSeed = (long) (br.sCenter * 10000.0) ^ (long) (br.yCenter * 37) ^ seg.roughnessSeed ^ 0xB4D9E1FL;
+            if ((Math.abs(bridgeSeed) % 100) >= 60) continue; // Increased attempt chance to 60%
+
+            int layer = seg.origin.getY() - br.yCenter;
+            if (layer < 0 || layer >= seg.depth) continue;
+            LayerShape ls = layerShape(seg, layer);
+
+            double[] aOffsets = new double[]{0.0, -br.sHalfWidth * 0.4, br.sHalfWidth * 0.4};
+            for (double offsetA : aOffsets) {
+                double localA = br.sCenter * ls.halfLength + offsetA;
+
+                double dx = localA * cosO;
+                double dz = localA * sinO;
+                int worldX = (int) Math.round(ls.centerX + dx);
+                int worldZ = (int) Math.round(ls.centerZ + dz);
+
+                if (worldX < chunkMinX || worldX > chunkMaxX || worldZ < chunkMinZ || worldZ > chunkMaxZ) {
+                    continue;
+                }
+
+                BlockPos surfacePos = null;
+                for (int yOffset = 6; yOffset >= -2; yOffset--) {
+                    BlockPos checkPos = new BlockPos(worldX, br.yCenter + yOffset, worldZ);
+                    BlockState state = level.getBlockState(checkPos);
+                    if (state.isSolid() && !level.getBlockState(checkPos.above()).isSolid()) {
+                        surfacePos = checkPos.above();
+                        break;
+                    }
+                }
+                if (surfacePos != null) {
+                    RandomSource random = RandomSource.create(bridgeSeed ^ Double.doubleToLongBits(offsetA));
+                    if (LedgeStructureFeature.placeStructure(level, random, surfacePos, 0, br.sHalfWidth, false)) {
+                        break; // Stop after 1 house on bridge
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Builds this crack's goblet trees (and their root connectors) within the
      * given chunk. MUST run only after every crack that reaches this chunk
@@ -946,12 +1090,32 @@ public class GiantCrackParams {
         boolean any = placeSegmentGobletTrees(level, main, chunkPos);
         any |= placeSegmentRootConnectors(level, main, chunkPos);
         placeVines(level, main, chunkPos);
+        placeLedgeHouseStructures(level, main, chunkPos);
+        placeKapokTrees(level, main, chunkPos);
         for (Segment branch : branches) {
             any |= placeSegmentGobletTrees(level, branch, chunkPos);
             any |= placeSegmentRootConnectors(level, branch, chunkPos);
             placeVines(level, branch, chunkPos);
+            placeLedgeHouseStructures(level, branch, chunkPos);
+            placeKapokTrees(level, branch, chunkPos);
         }
         return any;
+    }
+
+    private static void placeKapokTrees(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
+        int chunkMinX = chunkPos.getMinBlockX();
+        int chunkMaxX = chunkPos.getMaxBlockX();
+        int chunkMinZ = chunkPos.getMinBlockZ();
+        int chunkMaxZ = chunkPos.getMaxBlockZ();
+        for (BlockPos anchor : seg.kapokAnchors) {
+            if (anchor.getX() >= chunkMinX && anchor.getX() <= chunkMaxX
+                    && anchor.getZ() >= chunkMinZ && anchor.getZ() <= chunkMaxZ
+                    && level.getBlockState(anchor).isAir()) {
+                RandomSource random = RandomSource.create(
+                        (long) anchor.getX() * 3129871L ^ (long) anchor.getY() * 116391L ^ (long) anchor.getZ() * 91811L ^ seg.roughnessSeed);
+                KapokTreeFeature.generateKapokTreeDirect(level, anchor, random, 7 + random.nextInt(5));
+            }
+        }
     }
 
     boolean placeGiantVines(WorldGenLevel level, ChunkPos chunkPos) {
@@ -1382,6 +1546,7 @@ public class GiantCrackParams {
                         BlockState existing = level.getBlockState(blockPos);
                         if (isCarveReplaceable(existing)) {
                             level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 2);
+                            cleanUpFloatingFoliageAbove(level, blockPos);
                         }
                     }
                     continue;
@@ -1416,6 +1581,7 @@ public class GiantCrackParams {
                         BlockState existing = level.getBlockState(blockPos);
                         if (!existing.isAir()) {
                             level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 2);
+                            cleanUpFloatingFoliageAbove(level, blockPos);
                         }
                         continue;
                     }
@@ -1473,9 +1639,58 @@ public class GiantCrackParams {
     }
 
     private static boolean isCarveReplaceable(BlockState state) {
-        if (state.isAir()) return false;
+        if (state == null || state.isAir()) return false;
+        return true;
+    }
+
+    private static void cleanUpFloatingFoliageAbove(WorldGenLevel level, BlockPos startPos) {
+        BlockPos.MutableBlockPos mutPos = startPos.mutable();
+        while (mutPos.getY() < level.getMaxY() - 1) {
+            mutPos.move(Direction.UP);
+            BlockState state = level.getBlockState(mutPos);
+            if (state.isAir()) {
+                break;
+            }
+            if (isFloatingFoliageOrPlant(state)) {
+                level.setBlock(mutPos, Blocks.AIR.defaultBlockState(), 2);
+            } else {
+                break;
+            }
+        }
+    }
+
+    private static boolean isFloatingFoliageOrPlant(BlockState state) {
+        if (state == null || state.isAir()) {
+            return false;
+        }
         net.minecraft.world.level.block.Block b = state.getBlock();
-        if (b == ModBlocks.WILD_HANGING_MOSS.get()
+        if (b instanceof BushBlock
+                || b instanceof DoublePlantBlock
+                || b instanceof LeavesBlock
+                || b instanceof VineBlock
+                || b instanceof CaveVines
+                || b instanceof CaveVinesPlantBlock
+                || b instanceof MultifaceBlock
+                || b instanceof CarpetBlock
+                || b instanceof MossyCarpetBlock
+                || b instanceof HangingMossBlock
+                || b instanceof SnowLayerBlock
+                || b instanceof SugarCaneBlock
+                || b instanceof CactusBlock
+                || b instanceof BambooStalkBlock
+                || b instanceof BambooSaplingBlock
+                || b == Blocks.LILY_PAD
+                || b instanceof GrowingPlantBlock
+                || b instanceof GrowingPlantHeadBlock
+                || b instanceof GrowingPlantBodyBlock
+                || state.is(BlockTags.FLOWERS)
+                || state.is(BlockTags.LEAVES)
+                || state.is(BlockTags.SAPLINGS)
+                || state.is(BlockTags.CROPS)
+                || state.is(BlockTags.LOGS)
+                || state.is(BlockTags.REPLACEABLE)
+                || state.is(BlockTags.REPLACEABLE_BY_TREES)
+                || b == ModBlocks.WILD_HANGING_MOSS.get()
                 || b == ModBlocks.CLOUDBERRY_VINES.get()
                 || b == ModBlocks.CLOUDBERRY_VINES_PLANT.get()
                 || b == ModBlocks.STAR_LILY_VINE.get()
@@ -1485,18 +1700,15 @@ public class GiantCrackParams {
                 || b == ModBlocks.STAR_LILY.get()
                 || b == ModBlocks.SHORT_DAZE.get()
                 || b == ModBlocks.TALL_DAZE.get()
-                || b == Blocks.SWEET_BERRY_BUSH
                 || b == ModBlocks.WHITE_CURRANT_BERRY_BUSH.get()
-                || b == Blocks.SHORT_GRASS
-                || b == Blocks.TALL_GRASS
-                || b == Blocks.MANGROVE_WOOD
-                || b == Blocks.MANGROVE_LOG
-                || b == Blocks.MANGROVE_LEAVES
-                || b == Blocks.MANGROVE_ROOTS
-                || b == ModBlocks.WILD_MOSS_BLOCK.get()) {
-            return false;
+                || b == ModBlocks.PURPLE_SUGAR_CANE.get()
+                || b == ModBlocks.ENOKI_MUSHROOM.get()
+                || b == ModBlocks.ENOKI_MUSHROOM_WALL.get()
+                || b == ModBlocks.ROOTSHROOM_LEAVES.get()
+                || b == ModBlocks.ROOTSHROOM_FUNGUS.get()) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     private static boolean placeLedgeBlock(WorldGenLevel level, BlockPos blockPos, Segment seg, double localA, double localB, int x, int y, int z, double halfLength, double effectiveHalfWidth) {
@@ -1778,11 +1990,10 @@ public class GiantCrackParams {
                         if (Math.abs(centerAInt) <= 2L && Math.abs(currentBInt) % 8L == 0L) {
                             if (isSturdyCeiling) {
                                 BlockPos treeAnchor = blockPos.below();
-                                if (level.getBlockState(treeAnchor).isAir()) {
-                                    long treeHash = (long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed;
-                                    if ((Math.abs(treeHash) % 100) < 65) {
-                                        KapokTreeFeature.generateKapokTreeDirect(level, treeAnchor, random, 7 + random.nextInt(5));
-                                    }
+                                long treeHash = (long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed;
+                                if ((Math.abs(treeHash) % 100) < 65) {
+                                    // Defer to post-carve step to avoid cross-chunk truncation
+                                    seg.kapokAnchors.add(treeAnchor);
                                 }
                             }
                         }
@@ -2052,11 +2263,10 @@ public class GiantCrackParams {
                             if (relA % 7L == 0L && (currentDistInt % 7L == 0L || currentDistInt == Math.round(maxTopReach - 4.0))) {
                                 if (isSturdyCeiling) {
                                     BlockPos treeAnchor = blockPos.below();
-                                    if (level.getBlockState(treeAnchor).isAir()) {
-                                        long treeHash = currentAInt * 3129871L ^ currentDistInt * 116391L ^ seg.roughnessSeed;
-                                        if ((Math.abs(treeHash) % 100) < 55) {
-                                            KapokTreeFeature.generateKapokTreeDirect(level, treeAnchor, random, 7 + random.nextInt(5));
-                                        }
+                                    long treeHash = currentAInt * 3129871L ^ currentDistInt * 116391L ^ seg.roughnessSeed;
+                                    if ((Math.abs(treeHash) % 100) < 55) {
+                                        // Defer to post-carve to avoid cross-chunk truncation
+                                        seg.kapokAnchors.add(treeAnchor);
                                     }
                                 }
                             }
@@ -2761,6 +2971,8 @@ public class GiantCrackParams {
         RiftLedge[] ledges = new RiftLedge[0];
         RiftGiantLedge[] giantLedges = new RiftGiantLedge[0];
         GiantVine[] giantVines = new GiantVine[0];
+        // Kapok tree anchor positions collected during carve, placed post-carve.
+        final java.util.concurrent.CopyOnWriteArrayList<BlockPos> kapokAnchors = new java.util.concurrent.CopyOnWriteArrayList<>();
 
         final int minChunkX, maxChunkX, minChunkZ, maxChunkZ;
 

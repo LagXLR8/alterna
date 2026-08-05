@@ -25,41 +25,41 @@ public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
         int x = topPos.getX();
         int z = topPos.getZ();
 
-        // 10x10 block grid cells for dense, guaranteed tree & stump spawning
-        int gridSize = 10;
+        // 9x9 grid cells for denser tree/structure placement
+        int gridSize = 9;
         int cellX = Math.floorDiv(x, gridSize);
         int cellZ = Math.floorDiv(z, gridSize);
 
         long gridHash = (long) cellX * 73856093L ^ (long) cellZ * 19349663L ^ seed;
-        int targetX = cellX * gridSize + 5 + (int) ((gridHash & 3) - 1);
-        int targetZ = cellZ * gridSize + 5 + (int) (((gridHash >> 2) & 3) - 1);
+        int targetX = cellX * gridSize + 4 + (int) ((gridHash & 3) - 1);
+        int targetZ = cellZ * gridSize + 4 + (int) (((gridHash >> 2) & 3) - 1);
 
-        if (x == targetX && z == targetZ && edgeDistNorm >= 0.02 && edgeDistNorm <= 0.98) {
-            // Guaranteed 2 Trees : 1 Stump ratio (33% Stumps, 67% Trees) across grid cells
-            long cellIndex = (long) cellX * 31L ^ (long) cellZ;
-            boolean isStump = (Math.abs(cellIndex + (seed & 7)) % 3 == 0);
+        if (x == targetX && z == targetZ && edgeDistNorm >= 0.12 && edgeDistNorm <= 0.88) {
+            long cellIndex = (long) cellX * 31L ^ (long) cellZ ^ seed;
+            int roll = (int) (Math.abs(cellIndex) % 100);
 
-            if (isStump) {
-                return RootshroomStumpFeature.placeDirect(level, random, topPos);
-            } else {
+            if (roll < 30) {
+                // ~30% Tree
                 return RootshroomTreeFeature.placeDirect(level, random, topPos);
+            } else if (roll < 50) {
+                // ~20% Stump
+                return RootshroomStumpFeature.placeDirect(level, random, topPos);
+            } else if (roll < 65) {
+                // ~15% House Structure
+                return LedgeStructureFeature.placeStructure(level, random, topPos, 1, 8.0, true);
             }
-        } else {
-            // Sparse ground vegetation (~16% total density)
-            // Only place if air — don't overwrite stems/canopy from trees placed by adjacent chunks
-            if (!level.getBlockState(topPos).isAir()) return true;
-            float roll = random.nextFloat();
-            if (roll < 0.04f) {
-                // Enoki Mushroom (~4%)
-                level.setBlock(topPos, ModBlocks.ENOKI_MUSHROOM.get().defaultBlockState(), 2);
-            } else if (roll < 0.08f) {
-                // Vanilla Moss Carpet (~4%)
-                level.setBlock(topPos, Blocks.MOSS_CARPET.defaultBlockState(), 2);
-            } else if (roll < 0.16f) {
-                // Vanilla Short Grass (~8%)
-                level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
-            }
-            return true;
         }
+
+        // Sparse ground vegetation (~16% total density)
+        if (!level.getBlockState(topPos).isAir()) return true;
+        float rollVeg = random.nextFloat();
+        if (rollVeg < 0.04f) {
+            level.setBlock(topPos, ModBlocks.ENOKI_MUSHROOM.get().defaultBlockState(), 2);
+        } else if (rollVeg < 0.08f) {
+            level.setBlock(topPos, Blocks.MOSS_CARPET.defaultBlockState(), 2);
+        } else if (rollVeg < 0.16f) {
+            level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+        }
+        return true;
     }
 }
