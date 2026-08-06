@@ -17,7 +17,35 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import java.util.Optional;
 
+import com.huwng.alterna.entity.ModEntities;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.storage.loot.LootTable;
+
+@SuppressWarnings("unchecked")
 public class LedgeStructureFeature {
+
+    private static final ResourceKey<LootTable>[] DUNGEON_LOOT_TABLES = new ResourceKey[] {
+            ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("minecraft:chests/simple_dungeon")),
+            ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("minecraft:chests/abandoned_mineshaft")),
+            ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("minecraft:chests/desert_pyramid")),
+            ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("minecraft:chests/jungle_temple")),
+            ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("minecraft:chests/trial_chambers/reward"))
+    };
+
+    private static EntityType<?> pickRandomSpawnerEntity(RandomSource random) {
+        EntityType<?>[] pool = new EntityType<?>[] {
+                ModEntities.CLIMBING_ZOMBIE.get(),
+                EntityType.CAVE_SPIDER,
+                EntityType.STRAY,
+                EntityType.BOGGED
+        };
+        return pool[random.nextInt(pool.length)];
+    }
 
     private static final Identifier[] SMALL_HOUSES = new Identifier[]{
             Identifier.fromNamespaceAndPath("alterna", "small_gneiss_house_1"),
@@ -146,7 +174,44 @@ public class LedgeStructureFeature {
             }
         }
 
-        return finalTemplate.placeInWorld(level, originPos, originPos, settings, random, 2);
+        boolean placed = finalTemplate.placeInWorld(level, originPos, originPos, settings, random, 2);
+
+        if (placed) {
+            // Post-process container blocks & spawners inside placed structure footprint
+            for (int dx = 0; dx < rawSX; dx++) {
+                for (int dz = 0; dz < rawSZ; dz++) {
+                    for (int dy = 0; dy < finalSize.getY(); dy++) {
+                        BlockPos relPos = StructureTemplate.calculateRelativePosition(settings, new BlockPos(dx, dy, dz));
+                        BlockPos wPos = originPos.offset(relPos);
+                        BlockState st = level.getBlockState(wPos);
+
+                        // 1. Chest, Trapped Chest, Barrel -> Assign random Loot Table
+                        if (st.is(Blocks.CHEST) || st.is(Blocks.TRAPPED_CHEST) || st.is(Blocks.BARREL)) {
+                            if (level.getBlockEntity(wPos) instanceof RandomizableContainerBlockEntity containerBE) {
+                                ResourceKey<LootTable> lootKey = DUNGEON_LOOT_TABLES[random.nextInt(DUNGEON_LOOT_TABLES.length)];
+                                containerBE.setLootTable(lootKey, random.nextLong());
+                            }
+                        } 
+                        // 2. Decorated Pot -> Assign random Loot Table
+                        else if (st.is(Blocks.DECORATED_POT)) {
+                            if (level.getBlockEntity(wPos) instanceof DecoratedPotBlockEntity potBE) {
+                                ResourceKey<LootTable> lootKey = DUNGEON_LOOT_TABLES[random.nextInt(DUNGEON_LOOT_TABLES.length)];
+                                potBE.setLootTable(lootKey, random.nextLong());
+                            }
+                        }
+                        // 3. Monster Spawner -> Randomly assign Climbing Zombie, Cave Spider, Stray, or Bogged
+                        else if (st.is(Blocks.SPAWNER)) {
+                            if (level.getBlockEntity(wPos) instanceof SpawnerBlockEntity spawnerBE) {
+                                EntityType<?> chosenMob = pickRandomSpawnerEntity(random);
+                                spawnerBE.setEntityId(chosenMob, random);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return placed;
     }
 
     /** Returns a shuffled copy of [0..n-1] using the given random source. */

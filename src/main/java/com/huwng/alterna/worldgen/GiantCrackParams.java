@@ -19,6 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.WallSide;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -195,7 +200,7 @@ public class GiantCrackParams {
     private static final int PATH_KEYFRAMES = 4;
     private static final double MAX_PATH_OFFSET = 40.0;
 
-    private static final double BEDROCK_WALL_OFFSET = 5.0;
+    private static final double BEDROCK_WALL_OFFSET = 20.0;
     private static final double BEDROCK_WALL_THICKNESS = 4.0; // 12-block thick solid Bedrock wall
     private static final double MAX_EXPANSION_MARGIN = 70.0; // Cavern wall flares out +70 blocks below Y=-350
     private static final double MAX_OUTWARD_MARGIN = MAX_EXPANSION_MARGIN + BEDROCK_WALL_OFFSET
@@ -1745,7 +1750,9 @@ public class GiantCrackParams {
                                 RandomSource aquaRandom = RandomSource.create((long) x * 8831L ^ (long) y * 1307L ^ (long) z * 9191L ^ seg.roughnessSeed);
                                 float roll = aquaRandom.nextFloat();
 
-                                if (roll < 0.45f) {
+                                if (roll < 0.05f) {
+                                    placeForestRock(level, waterPos, aquaRandom);
+                                } else if (roll < 0.45f) {
                                     // Seagrass / Tall Seagrass (dense, ~45% with gaps)
                                     boolean isTwoWaterBlocksDeep = RiftGiantLedge.isInsideHollowBasin(gl, localA, localB, x, y + 2, z, halfLength, effectiveHalfWidth);
                                     if (isTwoWaterBlocksDeep && aquaRandom.nextFloat() < 0.35f) {
@@ -1842,7 +1849,9 @@ public class GiantCrackParams {
                             RandomSource aquaRandom = RandomSource.create((long) x * 8831L ^ (long) y * 1307L ^ (long) z * 9191L ^ seg.roughnessSeed);
                             float roll = aquaRandom.nextFloat();
 
-                            if (roll < 0.45f) {
+                            if (roll < 0.05f) {
+                                placeForestRock(level, waterPos, aquaRandom);
+                            } else if (roll < 0.45f) {
                                 level.setBlock(waterPos, Blocks.SEAGRASS.defaultBlockState(), 2);
                             } else if (roll < 0.55f) {
                                 int pickles = 1 + aquaRandom.nextInt(4);
@@ -1894,6 +1903,15 @@ public class GiantCrackParams {
                 }
             } else if (variant == RiftLedge.Variant.MOSS_DAZE || variant == RiftLedge.Variant.HOLLOW) {
                 level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
+            } else if (variant == RiftLedge.Variant.ROOTSHROOM_FOREST) {
+                double podzolNoise = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x90D201L, 0.18);
+                if (podzolNoise > 0.10) {
+                    level.setBlock(blockPos, Blocks.PODZOL.defaultBlockState(), 2);
+                } else if (random.nextBoolean()) {
+                    level.setBlock(blockPos, Blocks.MOSS_BLOCK.defaultBlockState(), 2);
+                } else {
+                    level.setBlock(blockPos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                }
             } else {
                 if (random.nextBoolean()) {
                     level.setBlock(blockPos, ModBlocks.WILD_MOSS_BLOCK.get().defaultBlockState(), 2);
@@ -1909,24 +1927,32 @@ public class GiantCrackParams {
         if (isTopSurface) {
             BlockPos topPos = blockPos.above();
             if (level.getBlockState(topPos).isAir()) {
+                if (random.nextFloat() < 0.02f) {
+                    placeForestRock(level, topPos, random);
+                }
+
                 switch (variant) {
                     case MOSS_DAZE, HOLLOW -> {
                         float roll = random.nextFloat();
-                        if (roll < 0.35f) {
+                        if (roll < 0.30f) {
                             if (random.nextFloat() < 0.25f && level.getBlockState(topPos.above()).isAir()) {
                                 DoublePlantBlock.placeAt(level, Blocks.TALL_GRASS.defaultBlockState(), topPos, 2);
                             } else {
                                 level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
                             }
-                        } else if (roll < 0.65f) {
+                        } else if (roll < 0.42f) {
                             if (random.nextFloat() < 0.30f && level.getBlockState(topPos.above()).isAir()) {
                                 DoublePlantBlock.placeAt(level, ModBlocks.TALL_DAZE.get().defaultBlockState(), topPos, 2);
                             } else {
                                 level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
                             }
-                        } else if (roll < 0.75f) {
-                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2)), 2);
-                        } else if (roll < 0.90f) {
+                        } else if (roll < 0.57f) {
+                            placeForestFlowers(level, topPos, random);
+                        } else if (roll < 0.70f) {
+                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                    .setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2))
+                                    .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
+                        } else if (roll < 0.88f) {
                             placeMossCarpet(level, topPos, false, random);
                         }
                     }
@@ -1942,21 +1968,36 @@ public class GiantCrackParams {
                             }
                         } else {
                             float roll = random.nextFloat();
-                            if (roll < 0.40f) {
+                            if (roll < 0.30f) {
                                 level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
-                            } else if (roll < 0.70f) {
+                            } else if (roll < 0.44f) {
                                 level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
-                            } else if (roll < 0.85f) {
+                            } else if (roll < 0.59f) {
+                                placeForestFlowers(level, topPos, random);
+                            } else if (roll < 0.72f) {
+                                level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                        .setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2))
+                                        .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
+                            } else if (roll < 0.88f) {
                                 placeMossCarpet(level, topPos, false, random);
                             }
                         }
                     }
                     case STARLILY -> {
-                        if (random.nextFloat() < 0.20f) {
+                        if (random.nextFloat() < 0.18f) {
                             level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                        } else if (random.nextFloat() < 0.15f) {
+                            placeForestFlowers(level, topPos, random);
                         } else {
                             int amount = 1 + random.nextInt(3);
-                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, amount), 2);
+                            level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                    .setValue(StarLilyBlock.AMOUNT, amount)
+                                    .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
+                        }
+                    }
+                    case ROOTSHROOM_FOREST -> {
+                        if (random.nextFloat() < 0.10f) {
+                            placeForestFlowers(level, topPos, random);
                         }
                     }
                 }
@@ -2050,6 +2091,86 @@ public class GiantCrackParams {
         level.setBlock(topPos, carpetState, 2);
     }
 
+    private static final BlockState[] FOREST_FLOWERS = new BlockState[] {
+        Blocks.DANDELION.defaultBlockState(),
+        Blocks.POPPY.defaultBlockState(),
+        Blocks.BLUE_ORCHID.defaultBlockState(),
+        Blocks.ALLIUM.defaultBlockState(),
+        Blocks.AZURE_BLUET.defaultBlockState(),
+        Blocks.RED_TULIP.defaultBlockState(),
+        Blocks.ORANGE_TULIP.defaultBlockState(),
+        Blocks.WHITE_TULIP.defaultBlockState(),
+        Blocks.PINK_TULIP.defaultBlockState(),
+        Blocks.OXEYE_DAISY.defaultBlockState(),
+        Blocks.CORNFLOWER.defaultBlockState(),
+        Blocks.LILY_OF_THE_VALLEY.defaultBlockState()
+    };
+
+    private static boolean canForestRockReplace(BlockState state) {
+        if (state == null || state.isAir()) return true;
+        if (state.is(Blocks.WATER) || state.is(Blocks.WATER_CAULDRON)) return true;
+        if (isCarveReplaceable(state)) return true;
+        net.minecraft.world.level.block.Block b = state.getBlock();
+        if (b instanceof BushBlock || b instanceof CarpetBlock || b instanceof FlowerBlock || b instanceof DoublePlantBlock) return true;
+        if (state.is(BlockTags.FLOWERS) || state.is(BlockTags.SMALL_FLOWERS) || state.is(BlockTags.REPLACEABLE)) return true;
+        return !state.isSolid();
+    }
+
+    private static void placeForestRock(WorldGenLevel level, BlockPos originPos, RandomSource random) {
+        int radius = 1 + random.nextInt(2);
+        int height = 1 + random.nextInt(2);
+        BlockState[] rockPalette = new BlockState[] {
+            Blocks.MOSSY_COBBLESTONE.defaultBlockState(),
+            Blocks.COBBLESTONE.defaultBlockState(),
+            Blocks.MOSS_BLOCK.defaultBlockState(),
+            Blocks.STONE.defaultBlockState(),
+            Blocks.ANDESITE.defaultBlockState()
+        };
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                for (int dy = 0; dy <= height; dy++) {
+                    double distSq = (dx * dx) + (dz * dz) + (dy * dy * 1.5);
+                    if (distSq <= (radius * radius + random.nextDouble() * 0.8)) {
+                        BlockPos rockPos = originPos.offset(dx, dy, dz);
+                        BlockState existing = level.getBlockState(rockPos);
+                        if (canForestRockReplace(existing)) {
+                            BlockState rock = rockPalette[random.nextInt(rockPalette.length)];
+                            level.setBlock(rockPos, rock, 2);
+
+                            BlockPos abovePos = rockPos.above();
+                            if (level.getBlockState(abovePos).isAir() && random.nextFloat() < 0.35f) {
+                                if (random.nextBoolean()) {
+                                    level.setBlock(abovePos, Blocks.MOSS_CARPET.defaultBlockState(), 2);
+                                } else {
+                                    level.setBlock(abovePos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void placeForestFlowers(WorldGenLevel level, BlockPos originPos, RandomSource random) {
+        int radius = 1 + random.nextInt(2);
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                if (dx * dx + dz * dz <= radius * radius + 1) {
+                    BlockPos flowerPos = originPos.offset(dx, 0, dz);
+                    BlockPos groundPos = flowerPos.below();
+                    if (level.getBlockState(flowerPos).isAir() && level.getBlockState(groundPos).isSolid()) {
+                        if (random.nextFloat() < 0.65f) {
+                            BlockState flower = FOREST_FLOWERS[random.nextInt(FOREST_FLOWERS.length)];
+                            level.setBlock(flowerPos, flower, 2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static void applyLedgeDecoration(WorldGenLevel level, BlockPos blockPos, Segment seg, int x, int y, int z, RiftLedge.Variant variant, boolean isTopSurface, boolean isBottomSurface, boolean isOuterEdge, double edgeDistNorm, double sCenter, double halfLength, double sHalfLength, double localA, RiftGiantLedge gl, double localB, double effectiveHalfWidth) {
         long seedHash = (long) x * 3129871L ^ (long) y * 116391L ^ (long) z * 91811L ^ seg.roughnessSeed;
         RandomSource random = RandomSource.create(seedHash);
@@ -2097,7 +2218,10 @@ public class GiantCrackParams {
                 // has already placed its stem base on top of this block (cross-chunk boundary case)
                 boolean hasStemAbove = level.getBlockState(blockPos.above()).is(ModBlocks.ROOTSHROOM_STEM.get());
                 if (!hasStemAbove) {
-                    if (random.nextBoolean()) {
+                    double podzolNoise = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x90D201L, 0.18);
+                    if (podzolNoise > 0.10) {
+                        level.setBlock(blockPos, Blocks.PODZOL.defaultBlockState(), 2);
+                    } else if (random.nextBoolean()) {
                         level.setBlock(blockPos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
                     } else {
                         level.setBlock(blockPos, Blocks.MOSS_BLOCK.defaultBlockState(), 2);
@@ -2124,6 +2248,10 @@ public class GiantCrackParams {
             BlockPos topPos = blockPos.above();
             BlockState existingAbove = level.getBlockState(topPos);
             if (existingAbove.isAir()) {
+                if (random.nextFloat() < 0.02f) {
+                    placeForestRock(level, topPos, random);
+                }
+
                 boolean placedCarpet = false;
                 if (isOuterEdge) {
                     // Outer rim edge: Moss Carpet with ~50% gaps/bare spots
@@ -2150,22 +2278,25 @@ public class GiantCrackParams {
                                 }
                             } else {
                                 float roll = random.nextFloat();
-                                if (roll < 0.35f) {
+                                if (roll < 0.30f) {
                                     if (random.nextFloat() < 0.25f && level.getBlockState(topPos.above()).isAir()) {
                                         DoublePlantBlock.placeAt(level, Blocks.TALL_GRASS.defaultBlockState(), topPos, 2);
                                     } else {
                                         level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
                                     }
-                                } else if (roll < 0.65f) {
+                                } else if (roll < 0.42f) {
                                     if (random.nextFloat() < 0.30f && level.getBlockState(topPos.above()).isAir()) {
                                         DoublePlantBlock.placeAt(level, ModBlocks.TALL_DAZE.get().defaultBlockState(), topPos, 2);
                                     } else {
                                         level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
                                     }
-                                } else if (roll < 0.75f) {
-                                    // Rare accent Starlily (~10%)
-                                    level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2)), 2);
-                                } else if (roll < 0.90f) {
+                                } else if (roll < 0.57f) {
+                                    placeForestFlowers(level, topPos, random);
+                                } else if (roll < 0.70f) {
+                                    level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                            .setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2))
+                                            .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
+                                } else if (roll < 0.88f) {
                                     placeMossCarpet(level, topPos, isDeadMossPath, random);
                                 }
                             }
@@ -2184,22 +2315,25 @@ public class GiantCrackParams {
                                 }
                             } else {
                                 float roll = random.nextFloat();
-                                if (roll < 0.35f) {
+                                if (roll < 0.30f) {
                                     if (random.nextFloat() < 0.25f && level.getBlockState(topPos.above()).isAir()) {
                                         DoublePlantBlock.placeAt(level, Blocks.TALL_GRASS.defaultBlockState(), topPos, 2);
                                     } else {
                                         level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
                                     }
-                                } else if (roll < 0.65f) {
+                                } else if (roll < 0.44f) {
                                     if (random.nextFloat() < 0.30f && level.getBlockState(topPos.above()).isAir()) {
                                         DoublePlantBlock.placeAt(level, ModBlocks.TALL_DAZE.get().defaultBlockState(), topPos, 2);
                                     } else {
                                         level.setBlock(topPos, ModBlocks.SHORT_DAZE.get().defaultBlockState(), 2);
                                     }
-                                } else if (roll < 0.75f) {
-                                    // Rare accent Starlily (~10%)
-                                    level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2)), 2);
-                                } else if (roll < 0.90f) {
+                                } else if (roll < 0.59f) {
+                                    placeForestFlowers(level, topPos, random);
+                                } else if (roll < 0.72f) {
+                                    level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                            .setValue(StarLilyBlock.AMOUNT, 1 + random.nextInt(2))
+                                            .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
+                                } else if (roll < 0.88f) {
                                     placeMossCarpet(level, topPos, isDeadMossPath, random);
                                 }
                             }
@@ -2212,9 +2346,13 @@ public class GiantCrackParams {
                                 } else {
                                     level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
                                 }
+                            } else if (random.nextFloat() < 0.15f) {
+                                placeForestFlowers(level, topPos, random);
                             } else {
                                 int amount = (edgeDistNorm > 0.75) ? (1 + random.nextInt(2)) : (edgeDistNorm > 0.45) ? (2 + random.nextInt(2)) : (3 + random.nextInt(2));
-                                level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState().setValue(StarLilyBlock.AMOUNT, amount), 2);
+                                level.setBlock(topPos, ModBlocks.STAR_LILY.get().defaultBlockState()
+                                        .setValue(StarLilyBlock.AMOUNT, amount)
+                                        .setValue(FlowerBedBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(random)), 2);
                             }
                         }
                         case ROOTSHROOM_FOREST -> {

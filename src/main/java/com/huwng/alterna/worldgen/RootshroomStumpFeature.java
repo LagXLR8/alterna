@@ -67,6 +67,32 @@ public class RootshroomStumpFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
+    private static BlockState getLeafLitterState(RandomSource random) {
+        try {
+            net.minecraft.world.level.block.Block block = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getOptional(net.minecraft.resources.Identifier.parse("minecraft:leaf_litter")).orElse(null);
+            if (block != null && block != Blocks.AIR) {
+                BlockState state = block.defaultBlockState();
+                for (net.minecraft.world.level.block.state.properties.Property<?> prop : state.getProperties()) {
+                    if (prop.getName().equals("facing")) {
+                        @SuppressWarnings("unchecked")
+                        net.minecraft.world.level.block.state.properties.Property<Direction> dirProp = (net.minecraft.world.level.block.state.properties.Property<Direction>) prop;
+                        state = state.setValue(dirProp, Direction.Plane.HORIZONTAL.getRandomDirection(random));
+                    } else if (prop.getName().equals("amount") || prop.getName().equals("segment_amount") || prop.getName().equals("segments")) {
+                        @SuppressWarnings("unchecked")
+                        net.minecraft.world.level.block.state.properties.Property<Integer> intProp = (net.minecraft.world.level.block.state.properties.Property<Integer>) prop;
+                        int min = intProp.getPossibleValues().stream().min(Integer::compare).orElse(1);
+                        int max = intProp.getPossibleValues().stream().max(Integer::compare).orElse(4);
+                        int val = min + random.nextInt(max - min + 1);
+                        state = state.setValue(intProp, val);
+                    }
+                }
+                return state;
+            }
+        } catch (Exception ignored) {
+        }
+        return Blocks.MOSS_CARPET.defaultBlockState();
+    }
+
     public static boolean placeDirect(WorldGenLevel level, RandomSource random, BlockPos origin) {
         int upperHeight = 2 + random.nextInt(2); // 2 or 3 layers
         int totalHeight = 2 + upperHeight; // Total height = 4 or 5 blocks tall
@@ -78,6 +104,29 @@ public class RootshroomStumpFeature extends Feature<NoneFeatureConfiguration> {
         BlockState airState = Blocks.AIR.defaultBlockState();
 
         int[][] crossOffsets = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+
+        // Ground decoration around stump base: Rooted dirt & Leaf litter (Expanded Radius & High Density)
+        int groundRadius = 6;
+        for (int dx = -groundRadius; dx <= groundRadius; dx++) {
+            for (int dz = -groundRadius; dz <= groundRadius; dz++) {
+                double distSq = dx * dx + dz * dz;
+                if (distSq <= groundRadius * groundRadius + random.nextDouble() * 1.5) {
+                    BlockPos groundPos = origin.offset(dx, -1, dz);
+                    BlockState groundState = level.getBlockState(groundPos);
+                    if (groundState.isSolid() && !groundState.is(ModBlocks.ROOTSHROOM_STEM.get()) && random.nextFloat() < 0.65f) {
+                        level.setBlock(groundPos, Blocks.ROOTED_DIRT.defaultBlockState(), 2);
+                    }
+
+                    BlockPos airPos = origin.offset(dx, 0, dz);
+                    BlockPos belowAir = airPos.below();
+                    if (level.getBlockState(airPos).isAir() && level.getBlockState(belowAir).isSolid() 
+                            && !level.getBlockState(belowAir).is(ModBlocks.ROOTSHROOM_STEM.get()) 
+                            && random.nextFloat() < 0.75f) {
+                        level.setBlock(airPos, getLeafLitterState(random), 2);
+                    }
+                }
+            }
+        }
 
         // 0. Base downward support: If air is detected anywhere in the 3x3 layer below, place rootshroom stems down
         for (int dy = 1; dy <= 20; dy++) {
