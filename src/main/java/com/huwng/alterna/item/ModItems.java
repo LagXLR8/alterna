@@ -20,6 +20,9 @@ public class ModItems {
     public static final DeferredItem<RiftDetectorItem> RIFT_DETECTOR = registerItem("rift_detector",
             RiftDetectorItem::new, new Item.Properties().stacksTo(1));
 
+    public static final DeferredItem<BlankRiftMapItem> BLANK_RIFT_MAP = registerItem("blank_rift_map",
+            BlankRiftMapItem::new, new Item.Properties().stacksTo(64));
+
     public static final DeferredItem<Item> VINE_ROPE = registerItem("vine_rope",
             Item::new, new Item.Properties().stacksTo(16));
 

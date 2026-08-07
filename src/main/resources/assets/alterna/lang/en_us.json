@@ -7,6 +7,8 @@
   "alterna.welcome_warning": "Currently the %1$s mod is under development, has many bugs, and may sometimes affect your gamplay, you can disable this log in %2$s",
   "alterna.welcome_warning.config_hover": "Click to open config file",
   "item.alterna.rift_detector": "Rift Detector",
+  "item.alterna.blank_rift_map": "Blank Rift Map",
+  "item.alterna.blank_rift_map.no_rift": "No rift found nearby!",
   "item.alterna.vine_rope": "Vine Linker",
   "item.alterna.rift_explorer_map": "Rift Explorer Map",
   "block.alterna.goblet_log": "Goblet Log",

@@ -1606,7 +1606,76 @@ public class GiantCrackParams {
                 }
 
                 if (coreDistOuter <= mSandstoneSq) {
-                    level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xC0FFEE77B0B0B0B0L), 2);
+                    // ---- SURROUNDING WALL CAVE SYSTEM (Below Y = -63) ----
+                    double distFromInner = Math.max(0.0, Math.sqrt(coreDistOuter) - m);
+                    double wallDistNorm = distFromInner / Math.max(0.001, marginSandstone); // 0.0 inner wall -> 1.0 sandstone boundary
+
+                    // 1. Domain warping to bend and curve 3D cave tunnels organically
+                    double warpX = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x91E2A3L, 24.0) * 14.0;
+                    double warpY = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x4B5C6DL, 24.0) * 14.0;
+                    double warpZ = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x7E8F9AL, 24.0) * 14.0;
+
+                    double qx = x + warpX;
+                    double qy = y + warpY;
+                    double qz = z + warpZ;
+
+                    // 2. 3D Spaghetti / Worm cave noise network (20-block scale)
+                    double cNoise1 = smoothNoise3D(qx, qy, qz, seg.roughnessSeed ^ 0x5A9E1111L, 20.0);
+                    double cNoise2 = smoothNoise3D(qx, qy, qz, seg.roughnessSeed ^ 0x5A9E2222L, 20.0);
+                    double cDistSq = cNoise1 * cNoise1 + cNoise2 * cNoise2;
+
+                    // 3. Occasional cavern pockets (Cheese caves)
+                    double cCheese1 = smoothNoise3D(qx, qy, qz, seg.roughnessSeed ^ 0x5A9E3333L, 30.0);
+                    double cCheese2 = smoothNoise3D(qx, qy, qz, seg.roughnessSeed ^ 0x5A9E4444L, 30.0);
+                    double cheeseDistSq = cCheese1 * cCheese1 + cCheese2 * cCheese2;
+
+                    // Dynamic tunnel width modulation
+                    double widthWobble = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x5A9E5555L, 16.0) * 0.012;
+                    double thresholdSq = 0.036 + widthWobble;
+
+                    boolean isWallCave = (cDistSq < thresholdSq) || (cheeseDistSq < 0.024 && cDistSq < 0.08);
+
+                    // 4. RARE INNER WALL EXPOSURE (Ít khi lộ ra ngoài):
+                    // Keep most cave tunnels embedded inside the wall rock.
+                    // Only allow breaking through the inner face (wallDistNorm < 0.25) at rare entrance spots (~12-15% chance).
+                    if (isWallCave && wallDistNorm < 0.25) {
+                        double entranceNoise = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0xEE77AA11L, 36.0);
+                        if (entranceNoise < 0.42) {
+                            isWallCave = false; // Kept hidden behind solid rock face!
+                        }
+                    }
+
+                    // 5. STRICT BEDROCK SAFETY GUARD:
+                    // Fade cave carving to 0 before wallDistNorm reaches 0.78, guaranteeing at least
+                    // ~4 blocks of solid sandstone wall buffer before the Bedrock safety wall begins!
+                    if (wallDistNorm > 0.78) {
+                        isWallCave = false;
+                    } else if (wallDistNorm > 0.62) {
+                        double fade = (0.78 - wallDistNorm) / 0.16; // 1.0 -> 0.0
+                        double roll = (smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x5A9E6666L, 4.0) + 1.0) * 0.5;
+                        if (roll > fade) {
+                            isWallCave = false;
+                        }
+                    }
+
+                    // Keep bottom fill floor stack solid
+                    if (seg.allowBelowBedrock && bottomFillBlock(seg, y) != null) {
+                        isWallCave = false;
+                    }
+
+                    if (isWallCave) {
+                        if (y <= BOTTOM_FILL_WATER_TOP_Y) {
+                            level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
+                        } else {
+                            BlockState existing = level.getBlockState(blockPos);
+                            if (isCarveReplaceable(existing)) {
+                                level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 2);
+                                cleanUpFloatingFoliageAbove(level, blockPos);
+                            }
+                        }
+                    } else {
+                        level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xC0FFEE77B0B0B0B0L), 2);
+                    }
                     continue;
                 }
 
