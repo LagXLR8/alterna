@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "stem=false": {
+      "model": "alterna:block/vitalroot_block"
+    },
+    "stem=true": {
+      "model": "alterna:block/vitalroot_block_stem"
+    }
+  }
+}

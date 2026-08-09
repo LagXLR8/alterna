@@ -2,17 +2,21 @@ package com.huwng.alterna.item;
 
 import com.huwng.alterna.Alterna;
 import com.huwng.alterna.block.ModBlocks;
+import net.minecraft.core.Direction;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.StandingAndWallBlockItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Alterna.MODID);
@@ -41,6 +45,24 @@ public class ModItems {
     public static final DeferredItem<StandingAndWallBlockItem> ENOKI_MUSHROOM = registerItem("enoki_mushroom",
             p -> new StandingAndWallBlockItem(ModBlocks.ENOKI_MUSHROOM.get(), ModBlocks.ENOKI_MUSHROOM_WALL.get(), Direction.DOWN, p),
             new Item.Properties().food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build()));
+
+    public static final DeferredItem<BlockItem> VITALROOT = registerItem("vitalroot",
+            p -> new BlockItem(ModBlocks.VITALROOT.get(), p),
+            new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(-3).saturationModifier(0.0F).alwaysEdible().build(),
+                    Consumables.defaultFood()
+                            .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.POISON, 200, 0)))
+                            .build()
+            ));
+
+    public static final DeferredItem<Item> COOKED_VITALROOT = registerItem("cooked_vitalroot",
+            Item::new,
+            new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(10).saturationModifier(0.4F).build(),
+                    Consumables.defaultFood()
+                            .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 0)))
+                            .build()
+            ));
 
     public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> CLIMBING_ZOMBIE_SPAWN_EGG = registerItem("climbing_zombie_spawn_egg",
             p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.CLIMBING_ZOMBIE.get(), new net.minecraft.nbt.CompoundTag()))),

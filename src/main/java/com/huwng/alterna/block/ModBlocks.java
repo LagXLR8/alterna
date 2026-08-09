@@ -287,6 +287,22 @@ public class ModBlocks {
         public static final DeferredBlock<RootshroomFungusBlock> ROOTSHROOM_FUNGUS = registerBlock("rootshroom_fungus",
                         RootshroomFungusBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CRIMSON_FUNGUS));
 
+        public static final DeferredBlock<VitalrootBlock> VITALROOT = registerBlockOnly("vitalroot",
+                        VitalrootBlock::new, BlockBehaviour.Properties.of()
+                                        .mapColor(MapColor.PLANT)
+                                        .sound(SoundType.ROOTS)
+                                        .strength(0.4F, 0.4F)
+                                        .noOcclusion()
+                                        .offsetType(BlockBehaviour.OffsetType.XYZ)
+                                        .dynamicShape());
+
+        public static final DeferredBlock<VitalrootFullBlock> VITALROOT_BLOCK = registerBlock("vitalroot_block",
+                        VitalrootFullBlock::new, BlockBehaviour.Properties.of()
+                                        .mapColor(MapColor.PLANT)
+                                        .sound(SoundType.ROOTS)
+                                        .strength(4.0F, 2.0F));
+
+
 
 
 

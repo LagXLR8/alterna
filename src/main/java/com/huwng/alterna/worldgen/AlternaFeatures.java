@@ -39,4 +39,10 @@ public class AlternaFeatures {
 
         public static final DeferredHolder<Feature<?>, RootshroomForestFeature> ROOTSHROOM_FOREST = FEATURES.register("rootshroom_forest",
                         () -> new RootshroomForestFeature(NoneFeatureConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, GiantVitalrootFeature> GIANT_VITALROOT = FEATURES.register("giant_vitalroot",
+                        () -> new GiantVitalrootFeature(NoneFeatureConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, FernGroupFeature> FERN_GROUP = FEATURES.register("fern_group",
+                        () -> new FernGroupFeature(NoneFeatureConfiguration.CODEC));
 }

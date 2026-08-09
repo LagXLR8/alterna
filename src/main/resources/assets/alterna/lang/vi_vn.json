@@ -89,5 +89,9 @@
   "block.alterna.enoki_mushroom": "Nấm Enoki",
   "block.alterna.enoki_mushroom_wall": "Nấm Enoki",
   "item.alterna.enoki_mushroom": "Nấm Enoki",
-  "block.alterna.rootshroom_fungus": "Nấm Nhỏ Rootshroom"
+  "block.alterna.rootshroom_fungus": "Nấm Nhỏ Rootshroom",
+  "block.alterna.vitalroot": "Rễ Cây Vital",
+  "item.alterna.vitalroot": "Rễ Cây Vital",
+  "item.alterna.cooked_vitalroot": "Rễ Cây Vital Chín",
+  "block.alterna.vitalroot_block": "Khối Rễ Cây Vital"
 }

@@ -25,7 +25,7 @@ public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
         int x = topPos.getX();
         int z = topPos.getZ();
 
-        // 9x9 grid cells for denser tree/structure placement
+        // 9x9 grid cells for tree/structure placement
         int gridSize = 9;
         int cellX = Math.floorDiv(x, gridSize);
         int cellZ = Math.floorDiv(z, gridSize);
@@ -47,18 +47,28 @@ public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
             } else if (roll < 65) {
                 // ~15% House Structure
                 return LedgeStructureFeature.placeStructure(level, random, topPos, 1, 8.0, true);
+            } else if (roll < 80) {
+                // ~15% Giant Vitalroot Structure
+                return GiantVitalrootFeature.placeDirect(level, random, topPos);
+            } else if (roll < 95) {
+                // ~15% Fern Group Structure
+                return FernGroupFeature.placeDirect(level, random, topPos);
             }
         }
 
-        // Sparse ground vegetation (~16% total density)
+        // Sparse ground vegetation (~25% total density)
         if (!level.getBlockState(topPos).isAir()) return true;
         float rollVeg = random.nextFloat();
         if (rollVeg < 0.04f) {
             level.setBlock(topPos, ModBlocks.ENOKI_MUSHROOM.get().defaultBlockState(), 2);
-        } else if (rollVeg < 0.08f) {
+        } else if (rollVeg < 0.06f) {
+            level.setBlock(topPos, ModBlocks.VITALROOT.get().defaultBlockState(), 2);
+        } else if (rollVeg < 0.10f) {
             level.setBlock(topPos, Blocks.MOSS_CARPET.defaultBlockState(), 2);
-        } else if (rollVeg < 0.16f) {
+        } else if (rollVeg < 0.18f) {
             level.setBlock(topPos, Blocks.SHORT_GRASS.defaultBlockState(), 2);
+        } else if (rollVeg < 0.25f) {
+            level.setBlock(topPos, Blocks.FERN.defaultBlockState(), 2);
         }
         return true;
     }

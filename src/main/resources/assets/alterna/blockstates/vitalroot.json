@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "": [
+      { "model": "alterna:block/vitalroot" },
+      { "model": "alterna:block/vitalroot", "y": 90 },
+      { "model": "alterna:block/vitalroot", "y": 180 },
+      { "model": "alterna:block/vitalroot", "y": 270 }
+    ]
+  }
+}

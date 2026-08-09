@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "alterna:block/vitalroot_block_top",
+    "side": "alterna:block/vitalroot_block"
+  }
+}

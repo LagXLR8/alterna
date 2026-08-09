@@ -96,5 +96,9 @@
   "item.alterna.enoki_mushroom": "Enoki Mushroom",
   "block.alterna.rootshroom_fungus": "Rootshroom Fungus",
   "entity.alterna.climbing_zombie": "Climbing Zombie",
-  "item.alterna.climbing_zombie_spawn_egg": "Climbing Zombie Spawn Egg"
+  "item.alterna.climbing_zombie_spawn_egg": "Climbing Zombie Spawn Egg",
+  "block.alterna.vitalroot": "Vitalroot",
+  "item.alterna.vitalroot": "Vitalroot",
+  "item.alterna.cooked_vitalroot": "Cooked Vitalroot",
+  "block.alterna.vitalroot_block": "Vitalroot Block"
 }
