@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "minecraft:item/netherite_axe",
+    "tints": [
+      {
+        "type": "alterna:enchantment_tint",
+        "default": 16777215
+      }
+    ]
+  }
+}

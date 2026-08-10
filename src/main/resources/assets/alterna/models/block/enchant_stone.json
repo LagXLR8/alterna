@@ -1,0 +1,11 @@
+{
+  "parent": "alterna:custom/enchant_stone",
+  "textures": {
+    "all": "alterna:block/enchant_stone",
+    "particle": "alterna:block/enchant_stone",
+    "0": "alterna:block/enchant_stone",
+    "1": "alterna:block/enchant_stone_overlay",
+    "2": "alterna:block/enchant_stone_glow"
+  },
+  "render_type": "translucent"
+}
