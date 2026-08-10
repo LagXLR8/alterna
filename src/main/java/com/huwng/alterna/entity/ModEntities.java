@@ -21,6 +21,14 @@ public class ModEntities {
                             .clientTrackingRange(8)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "climbing_zombie"))));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownStormbreakerEntity>> THROWN_STORMBREAKER =
+            ENTITY_TYPES.register("thrown_stormbreaker",
+                    () -> EntityType.Builder.<ThrownStormbreakerEntity>of(ThrownStormbreakerEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F)
+                            .clientTrackingRange(4)
+                            .updateInterval(20)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "thrown_stormbreaker"))));
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }

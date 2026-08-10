@@ -93,5 +93,14 @@
   "block.alterna.vitalroot": "Rễ Cây Vital",
   "item.alterna.vitalroot": "Rễ Cây Vital",
   "item.alterna.cooked_vitalroot": "Rễ Cây Vital Chín",
-  "block.alterna.vitalroot_block": "Khối Rễ Cây Vital"
+  "block.alterna.vitalroot_block": "Khối Rễ Cây Vital",
+  "item.alterna.deferred_enchant_stone": "Đá Cường Hóa Deferred",
+  "enchantment.alterna.deferred": "Deferred",
+  "enchantment.alterna.deferred.desc": "Chuyển sát thương đánh trực tiếp thành 10 đợt sát thương nợ trả dần trong 2.5 giây.",
+  "item.alterna.detonation_enchant_stone": "Đá Cường Hóa Detonation",
+  "enchantment.alterna.detonation": "Detonation",
+  "enchantment.alterna.detonation.desc": "Sau 5 đòn đánh gây 1 vụ nổ sóng kích nhiệt nổ 6 sát thương.",
+  "item.alterna.stormbreaker_enchant_stone": "Đá Cường Hóa Stormbreaker",
+  "enchantment.alterna.stormbreaker": "Stormbreaker",
+  "enchantment.alterna.stormbreaker.desc": "Cho phép phóng vũ khí như đinh ba, gọi sấm sét giáng xuống và tự động quay về."
 }

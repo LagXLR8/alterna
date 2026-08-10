@@ -17,4 +17,7 @@ public class AlternaParticles {
     // must not get culled by the global particle budget.
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> RIFT_MIST =
             PARTICLE_TYPES.register("rift_mist", () -> new SimpleParticleType(true));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ENCHANT =
+            PARTICLE_TYPES.register("enchant", () -> new SimpleParticleType(false));
 }

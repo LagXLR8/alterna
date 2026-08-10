@@ -1,25 +1,24 @@
 package com.huwng.alterna;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Neo's config APIs
 public class Config {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
+    private static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
-    public static final ModConfigSpec.BooleanValue SHOW_DEV_WARNING = BUILDER
+    public static final ModConfigSpec.BooleanValue SHOW_DEV_WARNING = COMMON_BUILDER
             .comment("Whether to show the development warning log when entering a world")
             .define("showDevWarning", true);
 
-    static final ModConfigSpec SPEC = BUILDER.build();
+    public static final ModConfigSpec.BooleanValue ENABLE_ENCHANTMENT_TINT = CLIENT_BUILDER
+            .comment("Whether to enable custom item color tinting for Alterna enchantments")
+            .define("enableEnchantmentTint", true);
+
+    public static final ModConfigSpec.BooleanValue ENABLE_ENCHANTMENT_GLINT = CLIENT_BUILDER
+            .comment("Whether to enable custom glint textures for Alterna enchantments")
+            .define("enableEnchantmentGlint", true);
+
+    public static final ModConfigSpec COMMON_SPEC = COMMON_BUILDER.build();
+    public static final ModConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
+    public static final ModConfigSpec SPEC = COMMON_SPEC;
 }

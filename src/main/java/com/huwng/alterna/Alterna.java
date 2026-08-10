@@ -12,22 +12,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ComposterBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -66,12 +55,13 @@ public class Alterna {
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "alterna" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Creative tab for Alterna
+    // Creative tab for Alterna — items only (block items are already in ModItems.ITEMS)
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ALTERNA_TAB = CREATIVE_MODE_TABS.register("alterna_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.alterna"))
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ModBlocks.GOBLET_LOG.get().asItem().getDefaultInstance())
             .displayItems((parameters, output) -> {
+                // All mod items (including BlockItems registered via ModItems.ITEMS)
                 ModItems.ITEMS.getEntries().forEach(item -> output.accept(item.get()));
             }).build());
 
@@ -93,7 +83,11 @@ public class Alterna {
         modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerAttributes);
         modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerSpawnPlacements);
         modEventBus.addListener(com.huwng.alterna.client.ModClientEntityEvents::registerEntityRenderers);
+        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerItemTintSources);
+        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerParticleProviders);
+        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerRenderBuffers);
         com.huwng.alterna.block.entity.ModBlockEntities.register(modEventBus);
+        com.huwng.alterna.effect.ModMobEffects.register(modEventBus);
 
         // Register the Deferred Register so our fall-distance attachment type gets registered
         AlternaAttachments.ATTACHMENT_TYPES.register(modEventBus);
@@ -115,8 +109,9 @@ public class Alterna {
         // Initialize vine cable provider (flood-fill block scanner)
         VineCables.registerProvider(new VineCableProvider());
 
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // Register our mod's ModConfigSpecs so that FML can create and load the config files for us
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
     }
 
 

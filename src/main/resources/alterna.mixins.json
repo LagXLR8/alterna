@@ -23,7 +23,13 @@
     "client.VineGameRendererMixin",
     "client.VineHumanoidModelMixin",
     "client.VineItemInHandLayerMixin",
-    "client.VineItemInHandRendererMixin"
+    "client.VineItemInHandRendererMixin",
+    "client.LayerRenderStateMixin",
+    "client.ItemSubmitMixin",
+    "client.SubmitNodeCollectionMixin",
+    "client.ItemStackRenderStateMixin",
+    "client.ItemModelResolverMixin",
+    "client.ItemFeatureRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

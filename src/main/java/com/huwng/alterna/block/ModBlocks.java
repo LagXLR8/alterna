@@ -302,6 +302,9 @@ public class ModBlocks {
                                         .sound(SoundType.ROOTS)
                                         .strength(4.0F, 2.0F));
 
+        public static final DeferredBlock<EnchantStoneBlock> ENCHANT_STONE = registerBlock("enchant_stone",
+                        EnchantStoneBlock::new, BlockBehaviour.Properties.of());
+
 
 
 
@@ -313,13 +316,9 @@ public class ModBlocks {
 
         private static <B extends Block> DeferredBlock<B> registerBlock(String name,
                         Function<BlockBehaviour.Properties, B> factory, BlockBehaviour.Properties properties) {
-                DeferredBlock<B> toReturn = BLOCKS.registerBlock(name, factory, () -> properties);
-                registerBlockItem(name, toReturn);
-                return toReturn;
-        }
-
-        private static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
-                ModItems.ITEMS.registerSimpleBlockItem(name, block);
+                DeferredBlock<B> block = BLOCKS.registerBlock(name, factory, () -> properties);
+                ModItems.ITEMS.registerSimpleBlockItem(block);
+                return block;
         }
 
         public static void register(IEventBus eventBus) {

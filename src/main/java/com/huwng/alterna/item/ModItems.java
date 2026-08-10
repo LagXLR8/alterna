@@ -68,6 +68,37 @@ public class ModItems {
             p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.CLIMBING_ZOMBIE.get(), new net.minecraft.nbt.CompoundTag()))),
             new Item.Properties());
 
+    public static final DeferredItem<ChillingEnchantStoneItem> CHILLING_ENCHANT_STONE = registerItem("chilling_enchant_stone",
+            ChillingEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<ElasticEnchantStoneItem> ELASTIC_ENCHANT_STONE = registerItem("elastic_enchant_stone",
+            ElasticEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<GluttonyEnchantStoneItem> GLUTTONY_ENCHANT_STONE = registerItem("gluttony_enchant_stone",
+            GluttonyEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<VampirismEnchantStoneItem> VAMPIRISM_ENCHANT_STONE = registerItem("vampirism_enchant_stone",
+            VampirismEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<WildEnchantStoneItem> WILD_ENCHANT_STONE = registerItem("wild_enchant_stone",
+            WildEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<HeroismEnchantStoneItem> HEROISM_ENCHANT_STONE = registerItem("heroism_enchant_stone",
+            HeroismEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<DeferredEnchantStoneItem> DEFERRED_ENCHANT_STONE = registerItem("deferred_enchant_stone",
+            DeferredEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<DetonationEnchantStoneItem> DETONATION_ENCHANT_STONE = registerItem("detonation_enchant_stone",
+            DetonationEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<StormbreakerEnchantStoneItem> STORMBREAKER_ENCHANT_STONE = registerItem("stormbreaker_enchant_stone",
+            StormbreakerEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<LunarTomeItem> LUNAR_TOME = registerItem("lunar_tome",
+            LunarTomeItem::new, new Item.Properties());
+
+
 
     private static <I extends Item> DeferredItem<I> registerItem(String name, Function<Item.Properties, I> factory, Item.Properties properties) {
         return ITEMS.registerItem(name, factory, () -> properties);
