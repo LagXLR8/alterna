@@ -9,6 +9,7 @@
     "MobEntityMixin",
     "PlayerMixin",
     "ProjectileMixin",
+    "RejectionItemMixin",
     "VinePlayerMixin",
     "VineItemMixin",
     "VineServerPacketMixin"

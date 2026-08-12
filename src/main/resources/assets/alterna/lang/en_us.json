@@ -111,6 +111,10 @@
   "item.alterna.deferred_enchant_stone": "Deferred Enchant Stone",
   "item.alterna.detonation_enchant_stone": "Detonation Enchant Stone",
   "item.alterna.stormbreaker_enchant_stone": "Stormbreaker Enchant Stone",
+  "item.alterna.curse_of_drowned_captain_enchant_stone": "Curse of Drowned Captain Enchant Stone",
+  "item.alterna.curse_of_rejection_enchant_stone": "Curse of Rejection Enchant Stone",
+  "item.alterna.curse_of_bloodlust_enchant_stone": "Curse of Bloodlust Enchant Stone",
+  "item.alterna.curse_of_the_no_life_king_enchant_stone": "Curse of the No Life King Enchant Stone",
   "item.alterna.lunar_tome": "Lunar Tome",
   "item.alterna.enchant_stone.anvil_tip": "Use in an Anvil to apply to a weapon",
   "item.alterna.lunar_tome.anvil_tip": "Use in an Anvil to remove Enchant Stones",
@@ -122,6 +126,15 @@
   "enchantment.alterna.detonation.desc": "Every 5 hits triggers a fiery shockwave explosion dealing 6 damage.",
   "enchantment.alterna.stormbreaker": "Stormbreaker",
   "enchantment.alterna.stormbreaker.desc": "Allows throwing the weapon like a Trident, striking lightning and returning on impact.",
+  "enchantment.alterna.curse_of_drowned_captain": "Curse of Drowned Captain",
+  "enchantment.alterna.curse_of_drowned_captain.desc": "Grants up to +12 damage based on mineral stacks. | Taking damage loses random minerals and damage bonus.",
+
+  "enchantment.alterna.curse_of_rejection": "Curse of Rejection",
+  "enchantment.alterna.curse_of_rejection.desc": "Blocking knocks back attackers. | Recovers with a 2.5s cooldown at the cost of 1 true HP.",
+  "enchantment.alterna.curse_of_bloodlust": "Curse of Bloodlust",
+  "enchantment.alterna.curse_of_bloodlust.desc": "Grants +3 attack damage, | but missing a swing deals 2 hearts of true damage.",
+  "enchantment.alterna.curse_of_the_no_life_king": "Curse of the No Life King",
+  "enchantment.alterna.curse_of_the_no_life_king.desc": "Grants Regen I and effect immunities, | but increases incoming damage by 10% and inflicts Insanity.",
   "enchantment.alterna.chilling": "Chilling",
   "enchantment.alterna.chilling.desc": "Chill for foes. Applies Bottom Freeze | once enough stacks have been applied.",
   "enchantment.alterna.elastic": "Elastic",
@@ -137,7 +150,8 @@
   "effect.alterna.bottom_freeze": "Bottom Freeze",
   "effect.alterna.tethered": "Tethered",
   "effect.alterna.temporary_health": "Temporary Health",
+  "effect.alterna.insanity": "Insanity",
   "message.alterna.soulbound.cannot_drop": "That which is bound in soul shall never sink from your grasp.",
   "message.alterna.soulbound.not_yours": "The depths whisper… this weapon is claimed by another soul.",
   "message.alterna.soulbound.returned": "The bound remnant has felt your tide… and has returned to your soul."
-}
+}

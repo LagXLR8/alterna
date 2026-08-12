@@ -95,8 +95,21 @@ public class ModItems {
     public static final DeferredItem<StormbreakerEnchantStoneItem> STORMBREAKER_ENCHANT_STONE = registerItem("stormbreaker_enchant_stone",
             StormbreakerEnchantStoneItem::new, new Item.Properties());
 
+    public static final DeferredItem<CurseOfDrownedCaptainEnchantStoneItem> CURSE_OF_DROWNED_CAPTAIN_ENCHANT_STONE = registerItem("curse_of_drowned_captain_enchant_stone",
+            CurseOfDrownedCaptainEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<CurseOfRejectionEnchantStoneItem> CURSE_OF_REJECTION_ENCHANT_STONE = registerItem("curse_of_rejection_enchant_stone",
+            CurseOfRejectionEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<CurseOfBloodlustEnchantStoneItem> CURSE_OF_BLOODLUST_ENCHANT_STONE = registerItem("curse_of_bloodlust_enchant_stone",
+            CurseOfBloodlustEnchantStoneItem::new, new Item.Properties());
+
+    public static final DeferredItem<CurseOfTheNoLifeKingEnchantStoneItem> CURSE_OF_THE_NO_LIFE_KING_ENCHANT_STONE = registerItem("curse_of_the_no_life_king_enchant_stone",
+            CurseOfTheNoLifeKingEnchantStoneItem::new, new Item.Properties());
+
     public static final DeferredItem<LunarTomeItem> LUNAR_TOME = registerItem("lunar_tome",
             LunarTomeItem::new, new Item.Properties());
+
 
 
 

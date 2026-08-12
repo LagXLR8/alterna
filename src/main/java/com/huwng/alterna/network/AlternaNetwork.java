@@ -42,6 +42,18 @@ public class AlternaNetwork {
                     com.huwng.alterna.vine.VineClientCache.setConnections(payload.connections());
                 })
         );
+
+        // Bloodlust miss: client -> server
+        registrar.playToServer(
+                BloodlustMissPayload.TYPE,
+                BloodlustMissPayload.CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    var sender = context.player();
+                    if (sender == null) return;
+                    if (sender.isCreative() || sender.isSpectator()) return;
+                    // Apply miss penalty (1 heart / 2 HP true damage)
+                    sender.hurt(sender.damageSources().genericKill(), 2.0f);
+                })
+        );
     }
 }
-
