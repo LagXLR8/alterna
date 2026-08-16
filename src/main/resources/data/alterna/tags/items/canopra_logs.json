@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "alterna:canopra_log",
+    "alterna:stripped_canopra_log",
+    "alterna:canopra_wood",
+    "alterna:stripped_canopra_wood"
+  ]
+}

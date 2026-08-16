@@ -9,6 +9,9 @@
     "alterna:gneiss_brick_slab",
     "alterna:serpentinite_slab",
     "alterna:polished_serpentinite_slab",
-    "alterna:serpentinite_brick_slab"
+    "alterna:serpentinite_brick_slab",
+    "alterna:trench_stone_slab",
+    "alterna:polished_trench_stone_slab",
+    "alterna:trench_stone_brick_slab"
   ]
 }

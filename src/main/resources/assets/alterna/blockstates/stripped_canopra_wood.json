@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "axis=y": { "model": "alterna:block/stripped_canopra_wood" },
+    "axis=z": { "model": "alterna:block/stripped_canopra_wood", "x": 90 },
+    "axis=x": { "model": "alterna:block/stripped_canopra_wood", "x": 90, "y": 90 }
+  }
+}

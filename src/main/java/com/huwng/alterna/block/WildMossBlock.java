@@ -93,6 +93,9 @@ public class WildMossBlock extends Block implements BonemealableBlock {
                 || b == ModBlocks.POLISHED_GNEISS.get()
                 || b == ModBlocks.SERPENTINITE.get()
                 || b == ModBlocks.SERPENTINITE_BRICKS.get()
-                || b == ModBlocks.POLISHED_SERPENTINITE.get();
+                || b == ModBlocks.POLISHED_SERPENTINITE.get()
+                || b == ModBlocks.TRENCH_STONE.get()
+                || b == ModBlocks.TRENCH_STONE_BRICKS.get()
+                || b == ModBlocks.POLISHED_TRENCH_STONE.get();
     }
 }

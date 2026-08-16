@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:rootshroom_leaves"
+    "alterna:rootshroom_leaves",
+    "alterna:canopra_leaves"
   ]
 }

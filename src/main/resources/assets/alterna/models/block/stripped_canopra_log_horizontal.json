@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "alterna:block/stripped_canopra_log_top",
+    "side": "alterna:block/stripped_canopra_log"
+  }
+}

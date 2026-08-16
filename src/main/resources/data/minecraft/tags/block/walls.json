@@ -9,6 +9,9 @@
     "alterna:gneiss_brick_wall",
     "alterna:serpentinite_wall",
     "alterna:polished_serpentinite_wall",
-    "alterna:serpentinite_brick_wall"
+    "alterna:serpentinite_brick_wall",
+    "alterna:trench_stone_wall",
+    "alterna:polished_trench_stone_wall",
+    "alterna:trench_stone_brick_wall"
   ]
 }

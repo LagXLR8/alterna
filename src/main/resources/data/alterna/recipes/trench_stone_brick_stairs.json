@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "alterna:trench_stone_bricks"
+  },
+  "result": {
+    "count": 4,
+    "id": "alterna:trench_stone_brick_stairs"
+  }
+}

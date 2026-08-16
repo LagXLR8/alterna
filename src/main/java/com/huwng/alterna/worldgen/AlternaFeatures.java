@@ -45,4 +45,7 @@ public class AlternaFeatures {
 
         public static final DeferredHolder<Feature<?>, FernGroupFeature> FERN_GROUP = FEATURES.register("fern_group",
                         () -> new FernGroupFeature(NoneFeatureConfiguration.CODEC));
+
+        public static final DeferredHolder<Feature<?>, CanopraTreeFeature> CANOPRA_TREE = FEATURES.register("canopra_tree",
+                        () -> new CanopraTreeFeature(NoneFeatureConfiguration.CODEC));
 }

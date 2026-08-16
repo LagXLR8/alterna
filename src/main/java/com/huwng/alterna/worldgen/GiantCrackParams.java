@@ -1097,12 +1097,14 @@ public class GiantCrackParams {
         placeVines(level, main, chunkPos);
         placeLedgeHouseStructures(level, main, chunkPos);
         placeKapokTrees(level, main, chunkPos);
+        placeCanopraTrees(level, main, chunkPos);
         for (Segment branch : branches) {
             any |= placeSegmentGobletTrees(level, branch, chunkPos);
             any |= placeSegmentRootConnectors(level, branch, chunkPos);
             placeVines(level, branch, chunkPos);
             placeLedgeHouseStructures(level, branch, chunkPos);
             placeKapokTrees(level, branch, chunkPos);
+            placeCanopraTrees(level, branch, chunkPos);
         }
         return any;
     }
@@ -1119,6 +1121,113 @@ public class GiantCrackParams {
                 RandomSource random = RandomSource.create(
                         (long) anchor.getX() * 3129871L ^ (long) anchor.getY() * 116391L ^ (long) anchor.getZ() * 91811L ^ seg.roughnessSeed);
                 KapokTreeFeature.generateKapokTreeDirect(level, anchor, random, 7 + random.nextInt(5));
+            }
+        }
+    }
+
+    private static boolean isSuitableIslandTreeSpot(int x, int z, Segment seg, double coreDistIsland, double islandRadial, double cosO, double sinO) {
+        // 1. Must be on the island seabed plateau (within 65% radius of island)
+        if (islandRadial > 0.65) return false;
+
+        // 2. Must not be inside an underwater ravine fissure
+        if (isRavineHorizontalPath(x, z, seg.roughnessSeed)) {
+            return false;
+        }
+
+        // 3. Must not have severe cliff drop-off
+        double cliffSectorNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0xC11FF01L, 38.0);
+        if (cliffSectorNoise > 0.16) {
+            double cInt = clamp((cliffSectorNoise - 0.16) / 0.35, 0.0, 1.0);
+            double cliffDrop = Math.pow(islandRadial, 5.0) * 100.0 * cInt;
+            if (cliffDrop > 3.0) return false;
+        }
+
+        // 4. Must not be on a high rugged outcrop
+        double outcropNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x07C120L, 14.0);
+        if (outcropNoise > 0.35) return false;
+
+        // 5. Must not be inside a rock pillar
+        if (isInsideRockPillar(x, -475, z, -480.0, seg.roughnessSeed)) return false;
+
+        return true;
+    }
+
+    private static void placeCanopraTrees(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
+        if (!seg.allowBelowBedrock) return;
+
+        int chunkMinX = chunkPos.getMinBlockX();
+        int chunkMaxX = chunkPos.getMaxBlockX();
+        int chunkMinZ = chunkPos.getMinBlockZ();
+        int chunkMaxZ = chunkPos.getMaxBlockZ();
+
+        double cosO = Math.cos(-seg.orientationAngle);
+        double sinO = Math.sin(-seg.orientationAngle);
+
+        int gridSpacing = 20;
+
+        // Search expanded cell bounds (±24 blocks) so that any tree whose crown/branches overlap
+        // the current chunk will also be placed during this chunk's decoration pass!
+        int minCellX = Math.floorDiv(chunkMinX - 24, gridSpacing);
+        int maxCellX = Math.floorDiv(chunkMaxX + 24, gridSpacing);
+        int minCellZ = Math.floorDiv(chunkMinZ - 24, gridSpacing);
+        int maxCellZ = Math.floorDiv(chunkMaxZ + 24, gridSpacing);
+
+        for (int cx = minCellX; cx <= maxCellX; cx++) {
+            for (int cz = minCellZ; cz <= maxCellZ; cz++) {
+                long treeHash = (long) cx * 987123654L + (long) cz * 741258963L + (seg.roughnessSeed ^ 0xCA7701L);
+                int treeOffsetX = 2 + (int) (((hashNoise(cx, 0, cz, treeHash) + 1.0) * 0.5) * (gridSpacing - 4));
+                int treeOffsetZ = 2 + (int) (((hashNoise(cx, 1, cz, treeHash) + 1.0) * 0.5) * (gridSpacing - 4));
+
+                int targetX = cx * gridSpacing + treeOffsetX;
+                int targetZ = cz * gridSpacing + treeOffsetZ;
+
+                // Check if this tree's bounding box (radius ~22 blocks) intersects the current chunk
+                if (targetX + 22 < chunkMinX || targetX - 22 > chunkMaxX || targetZ + 22 < chunkMinZ || targetZ - 22 > chunkMaxZ) {
+                    continue;
+                }
+
+                double dx = targetX - seg.origin.getX();
+                double dz = targetZ - seg.origin.getZ();
+                double localA = dx * cosO - dz * sinO;
+                double localB = dx * sinO + dz * cosO;
+
+                double islandExpW = 35.0;
+                double islandExpL = 40.0;
+                double islandHalfWidth = seg.halfWidth + islandExpW;
+                double islandHalfLength = seg.halfLength + islandExpL;
+
+                double coreDistIsland = (localA * localA) / (islandHalfLength * islandHalfLength)
+                        + (localB * localB) / (islandHalfWidth * islandHalfWidth);
+
+                double islandRadial = Math.sqrt(coreDistIsland);
+
+                // Strict suitability check
+                if (!isSuitableIslandTreeSpot(targetX, targetZ, seg, coreDistIsland, islandRadial, cosO, sinO)) {
+                    continue;
+                }
+
+                // Grove noise for natural clumping across the island
+                double groveNoise = smoothNoise3D(targetX, 0, targetZ, seg.roughnessSeed ^ 0xCA90FE1L, 34.0);
+                if (groveNoise < -0.25) continue;
+
+                // Calculate deterministic island surface Y at (targetX, targetZ)
+                double hillCoarse = smoothNoise3D(targetX, 0, targetZ, seg.roughnessSeed ^ 0x151A0D1L, 28.0) * 10.0;
+                double duneFine = smoothNoise3D(targetX, 0, targetZ, seg.roughnessSeed ^ 0x151A0D2L, 9.0) * 3.5;
+                double cliffSectorNoise = smoothNoise3D(targetX, 0, targetZ, seg.roughnessSeed ^ 0xC11FF01L, 38.0);
+                double cliffDrop = 0.0;
+                if (cliffSectorNoise > 0.16) {
+                    double cInt = clamp((cliffSectorNoise - 0.16) / 0.35, 0.0, 1.0);
+                    cliffDrop = Math.pow(islandRadial, 5.0) * 100.0 * cInt;
+                }
+                double islandDome = (islandRadial * islandRadial) * 14.0 + cliffDrop;
+                int surfaceY = (int) Math.floor(-480.0 + hillCoarse + duneFine - islandDome);
+
+                // Ensure surface Y is on the island seabed
+                if (surfaceY < -500 || surfaceY > -460) continue;
+
+                BlockPos surfacePos = new BlockPos(targetX, surfaceY + 1, targetZ);
+                RandomSource random = RandomSource.create(treeHash);
+                CanopraTreeFeature.placeDirect(level, random, surfacePos, true);
             }
         }
     }
@@ -1468,8 +1577,8 @@ public class GiantCrackParams {
 
         double islandExpW = 0.0;
         double islandExpL = 0.0;
-        if (seg.allowBelowBedrock && y <= -480) {
-            double islT = clamp((-480.0 - y) / 30.0, 0.0, 1.0);
+        if (seg.allowBelowBedrock && y <= -420) {
+            double islT = clamp((-420.0 - y) / 90.0, 0.0, 1.0);
             double smoothIsl = islT * islT * (3.0 - 2.0 * islT);
             islandExpW = smoothIsl * 22.0;
             islandExpL = smoothIsl * 40.0;
@@ -1524,10 +1633,91 @@ public class GiantCrackParams {
 
                 // ---- ZONE 1: CAVERN INTERIOR & STANDALONE CENTRAL ISLAND ----
                 if (coreDistOuter <= mSq) {
-                    // 1A. STANDALONE CENTRAL ISLAND (Y <= -480 and inside Island radius)
-                    if (seg.allowBelowBedrock && y <= -480 && coreDistIsland <= mSq) {
-                        level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xC0FFEE), 2);
-                        continue;
+                    // 1A. STANDALONE CENTRAL ISLAND (Underwater Ravines, Cliffs, Pillars, Outcrops, Arches, Sand)
+                    if (seg.allowBelowBedrock && y <= -420 && coreDistIsland <= mSq) {
+                        double islandRadial = Math.sqrt(coreDistIsland) / Math.max(0.01, m);
+
+                        // 1. Hills & Fine dunes
+                        double hillCoarse = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x151A0D1L, 28.0) * 10.0;
+                        double duneFine = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x151A0D2L, 9.0) * 3.5;
+
+                        // 2. Rocky Outcrops (Crags & Rugged Boulders)
+                        double outcropNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x07C120L, 14.0);
+                        double outcropHeight = 0.0;
+                        boolean isOutcrop = false;
+                        boolean inRavine = isRavineHorizontalPath(x, z, seg.roughnessSeed);
+                        if (!inRavine && outcropNoise > 0.28) {
+                            double outInt = clamp((outcropNoise - 0.28) / 0.35, 0.0, 1.0);
+                            outcropHeight = outInt * (3.5 + (smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x07C121L, 5.0) + 1.0) * 2.5);
+                            isOutcrop = true;
+                        }
+
+                        // 3. Underwater Cliffs (Sheer drop-offs in specific perimeter sectors)
+                        double cliffSectorNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0xC11FF01L, 38.0);
+                        double cliffDrop = 0.0;
+                        boolean isCliff = false;
+                        if (cliffSectorNoise > 0.16) {
+                            double cInt = clamp((cliffSectorNoise - 0.16) / 0.35, 0.0, 1.0);
+                            cliffDrop = Math.pow(islandRadial, 5.0) * 100.0 * cInt;
+                            if (islandRadial > 0.65 && cInt > 0.3) {
+                                isCliff = true;
+                            }
+                        }
+
+                        double islandDome = (islandRadial * islandRadial) * 14.0 + cliffDrop;
+                        double islandSurfaceY = -480.0 + hillCoarse + duneFine + outcropHeight - islandDome;
+
+                        // A. Underwater Ravine (60 to 120 blocks deep fissure filled with water)
+                        if (isInsideUnderwaterRavine(x, y, z, islandSurfaceY, seg.roughnessSeed)) {
+                            level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
+                            continue;
+                        }
+
+                        // B. Rocky Sea Arch
+                        int archState = checkRockyArch(x, y, z, islandSurfaceY, seg.roughnessSeed);
+                        if (archState == -1) { // Hollow passage under arch
+                            level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
+                            continue;
+                        } else if (archState == 1) { // Solid arch stone
+                            level.setBlock(blockPos, ModBlocks.TRENCH_STONE.get().defaultBlockState(), 2);
+                            continue;
+                        }
+
+                        // C. Rock Pillar (Monolithic column)
+                        if (isInsideRockPillar(x, y, z, islandSurfaceY, seg.roughnessSeed)) {
+                            level.setBlock(blockPos, ModBlocks.TRENCH_STONE.get().defaultBlockState(), 2);
+                            continue;
+                        }
+
+                        // D. Island Floor & Sand Layers
+                        if (y <= islandSurfaceY) {
+                            double sandNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x5A4D5L, 6.0);
+                            int sandThickness = sandNoise > 0.1 ? 3 : 2;
+
+                            if (!isOutcrop && !isCliff && y >= islandSurfaceY - sandThickness + 0.001) {
+                                level.setBlock(blockPos, ModBlocks.TRENCH_SAND.get().defaultBlockState(), 2);
+                            } else {
+                                level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xC0FFEE), 2);
+                            }
+
+                            // Canopra Sunken Grove anchor collection on surface
+                            if (y == (int) Math.floor(islandSurfaceY)) {
+                                double groveNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0xCA90FE1L, 50.0);
+                                if (groveNoise > 0.18 && !isOutcrop && !isCliff && islandRadial < 0.85) {
+                                    int cCellX = (int) Math.floor(x / 28.0);
+                                    int cCellZ = (int) Math.floor(z / 28.0);
+                                    long treeHash = (long) cCellX * 987123654L + (long) cCellZ * 741258963L + (seg.roughnessSeed ^ 0xCA7701L);
+                                    int treeOffsetX = 4 + (int) (((hashNoise(cCellX, 0, cCellZ, treeHash) + 1.0) * 0.5) * 20.0);
+                                    int treeOffsetZ = 4 + (int) (((hashNoise(cCellX, 1, cCellZ, treeHash) + 1.0) * 0.5) * 20.0);
+
+                                    if (x == cCellX * 28 + treeOffsetX && z == cCellZ * 28 + treeOffsetZ) {
+                                        BlockPos treeAnchor = new BlockPos(x, y + 1, z);
+                                        seg.canopraAnchors.add(treeAnchor);
+                                    }
+                                }
+                            }
+                            continue;
+                        }
                     }
 
                     // 1B. BRIDGES & LEDGES (Upper Canyon Y > -340)
@@ -2689,6 +2879,128 @@ public class GiantCrackParams {
         return lerp(lerp(x00, x10, sy), lerp(x01, x11, sy), sz);
     }
 
+    private static boolean isRavineHorizontalPath(int x, int z, long seed) {
+        double rWarpX = smoothNoise3D(x, 0, z, seed ^ 0x9A8B7C11L, 42.0) * 16.0;
+        double rWarpZ = smoothNoise3D(x, 0, z, seed ^ 0x6E5D4C22L, 42.0) * 16.0;
+        double ravNoise = Math.abs(smoothNoise3D(x + rWarpX, 0, z + rWarpZ, seed ^ 0x3B2A1933L, 48.0));
+        double ravMask = smoothNoise3D(x, 0, z, seed ^ 0xFAEB0144L, 85.0);
+        return ravMask > 0.02 && ravNoise < 0.085;
+    }
+
+    /**
+     * Checks if a point is inside an Underwater Ravine cutting into the submerged island.
+     * Ravines are deep winding fissures 60 to 120 blocks deep filled with open water.
+     */
+    private static boolean isInsideUnderwaterRavine(int x, int y, int z, double islandSurfaceY, long seed) {
+        double rWarpX = smoothNoise3D(x, 0, z, seed ^ 0x9A8B7C11L, 42.0) * 16.0;
+        double rWarpZ = smoothNoise3D(x, 0, z, seed ^ 0x6E5D4C22L, 42.0) * 16.0;
+        double ravNoise = Math.abs(smoothNoise3D(x + rWarpX, 0, z + rWarpZ, seed ^ 0x3B2A1933L, 48.0));
+        double ravMask = smoothNoise3D(x, 0, z, seed ^ 0xFAEB0144L, 85.0);
+
+        if (ravMask > 0.02 && ravNoise < 0.085) {
+            double ravWidthNorm = ravNoise / 0.085; // 0.0 (center) -> 1.0 (edge)
+            double depthFactor = (smoothNoise3D(x, 0, z, seed ^ 0x77E12A55L, 30.0) + 1.0) * 0.5;
+            double ravDepth = 60.0 + depthFactor * 60.0; // 60.0 .. 120.0 blocks
+            double wallRoughness = smoothNoise3D(x, y, z, seed ^ 0x88F23B66L, 3.5) * 0.12;
+            double shapeFactor = Math.max(0.0, 1.0 - (ravWidthNorm + wallRoughness) * (ravWidthNorm + wallRoughness));
+            double ravineFloorY = islandSurfaceY - ravDepth * shapeFactor;
+            return y > ravineFloorY;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a point is inside a solitary or clustered Rock Pillar on the submerged island.
+     * Pillars rise 15 to 45 blocks tall from the seabed.
+     */
+    private static boolean isInsideRockPillar(int x, int y, int z, double islandSurfaceY, long seed) {
+        if (isRavineHorizontalPath(x, z, seed)) return false;
+
+        int cellX = (int) Math.floor(x / 32.0);
+        int cellZ = (int) Math.floor(z / 32.0);
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                int cx = cellX + dx;
+                int cz = cellZ + dz;
+                long cellSeed = seed ^ ((long) cx * 341873128712L + (long) cz * 132897987541L + 0xA8B9C0L);
+                double hasPillar = (hashNoise(cx, 0, cz, cellSeed) + 1.0) * 0.5;
+                if (hasPillar < 0.58) continue; // ~42% of cells have a pillar
+
+                double px = cx * 32.0 + 6.0 + ((hashNoise(cx, 1, cz, cellSeed) + 1.0) * 0.5) * 20.0;
+                double pz = cz * 32.0 + 6.0 + ((hashNoise(cx, 2, cz, cellSeed) + 1.0) * 0.5) * 20.0;
+                double pRadius = 2.5 + ((hashNoise(cx, 3, cz, cellSeed) + 1.0) * 0.5) * 3.5; // 2.5 .. 6.0 radius
+                double pHeight = 15.0 + ((hashNoise(cx, 4, cz, cellSeed) + 1.0) * 0.5) * 30.0; // 15 .. 45 height
+
+                double distSq = (x - px) * (x - px) + (z - pz) * (z - pz);
+                double topY = islandSurfaceY + pHeight;
+                if (y <= topY && y >= islandSurfaceY - 12.0) {
+                    double heightFrac = Math.max(0.0, (y - islandSurfaceY) / Math.max(1.0, pHeight));
+                    double currentR = pRadius * (1.0 - heightFrac * 0.35); // upward taper
+                    double roughness = smoothNoise3D(x, y, z, cellSeed ^ 0x55AA11L, 3.0) * 0.7;
+                    double effR = currentR + roughness;
+                    if (distSq <= effR * effR) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a point is inside a natural Rocky Sea Arch spanning the seabed.
+     * Returns: 1 if inside solid arch stone, -1 if inside hollow arch opening, 0 if outside
+     */
+    private static int checkRockyArch(int x, int y, int z, double islandSurfaceY, long seed) {
+        if (isRavineHorizontalPath(x, z, seed)) return 0;
+
+        int cellX = (int) Math.floor(x / 48.0);
+        int cellZ = (int) Math.floor(z / 48.0);
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                int cx = cellX + dx;
+                int cz = cellZ + dz;
+                long cellSeed = seed ^ ((long) cx * 98712365412L + (long) cz * 74125896325L + 0xFE11C2L);
+                double hasArch = (hashNoise(cx, 0, cz, cellSeed) + 1.0) * 0.5;
+                if (hasArch < 0.65) continue; // ~35% of cells have an arch
+
+                double ax = cx * 48.0 + 10.0 + ((hashNoise(cx, 1, cz, cellSeed) + 1.0) * 0.5) * 28.0;
+                double az = cz * 48.0 + 10.0 + ((hashNoise(cx, 2, cz, cellSeed) + 1.0) * 0.5) * 28.0;
+                double angle = ((hashNoise(cx, 3, cz, cellSeed) + 1.0) * 0.5) * Math.PI;
+                double spanLen = 14.0 + ((hashNoise(cx, 4, cz, cellSeed) + 1.0) * 0.5) * 12.0; // 14 .. 26 blocks
+                double archH = 10.0 + ((hashNoise(cx, 5, cz, cellSeed) + 1.0) * 0.5) * 8.0;   // 10 .. 18 blocks
+                double thick = 3.2 + ((hashNoise(cx, 6, cz, cellSeed) + 1.0) * 0.5) * 1.8;   // 3.2 .. 5.0 thickness
+                double width = 5.0 + ((hashNoise(cx, 7, cz, cellSeed) + 1.0) * 0.5) * 4.0;   // 5.0 .. 9.0 width
+
+                double cosA = Math.cos(angle);
+                double sinA = Math.sin(angle);
+                double dX = x - ax;
+                double dZ = z - az;
+                double u = dX * cosA + dZ * sinA;     // along arch span
+                double v = -dX * sinA + dZ * cosA;    // perpendicular to arch
+
+                double halfSpan = spanLen * 0.5;
+                double halfW = width * 0.5;
+                if (Math.abs(u) <= halfSpan && Math.abs(v) <= halfW) {
+                    double uNorm = u / halfSpan;
+                    double archPeak = archH * (1.0 - uNorm * uNorm);
+                    double yTop = islandSurfaceY + archPeak;
+                    double yBottom = yTop - thick;
+                    double rough = smoothNoise3D(x, y, z, cellSeed ^ 0x334455L, 2.5) * 0.6;
+
+                    if (y <= yTop + rough && y >= yBottom - rough) {
+                        return 1; // Solid Arch Stone
+                    } else if (y < yBottom - rough && y >= islandSurfaceY) {
+                        return -1; // Hollow Arch Tunnel Opening
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
     /**
      * True if water (river/ocean) is at or one block above this position, or in any
      * of the 4 horizontal neighbors.
@@ -2806,7 +3118,9 @@ public class GiantCrackParams {
      * Y -270 : 40% Serpentinite, 30% Marble, 5% vein-lines, 25% gold veins
      * Y -285 : 100% Marble
      * Y -295 : 30% Marble, 70% Gneiss
-     * Y -300+: 100% Gneiss
+     * Y -300 : 100% Gneiss
+     * Y -350 : 100% Gneiss
+     * Y -420+: 100% Trench Stone (transitioning smoothly between -350 and -420)
      *
      * "Vein lines" are thin planar noise features (1-3 blocks thick, 10-20 long)
      * filled with tuff/andesite/stone that mimic rock veins/joints.
@@ -2817,24 +3131,24 @@ public class GiantCrackParams {
      */
     private static BlockState pickWallRock(int x, int y, int z, long seed) {
         // ---- Layer fractions at this Y level ----
-        // Fracs: deep, serp, tuff, gran, marb, gneiss, vLine, ironV, copperV, goldV
-        double deep, serp, tuff, gran, marb, gneiss, vLine, ironV, copperV, goldV;
+        // Fracs: deep, serp, tuff, gran, marb, gneiss, trench, vLine, ironV, copperV, goldV
+        double deep, serp, tuff, gran, marb, gneiss, trench, vLine, ironV, copperV, goldV;
 
         if (y >= -64) { // -63 .. -64: pure deepslate
             deep = 1.0;
-            serp = tuff = gran = marb = gneiss = vLine = ironV = copperV = goldV = 0;
+            serp = tuff = gran = marb = gneiss = trench = vLine = ironV = copperV = goldV = 0;
         } else if (y >= -100) { // -64 .. -100
             double t = clamp((-64.0 - y) / 36.0, 0, 1);
             deep = 1.0 - t * 0.50; // 100% -> 50%
             serp = t * 0.50; // 0% -> 50%
-            tuff = gran = marb = gneiss = vLine = ironV = copperV = goldV = 0;
+            tuff = gran = marb = gneiss = trench = vLine = ironV = copperV = goldV = 0;
         } else if (y >= -140) { // -100 .. -140
             double t = clamp((-100.0 - y) / 40.0, 0, 1);
             deep = 0.50 - t * 0.50; // 50% -> 0%
             serp = 0.50 + t * 0.30; // 50% -> 80%
             tuff = t * 0.10; // 0% -> 10%
             vLine = t * 0.10; // 0% -> 10%
-            gran = marb = gneiss = ironV = copperV = goldV = 0;
+            gran = marb = gneiss = trench = ironV = copperV = goldV = 0;
         } else if (y >= -180) { // -140 .. -180
             double t = clamp((-140.0 - y) / 40.0, 0, 1);
             deep = 0;
@@ -2843,7 +3157,7 @@ public class GiantCrackParams {
             gran = t * 0.05; // 0% -> 5%
             vLine = 0.10 - t * 0.05; // 10% -> 5%
             ironV = t * 0.05; // 0% -> 5%
-            marb = gneiss = copperV = goldV = 0;
+            marb = gneiss = trench = copperV = goldV = 0;
         } else if (y >= -220) { // -180 .. -220
             // Y-180: 70% serp, 15% tuff, 5% gran, 5% vLine, 5% ironV
             // Y-220: 60% serp, 10% tuff, 5% gran, 5% vLine, 5% ironV, 15% copperV
@@ -2855,7 +3169,7 @@ public class GiantCrackParams {
             vLine = 0.05; // 5% -> 5%
             ironV = 0.05; // 5% -> 5%
             copperV = t * 0.15; // 0% -> 15%
-            marb = gneiss = goldV = 0;
+            marb = gneiss = trench = goldV = 0;
         } else if (y >= -270) { // -220 .. -270
             // Y-220: 60% serp, 10% tuff, 5% gran, 5% vLine, 5% ironV, 15% copperV
             // Y-270: 45% serp, 35% marb, 10% vLine, 10% goldV
@@ -2869,7 +3183,7 @@ public class GiantCrackParams {
             copperV = 0.15 - t * 0.15; // 15% -> 0%
             goldV = t * 0.10; // 0% -> 10%
             marb = t * 0.35; // 0% -> 35%
-            gneiss = 0;
+            gneiss = trench = 0;
         } else if (y >= -285) { // -270 .. -285
             // Y-270: 45% serp, 35% marb, 10% vLine, 10% goldV → Y-285: 100% marble
             double t = clamp((-270.0 - y) / 15.0, 0, 1);
@@ -2878,19 +3192,31 @@ public class GiantCrackParams {
             marb = 0.35 + t * 0.65; // 35% -> 100%
             vLine = 0.10 - t * 0.10; // 10% -> 0%
             goldV = 0.10 - t * 0.10; // 10% -> 0%
-            tuff = gran = ironV = copperV = gneiss = 0;
+            tuff = gran = ironV = copperV = gneiss = trench = 0;
         } else if (y >= -295) { // -285 .. -295
             double t = clamp((-285.0 - y) / 10.0, 0, 1);
             marb = 1.00 - t * 0.70; // 100% -> 30%
             gneiss = t * 0.70; // 0% -> 70%
+            trench = 0;
             deep = serp = tuff = gran = vLine = ironV = copperV = goldV = 0;
         } else if (y >= -300) { // -295 .. -300
             double t = clamp((-295.0 - y) / 5.0, 0, 1);
             marb = 0.30 - t * 0.30; // 30% -> 0%
             gneiss = 0.70 + t * 0.30; // 70% -> 100%
+            trench = 0;
             deep = serp = tuff = gran = vLine = ironV = copperV = goldV = 0;
-        } else { // -300+: 100% Gneiss
+        } else if (y >= -350) { // -300 .. -350: 100% Gneiss
             gneiss = 1.0;
+            trench = 0;
+            deep = serp = tuff = gran = marb = vLine = ironV = copperV = goldV = 0;
+        } else if (y >= -420) { // -350 .. -420: 100% Gneiss -> 100% Trench Stone
+            double t = clamp((-350.0 - y) / 70.0, 0, 1);
+            gneiss = 1.0 - t; // 100% -> 0%
+            trench = t; // 0% -> 100%
+            deep = serp = tuff = gran = marb = vLine = ironV = copperV = goldV = 0;
+        } else { // -420+: 100% Trench Stone
+            trench = 1.0;
+            gneiss = 0;
             deep = serp = tuff = gran = marb = vLine = ironV = copperV = goldV = 0;
         }
 
@@ -2971,7 +3297,12 @@ public class GiantCrackParams {
         cum += gneiss;
         if (roll < cum)
             return ModBlocks.GNEISS.get().defaultBlockState();
+        cum += trench;
+        if (roll < cum)
+            return ModBlocks.TRENCH_STONE.get().defaultBlockState();
         // fallback (triggered when fracs don't fully cover [0,1] due to feature budget)
+        if (y < -350)
+            return ModBlocks.TRENCH_STONE.get().defaultBlockState();
         return ModBlocks.SERPENTINITE.get().defaultBlockState();
     }
 
@@ -3180,6 +3511,8 @@ public class GiantCrackParams {
         GiantVine[] giantVines = new GiantVine[0];
         // Kapok tree anchor positions collected during carve, placed post-carve.
         final java.util.concurrent.CopyOnWriteArrayList<BlockPos> kapokAnchors = new java.util.concurrent.CopyOnWriteArrayList<>();
+        // Canopra tree anchor positions on the submerged island.
+        final java.util.concurrent.CopyOnWriteArrayList<BlockPos> canopraAnchors = new java.util.concurrent.CopyOnWriteArrayList<>();
 
         final int minChunkX, maxChunkX, minChunkZ, maxChunkZ;
 

@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_slab"
+    "alterna:goblet_slab",
+    "alterna:canopra_slab"
   ]
 }

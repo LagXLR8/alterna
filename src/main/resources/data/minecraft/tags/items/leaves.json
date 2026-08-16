@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_membrane"
+    "alterna:goblet_membrane",
+    "alterna:canopra_leaves"
   ]
 }

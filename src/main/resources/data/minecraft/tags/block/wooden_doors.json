@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_door"
+    "alterna:goblet_door",
+    "alterna:canopra_door"
   ]
 }

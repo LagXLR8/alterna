@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_fence_gate"
+    "alterna:goblet_fence_gate",
+    "alterna:canopra_fence_gate"
   ]
 }

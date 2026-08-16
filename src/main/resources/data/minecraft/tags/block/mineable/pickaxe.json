@@ -37,6 +37,18 @@
     "alterna:serpentinite_brick_stairs",
     "alterna:serpentinite_brick_slab",
     "alterna:serpentinite_brick_wall",
+    "alterna:trench_stone",
+    "alterna:trench_stone_stairs",
+    "alterna:trench_stone_slab",
+    "alterna:trench_stone_wall",
+    "alterna:polished_trench_stone",
+    "alterna:polished_trench_stone_stairs",
+    "alterna:polished_trench_stone_slab",
+    "alterna:polished_trench_stone_wall",
+    "alterna:trench_stone_bricks",
+    "alterna:trench_stone_brick_stairs",
+    "alterna:trench_stone_brick_slab",
+    "alterna:trench_stone_brick_wall",
     "alterna:enchant_stone"
   ]
 }

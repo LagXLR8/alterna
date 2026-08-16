@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "alterna:block/trench_stone",
+    "top": "alterna:block/trench_stone",
+    "side": "alterna:block/trench_stone"
+  }
+}

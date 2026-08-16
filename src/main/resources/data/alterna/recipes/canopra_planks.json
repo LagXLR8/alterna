@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "tag": "alterna:canopra_logs"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "alterna:canopra_planks"
+  }
+}

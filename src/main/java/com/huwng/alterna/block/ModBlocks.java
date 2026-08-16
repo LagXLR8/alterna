@@ -215,6 +215,58 @@ public class ModBlocks {
                         WallBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
                                         .mapColor(MapColor.COLOR_LIGHT_GREEN).strength(4.0f, 6.0f));
 
+        // ---- TRENCH STONE SET (Deepslate sound, Hardness 4.0, Blast Resistance 6.0) ----
+        public static final DeferredBlock<Block> TRENCH_STONE = registerBlock("trench_stone",
+                        Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<StairBlock> TRENCH_STONE_STAIRS = registerBlock("trench_stone_stairs",
+                        p -> new StairBlock(TRENCH_STONE.get().defaultBlockState(), p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.DEEPSLATE)
+                                        .strength(4.0f, 6.0f));
+        public static final DeferredBlock<SlabBlock> TRENCH_STONE_SLAB = registerBlock("trench_stone_slab",
+                        SlabBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<WallBlock> TRENCH_STONE_WALL = registerBlock("trench_stone_wall",
+                        WallBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+
+        public static final DeferredBlock<Block> POLISHED_TRENCH_STONE = registerBlock("polished_trench_stone",
+                        Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<StairBlock> POLISHED_TRENCH_STONE_STAIRS = registerBlock(
+                        "polished_trench_stone_stairs",
+                        p -> new StairBlock(POLISHED_TRENCH_STONE.get().defaultBlockState(), p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.DEEPSLATE)
+                                        .strength(4.0f, 6.0f));
+        public static final DeferredBlock<SlabBlock> POLISHED_TRENCH_STONE_SLAB = registerBlock(
+                        "polished_trench_stone_slab",
+                        SlabBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<WallBlock> POLISHED_TRENCH_STONE_WALL = registerBlock(
+                        "polished_trench_stone_wall",
+                        WallBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+
+        public static final DeferredBlock<Block> TRENCH_STONE_BRICKS = registerBlock("trench_stone_bricks",
+                        Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<StairBlock> TRENCH_STONE_BRICK_STAIRS = registerBlock(
+                        "trench_stone_brick_stairs",
+                        p -> new StairBlock(TRENCH_STONE_BRICKS.get().defaultBlockState(), p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.DEEPSLATE)
+                                        .strength(4.0f, 6.0f));
+        public static final DeferredBlock<SlabBlock> TRENCH_STONE_BRICK_SLAB = registerBlock("trench_stone_brick_slab",
+                        SlabBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+        public static final DeferredBlock<WallBlock> TRENCH_STONE_BRICK_WALL = registerBlock("trench_stone_brick_wall",
+                        WallBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                                        .mapColor(MapColor.DEEPSLATE).strength(4.0f, 6.0f));
+
+        public static final DeferredBlock<Block> TRENCH_SAND = registerBlock("trench_sand",
+                        TrenchSandBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).mapColor(MapColor.DEEPSLATE));
+
+
         // ---- WILD MOSS SET ----
         public static final DeferredBlock<WildMossBlock> WILD_MOSS_BLOCK = registerBlock("wild_moss_block",
                         WildMossBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.PALE_MOSS_BLOCK));
@@ -304,6 +356,69 @@ public class ModBlocks {
 
         public static final DeferredBlock<EnchantStoneBlock> ENCHANT_STONE = registerBlock("enchant_stone",
                         EnchantStoneBlock::new, BlockBehaviour.Properties.of());
+
+        // ---- CANOPRA WOOD SET (Tone #405F4D, Leaves #518763) ----
+        public static final DeferredBlock<RotatedPillarBlock> CANOPRA_LOG = registerBlock("canopra_log",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<RotatedPillarBlock> STRIPPED_CANOPRA_LOG = registerBlock("stripped_canopra_log",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<RotatedPillarBlock> CANOPRA_WOOD = registerBlock("canopra_wood",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<RotatedPillarBlock> STRIPPED_CANOPRA_WOOD = registerBlock(
+                        "stripped_canopra_wood",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<Block> CANOPRA_PLANKS = registerBlock("canopra_planks",
+                        Block::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<StairBlock> CANOPRA_STAIRS = registerBlock("canopra_stairs",
+                        p -> new StairBlock(CANOPRA_PLANKS.get().defaultBlockState(), p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_STAIRS).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<SlabBlock> CANOPRA_SLAB = registerBlock("canopra_slab",
+                        SlabBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SLAB).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<FenceBlock> CANOPRA_FENCE = registerBlock("canopra_fence",
+                        FenceBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_FENCE).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<FenceGateBlock> CANOPRA_FENCE_GATE = registerBlock("canopra_fence_gate",
+                        p -> new FenceGateBlock(WoodType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_FENCE_GATE).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<DoorBlock> CANOPRA_DOOR = registerBlock("canopra_door",
+                        p -> new DoorBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<TrapDoorBlock> CANOPRA_TRAPDOOR = registerBlock("canopra_trapdoor",
+                        p -> new TrapDoorBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_TRAPDOOR).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<ButtonBlock> CANOPRA_BUTTON = registerBlock("canopra_button",
+                        p -> new ButtonBlock(BlockSetType.OAK, 30, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_BUTTON).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<PressurePlateBlock> CANOPRA_PRESSURE_PLATE = registerBlock(
+                        "canopra_pressure_plate",
+                        p -> new PressurePlateBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PRESSURE_PLATE).mapColor(MapColor.COLOR_GREEN));
+
+        public static final DeferredBlock<CanopraLeavesBlock> CANOPRA_LEAVES = registerBlock("canopra_leaves",
+                        CanopraLeavesBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES).mapColor(MapColor.PLANT).noOcclusion());
+
+        public static final DeferredBlock<CanopraSaplingBlock> CANOPRA_SAPLING = registerBlock("canopra_sapling",
+                        CanopraSaplingBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING).mapColor(MapColor.PLANT));
 
 
 

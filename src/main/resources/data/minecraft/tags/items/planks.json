@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_planks"
+    "alterna:goblet_planks",
+    "alterna:canopra_planks"
   ]
 }

@@ -9,6 +9,9 @@
     "alterna:gneiss_brick_stairs",
     "alterna:serpentinite_stairs",
     "alterna:polished_serpentinite_stairs",
-    "alterna:serpentinite_brick_stairs"
+    "alterna:serpentinite_brick_stairs",
+    "alterna:trench_stone_stairs",
+    "alterna:polished_trench_stone_stairs",
+    "alterna:trench_stone_brick_stairs"
   ]
 }

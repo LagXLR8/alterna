@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:goblet_pressure_plate"
+    "alterna:goblet_pressure_plate",
+    "alterna:canopra_pressure_plate"
   ]
 }

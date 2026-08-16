@@ -1,8 +1,10 @@
 {
+  "replace": false,
   "values": [
     "alterna:wild_moss_block",
     "alterna:wild_moss_carpet",
     "alterna:wild_hanging_moss",
-    "alterna:vitalroot"
+    "alterna:vitalroot",
+    "alterna:canopra_leaves"
   ]
 }

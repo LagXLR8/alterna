@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "alterna:block/canopra_log_top",
+    "side": "alterna:block/canopra_log"
+  }
+}

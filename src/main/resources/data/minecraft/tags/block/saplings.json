@@ -1,5 +1,7 @@
 {
+  "replace": false,
   "values": [
-    "alterna:kapok_sapling"
+    "alterna:kapok_sapling",
+    "alterna:canopra_sapling"
   ]
 }

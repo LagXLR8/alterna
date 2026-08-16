@@ -1,4 +1,5 @@
 {
+  "replace": false,
   "values": [
     "alterna:goblet_log",
     "alterna:goblet_stripped_log",
@@ -14,6 +15,19 @@
     "alterna:goblet_button",
     "alterna:goblet_pressure_plate",
     "alterna:goblet_ladder",
-    "alterna:rootshroom_stem"
+    "alterna:rootshroom_stem",
+    "alterna:canopra_log",
+    "alterna:stripped_canopra_log",
+    "alterna:canopra_wood",
+    "alterna:stripped_canopra_wood",
+    "alterna:canopra_planks",
+    "alterna:canopra_stairs",
+    "alterna:canopra_slab",
+    "alterna:canopra_fence",
+    "alterna:canopra_fence_gate",
+    "alterna:canopra_door",
+    "alterna:canopra_trapdoor",
+    "alterna:canopra_button",
+    "alterna:canopra_pressure_plate"
   ]
 }
