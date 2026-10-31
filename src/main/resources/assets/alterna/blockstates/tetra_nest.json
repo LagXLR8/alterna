@@ -1,0 +1,33 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "alterna:block/tetra_nest"
+      }
+    },
+    {
+      "when": {
+        "eggs": "1|2|3"
+      },
+      "apply": {
+        "model": "alterna:block/tetra_nest_egg1"
+      }
+    },
+    {
+      "when": {
+        "eggs": "2|3"
+      },
+      "apply": {
+        "model": "alterna:block/tetra_nest_egg2"
+      }
+    },
+    {
+      "when": {
+        "eggs": "3"
+      },
+      "apply": {
+        "model": "alterna:block/tetra_nest_egg3"
+      }
+    }
+  ]
+}

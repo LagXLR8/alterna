@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "alterna:block/tall_lichen_grass_bottom"
+    },
+    "half=upper": {
+      "model": "alterna:block/tall_lichen_grass_top"
+    }
+  }
+}

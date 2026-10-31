@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -57,6 +58,18 @@ public class CanopraTreeFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     public static boolean placeDirect(WorldGenLevel level, RandomSource random, BlockPos origin, boolean placeSupport) {
+        return placeDirect(level, random, origin, placeSupport, null);
+    }
+
+    /**
+     * @param clip optional bounding box (usually the chunk currently being decorated). When
+     *             non-null, every block outside it is skipped. Worldgen calls this once per
+     *             chunk the tree overlaps, with the same seeded random, so each chunk places
+     *             exactly its own slice of the tree. Without the clip, trees whose canopy
+     *             reached 2+ chunks away triggered "Detected setBlock in a far chunk"
+     *             (hundreds of thousands of log lines and dev-time pauses) and got cut off.
+     */
+    public static boolean placeDirect(WorldGenLevel level, RandomSource random, BlockPos origin, boolean placeSupport, BoundingBox clip) {
         // Randomly pick one of the 4 tree templates
         Identifier chosen = CANOPRA_TREE_STRUCTURES[random.nextInt(CANOPRA_TREE_STRUCTURES.length)];
         StructureTemplate treeTemplate = getOrLoadTemplate(level, chosen);
@@ -76,6 +89,7 @@ public class CanopraTreeFeature extends Feature<NoneFeatureConfiguration> {
                         .setIgnoreEntities(true)
                         .setKnownShape(true)
                         .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
+                if (clip != null) supportSettings.setBoundingBox(clip);
 
                 BlockPos rotatedSupportOffset = StructureTemplate.calculateRelativePosition(supportSettings, SUPPORT_SHROOMLIGHT_PIVOT);
                 BlockPos supportOrigin = origin.subtract(rotatedSupportOffset);
@@ -90,6 +104,7 @@ public class CanopraTreeFeature extends Feature<NoneFeatureConfiguration> {
                 .setIgnoreEntities(true)
                 .setKnownShape(true)
                 .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
+        if (clip != null) treeSettings.setBoundingBox(clip);
 
         // Align the shroomlight pivot (14, 0, 13) exactly to target origin
         BlockPos rotatedPivotOffset = StructureTemplate.calculateRelativePosition(treeSettings, SHROOMLIGHT_PIVOT);
@@ -99,7 +114,7 @@ public class CanopraTreeFeature extends Feature<NoneFeatureConfiguration> {
         boolean placed = treeTemplate.placeInWorld(level, placeOrigin, placeOrigin, treeSettings, random, 2);
 
         // 3. Replace any shroomlight marker at origin or in the root cluster with solid Canopra Wood
-        if (level.getBlockState(origin).is(Blocks.SHROOMLIGHT)) {
+        if ((clip == null || clip.isInside(origin)) && level.getBlockState(origin).is(Blocks.SHROOMLIGHT)) {
             level.setBlock(origin, ModBlocks.CANOPRA_WOOD.get().defaultBlockState(), 2);
         }
 
@@ -108,6 +123,7 @@ public class CanopraTreeFeature extends Feature<NoneFeatureConfiguration> {
             for (int dy = searchMinY; dy <= 2; dy++) {
                 for (int dz = -3; dz <= 3; dz++) {
                     BlockPos p = origin.offset(dx, dy, dz);
+                    if (clip != null && !clip.isInside(p)) continue;
                     if (level.getBlockState(p).is(Blocks.SHROOMLIGHT)) {
                         level.setBlock(p, ModBlocks.CANOPRA_WOOD.get().defaultBlockState(), 2);
                     }

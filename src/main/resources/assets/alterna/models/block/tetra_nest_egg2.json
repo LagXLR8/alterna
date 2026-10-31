@@ -1,0 +1,76 @@
+{
+  "textures": {
+    "egg": "alterna:block/tetra_egg",
+    "particle": "alterna:block/tetra_egg"
+  },
+  "elements": [
+    {
+      "from": [
+        9,
+        2,
+        4
+      ],
+      "to": [
+        13,
+        7,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        },
+        "south": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        },
+        "east": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        },
+        "west": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        },
+        "up": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#egg",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        }
+      }
+    }
+  ]
+}

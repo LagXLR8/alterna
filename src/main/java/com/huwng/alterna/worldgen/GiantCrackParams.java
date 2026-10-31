@@ -289,7 +289,7 @@ public class GiantCrackParams {
     // -> [water, all the way up to BOTTOM_FILL_WATER_TOP_Y]
     // Only the middle three band thicknesses are randomized per-crack; the
     // bedrock floor thickness and the water's top boundary are fixed. ----
-    private static final int BOTTOM_BEDROCK_THICKNESS = 3;
+    private static final int BOTTOM_BEDROCK_THICKNESS = 4;
     private static final int BOTTOM_OBSIDIAN1_MIN_THICKNESS = 5;
     private static final int BOTTOM_OBSIDIAN1_MAX_THICKNESS = 10;
     private static final int BOTTOM_LAVA_MIN_THICKNESS = 15;
@@ -1098,6 +1098,7 @@ public class GiantCrackParams {
         placeLedgeHouseStructures(level, main, chunkPos);
         placeKapokTrees(level, main, chunkPos);
         placeCanopraTrees(level, main, chunkPos);
+        placeLichenSavanna(level, main, chunkPos);
         for (Segment branch : branches) {
             any |= placeSegmentGobletTrees(level, branch, chunkPos);
             any |= placeSegmentRootConnectors(level, branch, chunkPos);
@@ -1107,6 +1108,67 @@ public class GiantCrackParams {
             placeCanopraTrees(level, branch, chunkPos);
         }
         return any;
+    }
+
+    // ------------------------------------------------------------------ Lichen Savanna
+    /** Where a column sits on the savanna plateau, from its crack-local coordinates (null = off the plateau). */
+    private static LichenSavanna.Spot savannaSpotLocal(RiftGiantLedge gl, double localA, double localB, double halfLength,
+            double effectiveHalfWidth) {
+        double ds = Math.abs(localA - gl.sCenter * halfLength);
+        if (ds > gl.sHalfLength) return null;
+        double lengthNorm = ds / gl.sHalfLength;
+        double wallB = gl.side * effectiveHalfWidth;
+        double distFromWall = gl.side * (wallB - localB);
+        double edge = RiftGiantLedge.getEdgeDistanceNorm(gl, localA, localB, halfLength, effectiveHalfWidth);
+        if (distFromWall < 0 || edge >= 1.0) return null;
+        return new LichenSavanna.Spot(edge, lengthNorm, distFromWall);
+    }
+
+    /** True when the crack interior (not wall rock) covers this block - mirrors carveLayer's zone-1 test. */
+    private static boolean cavernContains(Segment seg, int x, int y, int z, double[] outLocal) {
+        int layer = seg.origin.getY() - y;
+        if (layer < 0 || layer >= seg.depth) return false;
+        LayerShape ls = layerShape(seg, layer);
+        double cosO = Math.cos(seg.orientationAngle), sinO = Math.sin(seg.orientationAngle);
+        double dx = x + 0.5 - ls.centerX, dz = z + 0.5 - ls.centerZ;
+        double localA = dx * cosO + dz * sinO;
+        double localB = -dx * sinO + dz * cosO;
+        double sNorm = clamp(localA / Math.max(1.0, ls.halfLength), -1.0, 1.0);
+        double effectiveHalfWidth = ls.halfWidth * widthPulse(seg, sNorm, ls.t);
+        double bedrockBlend = seg.allowBelowBedrock
+                ? clamp((BEDROCK_BOUNDARY_Y + SANDSTONE_TRANSITION_HEIGHT - y) / SANDSTONE_TRANSITION_HEIGHT, 0.0, 1.0) : 0.0;
+        double angularM = radiusMultiplier(seg, Math.atan2(localB, localA), ls.t, sNorm);
+        double coarse = smoothNoise3D(x, y, z, seg.roughnessSeed, ROUGHNESS_COARSE_SCALE);
+        double fine = smoothNoise3D(x, y, z, seg.roughnessSeed ^ 0x2545F4914F6CDD1DL, ROUGHNESS_FINE_SCALE);
+        double m = angularM * (1.0 + (coarse * ROUGHNESS_COARSE_AMPLITUDE + fine * ROUGHNESS_FINE_AMPLITUDE) * (1.0 - bedrockBlend));
+        double core = (localA * localA) / (ls.halfLength * ls.halfLength) + (localB * localB) / (effectiveHalfWidth * effectiveHalfWidth);
+        if (outLocal != null) {
+            outLocal[0] = localA; outLocal[1] = localB; outLocal[2] = ls.halfLength; outLocal[3] = effectiveHalfWidth;
+        }
+        return core <= m * m;
+    }
+
+    private static void placeLichenSavanna(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
+        if (!seg.allowBelowBedrock || seg.giantLedges == null) return;
+        for (RiftGiantLedge gl : seg.giantLedges) {
+            if (gl.variant != RiftLedge.Variant.LICHEN_SAVANNA) continue;
+            final RiftGiantLedge savanna = gl;
+            // cheap reject: is any corner/centre of this chunk (+ tree reach) anywhere near the plateau?
+            LichenSavanna.Probe probe = (x, z) -> {
+                double[] loc = new double[4];
+                if (!cavernContains(seg, x, savanna.yTop, z, loc)) return null;
+                if (!RiftGiantLedge.isInsideGiantLedge(savanna, loc[0], loc[1], x, savanna.yTop, z, loc[2], loc[3], seg.roughnessSeed)) return null;
+                if (RiftGiantLedge.isInsideGiantLedge(savanna, loc[0], loc[1], x, savanna.yTop + 1, z, loc[2], loc[3], seg.roughnessSeed)) return null;
+                if (!cavernContains(seg, x, savanna.yTop + 3, z, null)) return null;
+                return savannaSpotLocal(savanna, loc[0], loc[1], loc[2], loc[3]);
+            };
+            double[] c = new double[4];
+            cavernContains(seg, chunkPos.getMiddleBlockX(), savanna.yTop, chunkPos.getMiddleBlockZ(), c);
+            boolean near = Math.abs(c[0] - savanna.sCenter * c[2]) <= savanna.sHalfLength + 64
+                    && Math.abs(c[1]) <= c[3] * 2.2 + 64;
+            if (!near) return;
+            LichenSavanna.decorateChunk(level, chunkPos, savanna.yTop, (int) savanna.pedestalHeight, seg.roughnessSeed, probe);
+        }
     }
 
     private static void placeKapokTrees(WorldGenLevel level, Segment seg, ChunkPos chunkPos) {
@@ -1227,7 +1289,9 @@ public class GiantCrackParams {
 
                 BlockPos surfacePos = new BlockPos(targetX, surfaceY + 1, targetZ);
                 RandomSource random = RandomSource.create(treeHash);
-                CanopraTreeFeature.placeDirect(level, random, surfacePos, true);
+                CanopraTreeFeature.placeDirect(level, random, surfacePos, true,
+                        new net.minecraft.world.level.levelgen.structure.BoundingBox(
+                                chunkMinX, level.getMinY(), chunkMinZ, chunkMaxX, level.getMaxY(), chunkMaxZ));
             }
         }
     }
@@ -1412,6 +1476,8 @@ public class GiantCrackParams {
             for (RiftGiantLedge gl : seg.giantLedges) {
                 if (RiftGiantLedge.isInsideGiantLedge(gl, localA, localB, x, y, z, halfLength, effectiveHalfWidth, seg.roughnessSeed)
                         && RiftGiantLedge.isOuterEdge(gl, localA, localB, halfLength, effectiveHalfWidth)) {
+                    // the Lichen Savanna's rim stays bare rock - no star lily vines
+                    if (gl.variant == RiftLedge.Variant.LICHEN_SAVANNA) return;
                     isOuterEdge = true;
                     break;
                 }
@@ -1510,7 +1576,8 @@ public class GiantCrackParams {
         double cosO = Math.cos(seg.orientationAngle);
         double sinO = Math.sin(seg.orientationAngle);
 
-        for (int i = 0; i < seg.depth; i++) {
+        int maxLayers = seg.allowBelowBedrock ? seg.depth + 3 : seg.depth;
+        for (int i = 0; i < maxLayers; i++) {
             LayerShape shape = layerShape(seg, i);
             int y = shape.y;
             if (y < level.getMinY() + 4 || y > level.getMaxY() - 4) {
@@ -1631,17 +1698,27 @@ public class GiantCrackParams {
 
                 BlockPos blockPos = new BlockPos(x, y, z);
 
-                // ---- ZONE 1: CAVERN INTERIOR & STANDALONE CENTRAL ISLAND ----
+                // ---- ZONE 1: CAVERN INTERIOR & STANDALONE CENTRAL ISLAND / BOTTOM TERRAIN ----
                 if (coreDistOuter <= mSq) {
-                    // 1A. STANDALONE CENTRAL ISLAND (Underwater Ravines, Cliffs, Pillars, Outcrops, Arches, Sand)
-                    if (seg.allowBelowBedrock && y <= -420 && coreDistIsland <= mSq) {
+                    // 1A. SOLID BOTTOM FILL: Bedrock floor -> Obsidian -> Lava -> Magma -> Obsidian cap
+                    // Below or at the obsidian cap, this stack is 100% solid and never penetrated by terrain!
+                    if (seg.allowBelowBedrock && y <= seg.bottomFillObsidian2EndY) {
+                        BlockState bottomFill = bottomFillBlock(seg, y);
+                        if (bottomFill != null) {
+                            level.setBlock(blockPos, bottomFill, 2);
+                        }
+                        continue;
+                    }
+
+                    // 1B. TRENCH STONE BOTTOM TERRAIN (Immediately above Obsidian Cap: y > bottomFillObsidian2EndY)
+                    if (seg.allowBelowBedrock && y <= -350) {
+                        int baseObsidianY = seg.bottomFillObsidian2EndY;
                         double islandRadial = Math.sqrt(coreDistIsland) / Math.max(0.01, m);
 
-                        // 1. Hills & Fine dunes
+                        // 1. Central Plateau Surface calculation (Y ~ -480)
                         double hillCoarse = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x151A0D1L, 28.0) * 10.0;
                         double duneFine = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x151A0D2L, 9.0) * 3.5;
 
-                        // 2. Rocky Outcrops (Crags & Rugged Boulders)
                         double outcropNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x07C120L, 14.0);
                         double outcropHeight = 0.0;
                         boolean isOutcrop = false;
@@ -1652,7 +1729,6 @@ public class GiantCrackParams {
                             isOutcrop = true;
                         }
 
-                        // 3. Underwater Cliffs (Sheer drop-offs in specific perimeter sectors)
                         double cliffSectorNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0xC11FF01L, 38.0);
                         double cliffDrop = 0.0;
                         boolean isCliff = false;
@@ -1665,16 +1741,32 @@ public class GiantCrackParams {
                         }
 
                         double islandDome = (islandRadial * islandRadial) * 14.0 + cliffDrop;
-                        double islandSurfaceY = -480.0 + hillCoarse + duneFine + outcropHeight - islandDome;
+                        double plateauSurfaceY = -480.0 + hillCoarse + duneFine + outcropHeight - islandDome;
 
-                        // A. Underwater Ravine (60 to 120 blocks deep fissure filled with water)
-                        if (isInsideUnderwaterRavine(x, y, z, islandSurfaceY, seg.roughnessSeed)) {
+                        // 2. Rolling seabed terrain on top of the obsidian layer across the whole bottom
+                        double seabedSwell = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x3344AAL, 36.0) * 14.0;
+                        double seabedHills = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x5566BBL, 18.0) * 8.0;
+                        double seabedDunes = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x7788CCL, 8.0) * 3.0;
+                        double seabedSurfaceY = baseObsidianY + 18.0 + seabedSwell + seabedHills + seabedDunes;
+
+                        double terrainSurfaceY;
+                        if (coreDistIsland <= mSq) {
+                            double blendToSeabed = clamp((islandRadial - 0.60) / 0.35, 0.0, 1.0);
+                            double smoothBlend = blendToSeabed * blendToSeabed * (3.0 - 2.0 * blendToSeabed);
+                            terrainSurfaceY = lerp(plateauSurfaceY, seabedSurfaceY, smoothBlend);
+                        } else {
+                            terrainSurfaceY = seabedSurfaceY;
+                        }
+                        terrainSurfaceY = Math.max(baseObsidianY + 2.0, terrainSurfaceY);
+
+                        // A. Underwater Ravine (cuts into trench stone terrain down to obsidian)
+                        if (isInsideUnderwaterRavine(x, y, z, terrainSurfaceY, seg.roughnessSeed)) {
                             level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
                             continue;
                         }
 
                         // B. Rocky Sea Arch
-                        int archState = checkRockyArch(x, y, z, islandSurfaceY, seg.roughnessSeed);
+                        int archState = checkRockyArch(x, y, z, terrainSurfaceY, seg.roughnessSeed);
                         if (archState == -1) { // Hollow passage under arch
                             level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
                             continue;
@@ -1684,24 +1776,24 @@ public class GiantCrackParams {
                         }
 
                         // C. Rock Pillar (Monolithic column)
-                        if (isInsideRockPillar(x, y, z, islandSurfaceY, seg.roughnessSeed)) {
+                        if (isInsideRockPillar(x, y, z, terrainSurfaceY, seg.roughnessSeed)) {
                             level.setBlock(blockPos, ModBlocks.TRENCH_STONE.get().defaultBlockState(), 2);
                             continue;
                         }
 
-                        // D. Island Floor & Sand Layers
-                        if (y <= islandSurfaceY) {
+                        // D. Terrain Floor & Sand Layers
+                        if (y <= terrainSurfaceY) {
                             double sandNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0x5A4D5L, 6.0);
                             int sandThickness = sandNoise > 0.1 ? 3 : 2;
 
-                            if (!isOutcrop && !isCliff && y >= islandSurfaceY - sandThickness + 0.001) {
+                            if (!isOutcrop && !isCliff && y >= terrainSurfaceY - sandThickness + 0.001) {
                                 level.setBlock(blockPos, ModBlocks.TRENCH_SAND.get().defaultBlockState(), 2);
                             } else {
-                                level.setBlock(blockPos, pickWallRock(x, y, z, seg.roughnessSeed ^ 0xC0FFEE), 2);
+                                level.setBlock(blockPos, ModBlocks.TRENCH_STONE.get().defaultBlockState(), 2);
                             }
 
-                            // Canopra Sunken Grove anchor collection on surface
-                            if (y == (int) Math.floor(islandSurfaceY)) {
+                            // Canopra Sunken Grove anchor collection on surface of central plateau
+                            if (y == (int) Math.floor(terrainSurfaceY)) {
                                 double groveNoise = smoothNoise3D(x, 0, z, seg.roughnessSeed ^ 0xCA90FE1L, 50.0);
                                 if (groveNoise > 0.18 && !isOutcrop && !isCliff && islandRadial < 0.85) {
                                     int cCellX = (int) Math.floor(x / 28.0);
@@ -1720,7 +1812,7 @@ public class GiantCrackParams {
                         }
                     }
 
-                    // 1B. BRIDGES & LEDGES (Upper Canyon Y > -340)
+                    // 1C. BRIDGES & LEDGES (Upper Canyon Y > -340)
                     if (y > -340 && bottomFillBlock(seg, y) == null) {
                         if (placeBridgeBlock(level, blockPos, seg, localA, localB, x, y, z, halfLength, effectiveHalfWidth)) {
                             continue;
@@ -1731,11 +1823,8 @@ public class GiantCrackParams {
                         }
                     }
 
-                    // 1C. HOLLOW CAVERN CARVING / WATER FILL
-                    BlockState bottomFill = seg.allowBelowBedrock ? bottomFillBlock(seg, y) : null;
-                    if (bottomFill != null) {
-                        level.setBlock(blockPos, bottomFill, 2);
-                    } else if (y <= BOTTOM_FILL_WATER_TOP_Y) {
+                    // 1D. HOLLOW CAVERN CARVING / WATER FILL
+                    if (y <= BOTTOM_FILL_WATER_TOP_Y) {
                         level.setBlock(blockPos, Blocks.WATER.defaultBlockState(), 2);
                     } else {
                         BlockState existing = level.getBlockState(blockPos);
@@ -1792,6 +1881,17 @@ public class GiantCrackParams {
                 }
 
                 if (!belowBedrock) {
+                    continue;
+                }
+
+                // BEDROCK ENCLOSURE AT BOTTOM OF RIFT:
+                // At or below the obsidian layer (y <= seg.bottomFillObsidian2EndY),
+                // the surrounding walls must be solid BEDROCK to form an unbroken basin
+                // enclosing the bedrock floor, obsidian, and lava lake, leaving no trench stone!
+                if (seg.allowBelowBedrock && y <= seg.bottomFillObsidian2EndY) {
+                    if (coreDistOuter <= mBedrockSq) {
+                        level.setBlock(blockPos, Blocks.BEDROCK.defaultBlockState(), 2);
+                    }
                     continue;
                 }
 
@@ -2047,6 +2147,27 @@ public class GiantCrackParams {
                     boolean isBottomSurface = !RiftGiantLedge.isInsideGiantLedge(gl, localA, localB, x, y - 1, z, halfLength, effectiveHalfWidth, seg.roughnessSeed);
                     boolean isOuterEdge = RiftGiantLedge.isOuterEdge(gl, localA, localB, halfLength, effectiveHalfWidth);
                     double edgeDistNorm = RiftGiantLedge.getEdgeDistanceNorm(gl, localA, localB, halfLength, effectiveHalfWidth);
+
+                    if (gl.variant == RiftLedge.Variant.LICHEN_SAVANNA) {
+                        LichenSavanna.Spot spot = savannaSpotLocal(gl, localA, localB, halfLength, effectiveHalfWidth);
+                        int pond = LichenSavanna.pondDepth(seg.roughnessSeed, x, z, spot);
+                        boolean nearPond = false;
+                        if (pond == 0 && y == gl.yTop) {
+                            double cosO = Math.cos(seg.orientationAngle), sinO = Math.sin(seg.orientationAngle);
+                            for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                                double nA = localA + d[0] * cosO + d[1] * sinO;
+                                double nB = localB - d[0] * sinO + d[1] * cosO;
+                                if (LichenSavanna.pondDepth(seg.roughnessSeed, x + d[0], z + d[1],
+                                        savannaSpotLocal(gl, nA, nB, halfLength, effectiveHalfWidth)) > 0) {
+                                    nearPond = true;
+                                    break;
+                                }
+                            }
+                        }
+                        LichenSavanna.placeLedgeBlock(level, blockPos, gl.yTop, isTopSurface, isBottomSurface, isOuterEdge, spot, pond,
+                                nearPond, seg.roughnessSeed, pickWallRock(x, y, z, seg.roughnessSeed ^ 0x1E6D6E7L));
+                        return true;
+                    }
 
                     applyLedgeDecoration(level, blockPos, seg, x, y, z, gl.variant, isTopSurface, isBottomSurface, isOuterEdge, edgeDistNorm, gl.sCenter, halfLength, gl.sHalfLength, localA, gl, localB, effectiveHalfWidth);
                     return true;
@@ -2732,7 +2853,7 @@ public class GiantCrackParams {
 
     private static LayerShape layerShape(Segment seg, int layer) {
         int y = seg.origin.getY() - layer;
-        double t = seg.depth <= 1 ? 1.0 : (double) layer / (double) (seg.depth - 1);
+        double t = seg.depth <= 1 ? 1.0 : clamp((double) layer / (double) (seg.depth - 1), 0.0, 1.0);
         double tt = terraceStep(t, seg.terraceCount, TERRACE_RISER_FRACTION);
 
         double taper;

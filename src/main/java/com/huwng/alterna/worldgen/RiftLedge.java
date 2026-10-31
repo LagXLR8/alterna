@@ -8,7 +8,8 @@ public final class RiftLedge {
         CLOUDBERRY,
         STARLILY,
         HOLLOW,
-        ROOTSHROOM_FOREST
+        ROOTSHROOM_FOREST,
+        LICHEN_SAVANNA
     }
 
     public final int side;            // -1 (left wall) or +1 (right wall)

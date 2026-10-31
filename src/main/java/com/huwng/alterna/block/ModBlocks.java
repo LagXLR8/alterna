@@ -424,6 +424,110 @@ public class ModBlocks {
 
 
 
+        // =====================================================================
+        // ---- LICHEN SAVANNA ----
+        // =====================================================================
+        public static final DeferredBlock<LichenTurfBlock> LICHEN_TURF = registerBlock("lichen_turf",
+                        LichenTurfBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK).mapColor(MapColor.COLOR_PURPLE).randomTicks());
+
+        public static final DeferredBlock<LichenGrassBlock> LICHEN_GRASS = registerBlock("lichen_grass",
+                        LichenGrassBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_GRASS).mapColor(MapColor.COLOR_PURPLE));
+
+        public static final DeferredBlock<DoublePlantBlock> TALL_LICHEN_GRASS = registerBlock("tall_lichen_grass",
+                        DoublePlantBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.TALL_GRASS).mapColor(MapColor.COLOR_PURPLE));
+
+        public static final DeferredBlock<EmberCapBlock> EMBER_CAP = registerBlockOnly("ember_cap",
+                        EmberCapBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.SHORT_GRASS).mapColor(MapColor.COLOR_ORANGE)
+                                        .lightLevel(s -> 5).sound(SoundType.FUNGUS));
+
+        public static final DeferredBlock<BushBlock> VIOLET_BUSH = registerBlock("violet_bush",
+                        BushBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.BUSH).mapColor(MapColor.COLOR_PURPLE));
+
+        public static final DeferredBlock<UntintedParticleLeavesBlock> VIOLET_LEAVES = registerBlock("violet_leaves",
+                        p -> new UntintedParticleLeavesBlock(0.02F, net.minecraft.core.particles.ParticleTypes.CHERRY_LEAVES, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.AZALEA_LEAVES).mapColor(MapColor.COLOR_PURPLE));
+
+        public static final DeferredBlock<Block> LICHEN_STONE = registerBlock("lichen_stone",
+                        Block::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).mapColor(MapColor.COLOR_PURPLE));
+
+        public static final DeferredBlock<TetraNestBlock> TETRA_NEST = registerBlock("tetra_nest",
+                        TetraNestBlock::new,
+                        BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(0.6F).sound(SoundType.GRASS)
+                                        .noOcclusion().randomTicks().pushReaction(PushReaction.DESTROY));
+
+        // ---- WEAVECAP WOOD SET (woody mushroom trees of the Lichen Savanna) ----
+        public static final DeferredBlock<RotatedPillarBlock> WEAVECAP_LOG = registerBlock("weavecap_log",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG).mapColor(MapColor.TERRACOTTA_WHITE));
+
+        public static final DeferredBlock<RotatedPillarBlock> STRIPPED_WEAVECAP_LOG = registerBlock("stripped_weavecap_log",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<RotatedPillarBlock> WEAVECAP_WOOD = registerBlock("weavecap_wood",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.TERRACOTTA_WHITE));
+
+        public static final DeferredBlock<RotatedPillarBlock> STRIPPED_WEAVECAP_WOOD = registerBlock("stripped_weavecap_wood",
+                        RotatedPillarBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<Block> WEAVECAP_PLANKS = registerBlock("weavecap_planks",
+                        Block::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<StairBlock> WEAVECAP_STAIRS = registerBlock("weavecap_stairs",
+                        p -> new StairBlock(WEAVECAP_PLANKS.get().defaultBlockState(), p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_STAIRS).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<SlabBlock> WEAVECAP_SLAB = registerBlock("weavecap_slab",
+                        SlabBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SLAB).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<FenceBlock> WEAVECAP_FENCE = registerBlock("weavecap_fence",
+                        FenceBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_FENCE).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<FenceGateBlock> WEAVECAP_FENCE_GATE = registerBlock("weavecap_fence_gate",
+                        p -> new FenceGateBlock(WoodType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_FENCE_GATE).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<DoorBlock> WEAVECAP_DOOR = registerBlock("weavecap_door",
+                        p -> new DoorBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<TrapDoorBlock> WEAVECAP_TRAPDOOR = registerBlock("weavecap_trapdoor",
+                        p -> new TrapDoorBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_TRAPDOOR).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<ButtonBlock> WEAVECAP_BUTTON = registerBlock("weavecap_button",
+                        p -> new ButtonBlock(BlockSetType.OAK, 30, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_BUTTON).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<PressurePlateBlock> WEAVECAP_PRESSURE_PLATE = registerBlock("weavecap_pressure_plate",
+                        p -> new PressurePlateBlock(BlockSetType.OAK, p),
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PRESSURE_PLATE).mapColor(MapColor.SAND));
+
+        public static final DeferredBlock<Block> WEAVECAP_CAP = registerBlock("weavecap_cap",
+                        Block::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_GREEN)
+                                        .sound(SoundType.MOSS));
+
+        public static final DeferredBlock<Block> WEAVECAP_GILLS = registerBlock("weavecap_gills",
+                        Block::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_MAGENTA)
+                                        .lightLevel(s -> 3));
+
+        public static final DeferredBlock<WeavecapSproutBlock> WEAVECAP_SPROUT = registerBlock("weavecap_sprout",
+                        WeavecapSproutBlock::new,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING).mapColor(MapColor.COLOR_GREEN).sound(SoundType.FUNGUS));
+
         private static <B extends Block> DeferredBlock<B> registerBlockOnly(String name,
                         Function<BlockBehaviour.Properties, B> factory, BlockBehaviour.Properties properties) {
                 return BLOCKS.registerBlock(name, factory, () -> properties);

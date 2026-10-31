@@ -3,9 +3,7 @@
   "category": "building",
   "group": "wooden_stairs",
   "key": {
-    "#": {
-      "item": "alterna:canopra_planks"
-    }
+    "#": "alterna:canopra_planks"
   },
   "pattern": [
     "#  ",

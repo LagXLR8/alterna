@@ -3,6 +3,7 @@
     "alterna:goblet_log",
     "alterna:goblet_stripped_log",
     "alterna:goblet_wood",
-    "alterna:goblet_stripped_wood"
+    "alterna:goblet_stripped_wood",
+    "#alterna:weavecap_logs"
   ]
 }

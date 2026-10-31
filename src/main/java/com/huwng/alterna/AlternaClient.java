@@ -16,9 +16,16 @@ public class AlternaClient {
     public AlternaClient(ModContainer container, IEventBus modEventBus) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modEventBus.addListener(this::onClientSetup);
-        modEventBus.addListener((net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) -> {
-            event.registerEntityRenderer(com.huwng.alterna.entity.ModEntities.THROWN_STORMBREAKER.get(), com.huwng.alterna.client.render.ThrownStormbreakerRenderer::new);
-        });
+        // Entity renderers + model layers (Stormbreaker is registered by
+        // ClientEnchantStoneEvents.ModBusClientEvents, which is an @EventBusSubscriber).
+        modEventBus.addListener(com.huwng.alterna.client.ModClientEntityEvents::registerEntityRenderers);
+        modEventBus.addListener(com.huwng.alterna.client.ModClientEntityEvents::registerLayerDefinitions);
+
+        // Bio-Scanner: HUD layers (mod bus) + scanning logic (game bus)
+        modEventBus.addListener(com.huwng.alterna.client.scanner.ScannerClient::registerLayers);
+        modEventBus.addListener(com.huwng.alterna.client.scanner.ScannerClient::addLayers);
+        NeoForge.EVENT_BUS.addListener(com.huwng.alterna.client.scanner.ScannerClient::onClientTick);
+        NeoForge.EVENT_BUS.addListener(com.huwng.alterna.client.scanner.ScannerFx::onRenderLevel);
 
         NeoForge.EVENT_BUS.addListener(IceFreezeRenderer::onRenderLiving);
         NeoForge.EVENT_BUS.addListener(TetheredEffectRenderer::onRenderLiving);

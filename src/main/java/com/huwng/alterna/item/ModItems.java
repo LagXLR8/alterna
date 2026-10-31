@@ -113,8 +113,103 @@ public class ModItems {
 
 
 
+    // =====================================================================
+    // ---- LICHEN SAVANNA ----
+    // =====================================================================
+    /** Tiny glowing mushrooms: a snack that lets you see in the dark for a short while. */
+    public static final DeferredItem<BlockItem> EMBER_CAP = registerItem("ember_cap",
+            p -> new BlockItem(ModBlocks.EMBER_CAP.get(), p),
+            new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).alwaysEdible().build(),
+                    Consumables.defaultFood()
+                            .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 400, 0)))
+                            .build()));
+
+    /** Shed by Cragbacks from time to time - their thick back armour. */
+    public static final DeferredItem<Item> CRAG_PLATE = registerItem("crag_plate",
+            Item::new, new Item.Properties());
+
+    public static final DeferredItem<Item> RAW_CRAG_SHANK = registerItem("raw_crag_shank",
+            Item::new, new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(4).saturationModifier(0.3F).build()));
+
+    public static final DeferredItem<Item> COOKED_CRAG_SHANK = registerItem("cooked_crag_shank",
+            Item::new, new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(9).saturationModifier(0.9F).build()));
+
+    public static final DeferredItem<Item> TETRA_EGG = registerItem("tetra_egg",
+            Item::new, new Item.Properties().stacksTo(16));
+
+    public static final DeferredItem<Item> CRAGPLATE_HELMET = registerItem("cragplate_helmet",
+            Item::new, () -> new Item.Properties().humanoidArmor(ModArmorMaterials.CRAGPLATE, net.minecraft.world.item.equipment.ArmorType.HELMET));
+    public static final DeferredItem<Item> CRAGPLATE_CHESTPLATE = registerItem("cragplate_chestplate",
+            Item::new, () -> new Item.Properties().humanoidArmor(ModArmorMaterials.CRAGPLATE, net.minecraft.world.item.equipment.ArmorType.CHESTPLATE));
+    public static final DeferredItem<Item> CRAGPLATE_LEGGINGS = registerItem("cragplate_leggings",
+            Item::new, () -> new Item.Properties().humanoidArmor(ModArmorMaterials.CRAGPLATE, net.minecraft.world.item.equipment.ArmorType.LEGGINGS));
+    public static final DeferredItem<Item> CRAGPLATE_BOOTS = registerItem("cragplate_boots",
+            Item::new, () -> new Item.Properties().humanoidArmor(ModArmorMaterials.CRAGPLATE, net.minecraft.world.item.equipment.ArmorType.BOOTS));
+
+    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> CRAGBACK_SPAWN_EGG = registerItem("cragback_spawn_egg",
+            p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.CRAGBACK.get(), new net.minecraft.nbt.CompoundTag()))),
+            new Item.Properties());
+
+    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> TETRA_SPAWN_EGG = registerItem("tetra_spawn_egg",
+            p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.TETRA.get(), new net.minecraft.nbt.CompoundTag()))),
+            new Item.Properties());
+
+    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> ARMOR_OVERLORD_SPAWN_EGG = registerItem("armor_overlord_spawn_egg",
+            p -> new net.minecraft.world.item.SpawnEggItem(p.component(net.minecraft.core.component.DataComponents.ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(com.huwng.alterna.entity.ModEntities.ARMOR_OVERLORD.get(), new net.minecraft.nbt.CompoundTag()))),
+            new Item.Properties());
+
+    // ---- Armor Overlord trophies
+    /** One of the Overlord's hooked blades. */
+    public static final DeferredItem<Item> OVERLORD_HOOK = registerItem("overlord_hook", Item::new, new Item.Properties());
+    /** A piece of the Overlord's mushroom-cap carapace. */
+    public static final DeferredItem<Item> CAPSHELL_FRAGMENT = registerItem("capshell_fragment", Item::new, new Item.Properties());
+
+    public static final DeferredItem<GrappleItem> OVERLORD_GRAPPLE = registerItem("overlord_grapple", GrappleItem::new,
+            () -> new Item.Properties().durability(256).repairable(OVERLORD_HOOK.get()));
+
+    /**
+     * Capshell Shield: a shield cut from the Overlord's cap. Blocks like a shield but over a
+     * wider arc against projectiles, wears more slowly and lasts much longer.
+     */
+    public static final DeferredItem<net.minecraft.world.item.ShieldItem> CAPSHELL_SHIELD = registerItem("capshell_shield",
+            net.minecraft.world.item.ShieldItem::new,
+            () -> new Item.Properties()
+                    .durability(560)
+                    .repairable(CAPSHELL_FRAGMENT.get())
+                    .equippableUnswappable(net.minecraft.world.entity.EquipmentSlot.OFFHAND)
+                    .delayedComponent(net.minecraft.core.component.DataComponents.BLOCKS_ATTACKS,
+                            context -> new net.minecraft.world.item.component.BlocksAttacks(
+                                    0.2F,
+                                    0.6F,
+                                    java.util.List.of(
+                                            new net.minecraft.world.item.component.BlocksAttacks.DamageReduction(135.0F,
+                                                    java.util.Optional.of(context.getOrThrow(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)), 0.0F, 1.0F),
+                                            new net.minecraft.world.item.component.BlocksAttacks.DamageReduction(90.0F, java.util.Optional.empty(), 0.0F, 1.0F)),
+                                    new net.minecraft.world.item.component.BlocksAttacks.ItemDamageFunction(3.0F, 1.0F, 0.6F),
+                                    java.util.Optional.of(context.getOrThrow(net.minecraft.tags.DamageTypeTags.BYPASSES_SHIELD)),
+                                    java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BLOCK),
+                                    java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BREAK)))
+                    .component(net.minecraft.core.component.DataComponents.BREAK_SOUND, net.minecraft.sounds.SoundEvents.SHIELD_BREAK));
+
+    public static final DeferredItem<ScannerItem> SCANNER = registerItem("scanner", ScannerItem::new,
+            new Item.Properties().stacksTo(1));
+
     private static <I extends Item> DeferredItem<I> registerItem(String name, Function<Item.Properties, I> factory, Item.Properties properties) {
         return ITEMS.registerItem(name, factory, () -> properties);
+    }
+
+    /**
+     * Same as registerItem, but the properties are only built when the item is actually
+     * registered. Needed for anything that looks up tags/registries while building its
+     * properties (e.g. Item.Properties#humanoidArmor -> repairable(TagKey)), because the
+     * item registry is frozen while mod classes are being initialised.
+     */
+    private static <I extends Item> DeferredItem<I> registerItem(String name, Function<Item.Properties, I> factory,
+            java.util.function.Supplier<Item.Properties> properties) {
+        return ITEMS.registerItem(name, factory, properties);
     }
 
     public static void register(IEventBus eventBus) {

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "alterna:weavecap_log",
+    "alterna:stripped_weavecap_log",
+    "alterna:weavecap_wood",
+    "alterna:stripped_weavecap_wood"
+  ]
+}

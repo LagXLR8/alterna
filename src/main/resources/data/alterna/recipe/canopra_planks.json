@@ -3,9 +3,7 @@
   "category": "building",
   "group": "planks",
   "ingredients": [
-    {
-      "tag": "alterna:canopra_logs"
-    }
+    "#alterna:canopra_logs"
   ],
   "result": {
     "count": 4,

@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "alterna:canopra_sapling"
+    "alterna:canopra_sapling",
+    "alterna:weavecap_sprout"
   ]
 }

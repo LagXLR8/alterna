@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/door_bottom_rh",
+  "parent": "minecraft:block/door_bottom_right",
   "textures": {
     "bottom": "alterna:block/canopra_door_bottom",
     "top": "alterna:block/canopra_door_top"

@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "alterna:goblet_trapdoor",
-    "alterna:canopra_trapdoor"
+    "alterna:canopra_trapdoor",
+    "alterna:weavecap_trapdoor"
   ]
 }

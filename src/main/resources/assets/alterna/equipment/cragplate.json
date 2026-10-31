@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "alterna:cragplate"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "alterna:cragplate"
+      }
+    ]
+  }
+}

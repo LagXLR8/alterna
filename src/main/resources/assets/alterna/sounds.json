@@ -2,15 +2,8 @@
   "vine_attach": {
     "sounds": [
       {
-        "name": "minecraft:block/azalea_leaves/break1",
-        "volume": 0.9
-      },
-      {
-        "name": "minecraft:block/azalea_leaves/break2",
-        "volume": 0.9
-      },
-      {
-        "name": "minecraft:block/azalea_leaves/break3",
+        "name": "minecraft:block.azalea_leaves.break",
+        "type": "event",
         "volume": 0.9
       }
     ],
@@ -18,25 +11,405 @@
   },
   "vine_use": {
     "sounds": [
-      "minecraft:block/azalea_leaves/step1",
-      "minecraft:block/azalea_leaves/step2",
-      "minecraft:block/azalea_leaves/step3",
-      "minecraft:block/azalea_leaves/step4",
-      "minecraft:block/azalea_leaves/step5"
+      {
+        "name": "minecraft:block.azalea_leaves.step",
+        "type": "event"
+      }
     ],
     "subtitle": "subtitles.alterna.vine.use"
   },
   "vine_interrupt": {
     "sounds": [
       {
-        "name": "minecraft:block/azalea_leaves/fall1",
-        "volume": 0.8
-      },
-      {
-        "name": "minecraft:block/azalea_leaves/fall2",
+        "name": "minecraft:block.azalea_leaves.fall",
+        "type": "event",
         "volume": 0.8
       }
     ],
     "subtitle": "subtitles.alterna.vine.interrupt"
+  },
+  "entity.tetra.ambient": {
+    "sounds": [
+      {
+        "name": "alterna:tetra/call1"
+      },
+      {
+        "name": "alterna:tetra/call2"
+      },
+      {
+        "name": "alterna:tetra/call3"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.tetra.ambient"
+  },
+  "entity.tetra.hurt": {
+    "sounds": [
+      {
+        "name": "alterna:tetra/hurt1"
+      },
+      {
+        "name": "alterna:tetra/hurt2"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.tetra.hurt"
+  },
+  "entity.tetra.death": {
+    "sounds": [
+      {
+        "name": "alterna:tetra/death"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.tetra.death"
+  },
+  "entity.tetra.flap": {
+    "sounds": [
+      {
+        "name": "alterna:tetra/flap1"
+      },
+      {
+        "name": "alterna:tetra/flap2"
+      },
+      {
+        "name": "alterna:tetra/flap3"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.tetra.flap"
+  },
+  "entity.cragback.ambient": {
+    "sounds": [
+      {
+        "name": "alterna:cragback/idle1"
+      },
+      {
+        "name": "alterna:cragback/idle2"
+      },
+      {
+        "name": "alterna:cragback/idle3"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.cragback.ambient"
+  },
+  "entity.cragback.hurt": {
+    "sounds": [
+      {
+        "name": "alterna:cragback/hurt1"
+      },
+      {
+        "name": "alterna:cragback/hurt2"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.cragback.hurt"
+  },
+  "entity.cragback.death": {
+    "sounds": [
+      {
+        "name": "alterna:cragback/death"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.cragback.death"
+  },
+  "item.scanner.loop": {
+    "sounds": [
+      "alterna:scanner/scan_loop"
+    ],
+    "subtitle": "subtitles.alterna.item.scanner.loop"
+  },
+  "item.scanner.complete": {
+    "sounds": [
+      "alterna:scanner/scan_complete"
+    ],
+    "subtitle": "subtitles.alterna.item.scanner.complete"
+  },
+  "item.scanner.fail": {
+    "sounds": [
+      "alterna:scanner/scan_fail"
+    ]
+  },
+  "item.scanner.panel": {
+    "sounds": [
+      "alterna:scanner/panel_open"
+    ]
+  },
+  "scanner.voice.cragback": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/cragback",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.tetra": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/tetra",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.tetra_nest": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/tetra_nest",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.climbing_zombie": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/climbing_zombie",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.weavecap": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/weavecap",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.lichen_grass": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/lichen_grass",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.ember_cap": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/ember_cap",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.violet_bush": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/violet_bush",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.white_currant": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/white_currant",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.star_lily": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/star_lily",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.canopra": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/canopra",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.goblet_tree": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/goblet_tree",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.rootshroom": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/rootshroom",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.enoki": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/enoki",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.cloudberry": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/cloudberry",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.daze": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/daze",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.wild_moss": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/wild_moss",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.purple_sugar_cane": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/purple_sugar_cane",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "scanner.voice.vitalroot": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/vitalroot",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
+  },
+  "entity.armor_overlord.ambient": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/idle1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/idle2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/idle3",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.ambient"
+  },
+  "entity.armor_overlord.hurt": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/hurt1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/hurt2",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.hurt"
+  },
+  "entity.armor_overlord.death": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/death",
+        "attenuation_distance": 40
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.death"
+  },
+  "entity.armor_overlord.roar": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/roar1",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "alterna:armor_overlord/roar2",
+        "attenuation_distance": 32
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.roar"
+  },
+  "entity.armor_overlord.step": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/step1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/step2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/step3",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.step"
+  },
+  "entity.armor_overlord.hook": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/hook1"
+      },
+      {
+        "name": "alterna:armor_overlord/hook2"
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.hook"
+  },
+  "entity.armor_overlord.stomp": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/stomp",
+        "attenuation_distance": 32
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.stomp"
+  },
+  "entity.armor_overlord.deflect": {
+    "sounds": [
+      {
+        "name": "alterna:armor_overlord/deflect1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "alterna:armor_overlord/deflect2",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.alterna.entity.armor_overlord.deflect"
+  },
+  "scanner.voice.armor_overlord": {
+    "sounds": [
+      {
+        "name": "alterna:scanner/armor_overlord",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.alterna.scanner.voice"
   }
 }

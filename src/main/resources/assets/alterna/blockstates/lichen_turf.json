@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "alterna:block/lichen_turf"
+      },
+      {
+        "model": "alterna:block/lichen_turf",
+        "y": 90
+      },
+      {
+        "model": "alterna:block/lichen_turf",
+        "y": 180
+      },
+      {
+        "model": "alterna:block/lichen_turf",
+        "y": 270
+      }
+    ]
+  }
+}
