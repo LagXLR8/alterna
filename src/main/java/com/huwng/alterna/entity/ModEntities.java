@@ -29,6 +29,43 @@ public class ModEntities {
                             .updateInterval(20)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "thrown_stormbreaker"))));
 
+    /** Lichen Savanna grazer - a heavily armoured, peaceful herd animal. */
+    public static final DeferredHolder<EntityType<?>, EntityType<CragbackEntity>> CRAGBACK =
+            ENTITY_TYPES.register("cragback",
+                    () -> EntityType.Builder.<CragbackEntity>of(CragbackEntity::new, MobCategory.CREATURE)
+                            .sized(2.4F, 2.35F)
+                            .eyeHeight(1.9F)
+                            .clientTrackingRange(10)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "cragback"))));
+
+    /** Four-winged flock flier that nests on the cliffs above the Lichen Savanna. */
+    public static final DeferredHolder<EntityType<?>, EntityType<TetraEntity>> TETRA =
+            ENTITY_TYPES.register("tetra",
+                    () -> EntityType.Builder.<TetraEntity>of(TetraEntity::new, MobCategory.CREATURE)
+                            .sized(1.1F, 0.9F)
+                            .eyeHeight(0.6F)
+                            .clientTrackingRange(12)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "tetra"))));
+
+    /** Apex hunter of the Rootshroom Forest: a five-block-tall capped spider with hooked arms. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ArmorOverlordEntity>> ARMOR_OVERLORD =
+            ENTITY_TYPES.register("armor_overlord",
+                    () -> EntityType.Builder.<ArmorOverlordEntity>of(ArmorOverlordEntity::new, MobCategory.MONSTER)
+                            .sized(1.4F, 4.4F)
+                            .eyeHeight(2.4F)
+                            .clientTrackingRange(12)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "armor_overlord"))));
+
+    /** The claw fired by the Overlord Grapple. */
+    public static final DeferredHolder<EntityType<?>, EntityType<GrappleHookEntity>> GRAPPLE_HOOK =
+            ENTITY_TYPES.register("grapple_hook",
+                    () -> EntityType.Builder.<GrappleHookEntity>of(GrappleHookEntity::new, MobCategory.MISC)
+                            .sized(0.3F, 0.3F)
+                            .noSave()
+                            .clientTrackingRange(6)
+                            .updateInterval(1)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Alterna.MODID, "grapple_hook"))));
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }

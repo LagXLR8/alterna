@@ -3,9 +3,7 @@
   "category": "redstone",
   "group": "wooden_door",
   "key": {
-    "#": {
-      "item": "alterna:canopra_planks"
-    }
+    "#": "alterna:canopra_planks"
   },
   "pattern": [
     "##",

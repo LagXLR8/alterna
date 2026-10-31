@@ -45,8 +45,26 @@
     "alterna:wild_hanging_moss": {
       "chance": 0.3
     },
-    "alterna:kapok_sapling": {
+    "alterna:lichen_grass": {
       "chance": 0.3
+    },
+    "alterna:tall_lichen_grass": {
+      "chance": 0.5
+    },
+    "alterna:ember_cap": {
+      "chance": 0.65
+    },
+    "alterna:violet_bush": {
+      "chance": 0.5
+    },
+    "alterna:violet_leaves": {
+      "chance": 0.3
+    },
+    "alterna:weavecap_sprout": {
+      "chance": 0.3
+    },
+    "alterna:weavecap_cap": {
+      "chance": 0.85
     }
   }
 }

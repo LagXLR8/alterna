@@ -5,6 +5,7 @@
     "alterna:goblet_stripped_log",
     "alterna:goblet_wood",
     "alterna:goblet_stripped_wood",
-    "#alterna:canopra_logs"
+    "#alterna:canopra_logs",
+    "#alterna:weavecap_logs"
   ]
 }

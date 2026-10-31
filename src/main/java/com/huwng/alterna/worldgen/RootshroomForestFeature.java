@@ -1,6 +1,9 @@
 package com.huwng.alterna.worldgen;
 
 import com.huwng.alterna.block.ModBlocks;
+import com.huwng.alterna.entity.ArmorOverlordEntity;
+import com.huwng.alterna.entity.ModEntities;
+import net.minecraft.world.entity.EntitySpawnReason;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -11,6 +14,8 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
+    /** One possible Armor Overlord lair per 64x64 area of forest. */
+    private static final int OVERLORD_CELL = 64;
 
     public RootshroomForestFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
@@ -24,6 +29,7 @@ public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
     public static boolean placeDirect(WorldGenLevel level, RandomSource random, BlockPos topPos, double edgeDistNorm, long seed) {
         int x = topPos.getX();
         int z = topPos.getZ();
+        trySpawnOverlord(level, topPos, edgeDistNorm, seed);
 
         // 9x9 grid cells for tree/structure placement
         int gridSize = 9;
@@ -71,5 +77,41 @@ public class RootshroomForestFeature extends Feature<NoneFeatureConfiguration> {
             level.setBlock(topPos, Blocks.FERN.defaultBlockState(), 2);
         }
         return true;
+    }
+
+    /**
+     * The forest's apex hunter. Each 64x64 cell picks one column (always on the 9-block grid
+     * lines, so never inside a tree trunk) and, 40% of the time, an Armor Overlord waits there.
+     */
+    private static void trySpawnOverlord(WorldGenLevel level, BlockPos topPos, double edgeDistNorm, long seed) {
+        int x = topPos.getX(), z = topPos.getZ();
+        if (Math.floorMod(x, 9) != 0 || Math.floorMod(z, 9) != 0) return;
+        if (edgeDistNorm < 0.25 || edgeDistNorm > 0.75) return;
+        int cx = Math.floorDiv(x, OVERLORD_CELL), cz = Math.floorDiv(z, OVERLORD_CELL);
+        long h = (cx * 341873128712L) ^ (cz * 132897987541L) ^ (seed * 0x9E3779B97F4A7C15L);
+        h ^= (h >>> 29);
+        h *= 0xBF58476D1CE4E5B9L;
+        h ^= (h >>> 32);
+        if (Math.floorMod(h, 100) >= 40) return;
+        int px = cx * OVERLORD_CELL + 9 * (1 + (int) Math.floorMod(h >>> 8, 6L));
+        int pz = cz * OVERLORD_CELL + 9 * (1 + (int) Math.floorMod(h >>> 16, 6L));
+        if (x != Math.floorDiv(px, 9) * 9 || z != Math.floorDiv(pz, 9) * 9) return;
+        // room to stand: 3x3 footprint, 5 blocks of headroom
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                for (int dy = 0; dy < 5; dy++) {
+                    p.set(x + dx, topPos.getY() + dy, z + dz);
+                    if (!level.getBlockState(p).getCollisionShape(level, p).isEmpty()) return;
+                }
+            }
+        }
+        if (!level.getBlockState(topPos.below()).isSolid()) return;
+        ArmorOverlordEntity e = ModEntities.ARMOR_OVERLORD.get().create(level.getLevel(), EntitySpawnReason.CHUNK_GENERATION);
+        if (e == null) return;
+        e.snapTo(x + 0.5, topPos.getY(), z + 0.5, (float) Math.floorMod(h >>> 24, 360L), 0.0F);
+        e.finalizeSpawn(level, level.getCurrentDifficultyAt(topPos), EntitySpawnReason.CHUNK_GENERATION, null);
+        e.setPersistenceRequired();
+        level.addFreshEntityWithPassengers(e);
     }
 }

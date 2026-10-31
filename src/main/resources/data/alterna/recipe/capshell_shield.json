@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CIC",
+    "CCC",
+    " C "
+  ],
+  "key": {
+    "C": "alterna:capshell_fragment",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "alterna:capshell_shield"
+  }
+}

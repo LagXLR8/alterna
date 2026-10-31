@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "alterna:block/stripped_weavecap_log",
+    "side": "alterna:block/stripped_weavecap_log"
+  }
+}

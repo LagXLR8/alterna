@@ -3,12 +3,8 @@
   "category": "building",
   "group": "wooden_fence",
   "key": {
-    "#": {
-      "item": "minecraft:stick"
-    },
-    "W": {
-      "item": "alterna:canopra_planks"
-    }
+    "#": "minecraft:stick",
+    "W": "alterna:canopra_planks"
   },
   "pattern": [
     "W#W",

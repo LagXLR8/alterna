@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "alterna:block/lichen_turf_top",
+    "side": "alterna:block/lichen_turf_side",
+    "bottom": "minecraft:block/dirt",
+    "particle": "minecraft:block/dirt"
+  }
+}

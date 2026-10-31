@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "alterna:block/violet_bush",
+    "particle": "alterna:block/violet_bush"
+  }
+}

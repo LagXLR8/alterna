@@ -28,6 +28,22 @@
     "alterna:canopra_door",
     "alterna:canopra_trapdoor",
     "alterna:canopra_button",
-    "alterna:canopra_pressure_plate"
+    "alterna:canopra_pressure_plate",
+    "alterna:weavecap_log",
+    "alterna:stripped_weavecap_log",
+    "alterna:weavecap_wood",
+    "alterna:stripped_weavecap_wood",
+    "alterna:weavecap_planks",
+    "alterna:weavecap_stairs",
+    "alterna:weavecap_slab",
+    "alterna:weavecap_fence",
+    "alterna:weavecap_fence_gate",
+    "alterna:weavecap_door",
+    "alterna:weavecap_trapdoor",
+    "alterna:weavecap_button",
+    "alterna:weavecap_pressure_plate",
+    "alterna:weavecap_cap",
+    "alterna:weavecap_gills",
+    "alterna:tetra_nest"
   ]
 }

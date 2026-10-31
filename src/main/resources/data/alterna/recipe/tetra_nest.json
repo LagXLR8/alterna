@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "F F",
+    "SSS"
+  ],
+  "key": {
+    "F": "minecraft:feather",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "alterna:tetra_nest"
+  }
+}

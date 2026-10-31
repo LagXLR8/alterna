@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "alterna:block/weavecap_cap_top",
+    "side": "alterna:block/weavecap_cap_side",
+    "bottom": "alterna:block/weavecap_gills"
+  }
+}

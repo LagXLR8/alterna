@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "alterna:goblet_button",
-    "alterna:canopra_button"
+    "alterna:canopra_button",
+    "alterna:weavecap_button"
   ]
 }

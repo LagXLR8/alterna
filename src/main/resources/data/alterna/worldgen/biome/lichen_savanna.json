@@ -1,0 +1,70 @@
+{
+  "attributes": {
+    "minecraft:visual/sky_color": "#b07a8e",
+    "minecraft:visual/fog_color": "#7a4358",
+    "minecraft:visual/water_fog_color": "#3a2340",
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "minecraft:spore_blossom_air"
+        },
+        "probability": 0.006
+      }
+    ],
+    "minecraft:audio/background_music": {
+      "default": {
+        "max_delay": 24000,
+        "min_delay": 12000,
+        "sound": "minecraft:music.overworld.meadow"
+      }
+    }
+  },
+  "carvers": [],
+  "downfall": 0.4,
+  "effects": {
+    "water_color": "#5b6fd6",
+    "grass_color": "#b04a6c",
+    "foliage_color": "#a0405e",
+    "dry_foliage_color": "#8a5560"
+  },
+  "features": [],
+  "has_precipitation": false,
+  "spawn_costs": {},
+  "spawners": {
+    "ambient": [],
+    "axolotls": [],
+    "creature": [
+      {
+        "type": "alterna:cragback",
+        "weight": 10,
+        "minCount": 2,
+        "maxCount": 4
+      },
+      {
+        "type": "alterna:tetra",
+        "weight": 6,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "misc": [],
+    "monster": [],
+    "underground_water_creature": [],
+    "water_ambient": [
+      {
+        "type": "minecraft:cod",
+        "weight": 10,
+        "minCount": 2,
+        "maxCount": 4
+      },
+      {
+        "type": "minecraft:tropical_fish",
+        "weight": 6,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "water_creature": []
+  },
+  "temperature": 0.9
+}

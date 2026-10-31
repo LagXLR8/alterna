@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "alterna:block/weavecap_sprout",
+    "particle": "alterna:block/weavecap_sprout"
+  }
+}

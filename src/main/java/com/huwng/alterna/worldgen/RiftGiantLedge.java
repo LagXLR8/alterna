@@ -65,7 +65,35 @@ public final class RiftGiantLedge {
             RiftLedge.Variant variant = standardVariants[random.nextInt(standardVariants.length)];
             result[i + 1] = new RiftGiantLedge(side, sCenter, sHalfLength, yTop, reachWidth, pedestalHeight, variant);
         }
-        return result;
+
+        // 3. Exactly 1 Lichen Savanna: a huge, flat, purple grassland plateau at the OTHER
+        //    end of the crack from the Rootshroom Forest, a bit deeper (Y = -200 to -215).
+        //    Built after everything else so older cracks keep the exact same ledges.
+        RiftGiantLedge savanna = new RiftGiantLedge(
+                random.nextBoolean() ? 1 : -1,
+                -Math.signum(forestSCenter) * (0.50 + random.nextDouble() * 0.15),
+                125.0 + random.nextDouble() * 40.0,
+                -200 - random.nextInt(16),
+                62.0 + random.nextDouble() * 14.0,
+                28.0 + random.nextDouble() * 8.0,
+                RiftLedge.Variant.LICHEN_SAVANNA);
+        java.util.List<RiftGiantLedge> list = new java.util.ArrayList<>();
+        list.add(savanna); // first, so it wins wherever ledges overlap
+        for (RiftGiantLedge gl : result) {
+            boolean overlaps = gl.side == savanna.side
+                    && Math.abs(gl.yTop - savanna.yTop) < gl.pedestalHeight + 40
+                    && Math.abs(gl.sCenter - savanna.sCenter) < 0.55;
+            if (!overlaps || gl.variant == RiftLedge.Variant.ROOTSHROOM_FOREST) list.add(gl);
+        }
+        return list.toArray(new RiftGiantLedge[0]);
+    }
+
+    /** The savanna is so wide that it is capped to the crack width at its depth. */
+    static double reach(RiftGiantLedge gl, double effectiveHalfWidth) {
+        if (gl.variant == RiftLedge.Variant.LICHEN_SAVANNA) {
+            return Math.min(gl.reachWidth, effectiveHalfWidth * 1.55);
+        }
+        return gl.reachWidth;
     }
 
     public static double getEdgeDistanceNorm(RiftGiantLedge gl, double localA, double localB, double halfLength, double effectiveHalfWidth) {
@@ -75,7 +103,7 @@ public final class RiftGiantLedge {
         double circularProfile = Math.sqrt(Math.max(0.0, 1.0 - lengthNorm * lengthNorm));
         double wallB = gl.side * effectiveHalfWidth;
         double distFromWall = gl.side * (wallB - localB);
-        double maxTopReach = gl.reachWidth * circularProfile;
+        double maxTopReach = reach(gl, effectiveHalfWidth) * circularProfile;
         return GiantCrackParams.clamp(distFromWall / Math.max(1.0, maxTopReach), 0.0, 1.0);
     }
 
@@ -86,7 +114,7 @@ public final class RiftGiantLedge {
         double circularProfile = Math.sqrt(Math.max(0.0, 1.0 - lengthNorm * lengthNorm));
         double wallB = gl.side * effectiveHalfWidth;
         double distFromWall = gl.side * (wallB - localB);
-        double maxTopReach = gl.reachWidth * circularProfile;
+        double maxTopReach = reach(gl, effectiveHalfWidth) * circularProfile;
         return distFromWall >= maxTopReach - 4.0;
     }
 
@@ -107,14 +135,15 @@ public final class RiftGiantLedge {
         // Deep 30-block wall anchor guarantees zero gaps between ledge and wall
         if (distFromWall < -30.0) return false;
 
-        double maxTopReach = gl.reachWidth * circularProfile;
+        double maxTopReach = reach(gl, effectiveHalfWidth) * circularProfile;
         if (distFromWall > maxTopReach) return false;
 
         // Outer rim sloped edge: near wall is flat, outer 45% of reach slopes downwards
         double distNorm = GiantCrackParams.clamp(distFromWall / Math.max(1.0, maxTopReach), 0.0, 1.0);
         double slopeDrop = 0.0;
-        if (distNorm > 0.55 && gl.variant != RiftLedge.Variant.HOLLOW) {
-            double edgeT = (distNorm - 0.55) / 0.45;
+        double slopeStart = gl.variant == RiftLedge.Variant.LICHEN_SAVANNA ? 0.80 : 0.55;
+        if (distNorm > slopeStart && gl.variant != RiftLedge.Variant.HOLLOW) {
+            double edgeT = (distNorm - slopeStart) / (1.0 - slopeStart);
             slopeDrop = edgeT * edgeT * 3.5; // Outer edge slopes downwards by up to 3.5 blocks
         }
         double currentTopY = topY - slopeDrop;
@@ -150,7 +179,7 @@ public final class RiftGiantLedge {
         double wallB = gl.side * effectiveHalfWidth;
         double distFromWall = gl.side * (wallB - localB);
 
-        double maxTopReach = gl.reachWidth * circularProfile;
+        double maxTopReach = reach(gl, effectiveHalfWidth) * circularProfile;
 
         // Containment check: At least 3 blocks margin away from wall and 3.5 blocks inside outer reach
         double minReach = 3.0;

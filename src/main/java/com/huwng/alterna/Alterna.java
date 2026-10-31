@@ -82,10 +82,10 @@ public class Alterna {
         com.huwng.alterna.entity.ModEntities.register(modEventBus);
         modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerAttributes);
         modEventBus.addListener(com.huwng.alterna.event.ModEntityEvents::registerSpawnPlacements);
-        modEventBus.addListener(com.huwng.alterna.client.ModClientEntityEvents::registerEntityRenderers);
-        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerItemTintSources);
-        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerParticleProviders);
-        modEventBus.addListener(com.huwng.alterna.client.ClientEnchantStoneEvents.ModBusClientEvents::registerRenderBuffers);
+        // NOTE: client-only listeners (entity renderers, particle providers, tint sources,
+        // render buffers) must NOT be registered here - this constructor also runs on a
+        // dedicated server, where touching client classes crashes the game. They are
+        // registered from AlternaClient / @EventBusSubscriber(value = Dist.CLIENT) instead.
         com.huwng.alterna.block.entity.ModBlockEntities.register(modEventBus);
         com.huwng.alterna.effect.ModMobEffects.register(modEventBus);
 
@@ -102,6 +102,7 @@ public class Alterna {
 
         // Register vine system sound events
         VineSoundEvents.SOUND_EVENTS.register(modEventBus);
+        com.huwng.alterna.sound.ModSounds.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         NeoForge.EVENT_BUS.register(this);

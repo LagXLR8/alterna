@@ -3,12 +3,8 @@
   "category": "redstone",
   "group": "wooden_fence_gate",
   "key": {
-    "#": {
-      "item": "minecraft:stick"
-    },
-    "W": {
-      "item": "alterna:canopra_planks"
-    }
+    "#": "minecraft:stick",
+    "W": "alterna:canopra_planks"
   },
   "pattern": [
     "#W#",

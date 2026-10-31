@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "alterna:block/lichen_grass",
+    "particle": "alterna:block/lichen_grass"
+  }
+}

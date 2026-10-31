@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "alterna:goblet_door",
-    "alterna:canopra_door"
+    "alterna:canopra_door",
+    "alterna:weavecap_door"
   ]
 }

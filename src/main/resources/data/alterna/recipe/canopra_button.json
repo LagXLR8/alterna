@@ -3,9 +3,7 @@
   "category": "redstone",
   "group": "wooden_button",
   "ingredients": [
-    {
-      "item": "alterna:canopra_planks"
-    }
+    "alterna:canopra_planks"
   ],
   "result": {
     "count": 1,
